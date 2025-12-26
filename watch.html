@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Watching Live</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="explore.html">Explore</a>
+</nav>
+
+<div class="watch-page">
+
+  <div class="video-section">
+    <div class="video-player">
+      <span class="live-badge">LIVE</span>
+      <p>🎥 Live Stream</p>
+    </div>
+
+    <h2 id="streamTitle">Stream Title</h2>
+    <p>
+      <a id="creatorLink" href="#">@creator</a>
+      · <span id="viewerCount">0 watching</span>
+    </p>
+  </div>
+
+  <div class="chat-section">
+    <h3>Live Chat</h3>
+    <div class="chat-box" id="chatBox"></div>
+    <input type="text" placeholder="Send a message..." disabled>
+  </div>
+
+</div>
+
+<script src="watch.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Stream</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="explore.html">Explore</a>
+    <a href="golive.html">Go Live</a>
+  </nav>
+
+  <h1 id="streamTitle">Live Stream</h1>
+<a id="creatorName" href="#">@creator</a>
+
+
+  <div class="thumbnail" style="height:300px;"></div>
+
+  <p>Chat and video coming soon.</p>
+<div class="chat-box">
+  <div id="chatMessages" class="messages"></div>
+
+  <div class="chat-input">
+    <input type="text" id="chatInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+  <script src="stream.js"></script>
+</body>
+</html>
