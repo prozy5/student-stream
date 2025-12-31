@@ -1,25 +1,188 @@
-<a href="stream.html?title=Study%20With%20Me&creator=collegegrind" class="stream-card">
-  <div class="thumbnail"></div>
-  <h3>Study With Me</h3>
-  <p>@collegegrind</p>
-</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Explore · StudentStream</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<a href="stream.html?title=Late%20Night%20Coding&creator=devstudent" class="stream-card">
-  <div class="thumbnail"></div>
-  <h3>Late Night Coding</h3>
-  <p>@devstudent</p>
-</a>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-<<div class="stream-card">
-  <div class="thumbnail">
-    <span class="live-badge">LIVE</span>
-  </div>
+    body {
+      background: radial-gradient(circle at top, #1a1f2b, #0b0f17);
+      color: #fff;
+      min-height: 100vh;
+    }
 
-  <a href="profile.html?creator=alex" class="creator">@alex</a>
+    header {
+      padding: 28px 20px;
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-  <p>Study With Me</p>
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
 
-  <p class="viewers">👀 0 watching</p>
-</div>
+    header a {
+      color: #9aa3ff;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
 
+    main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
 
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 16px;
+      transition: transform 0.15s ease, border 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(88,101,242,0.6);
+    }
+
+    .thumb {
+      height: 130px;
+      background: linear-gradient(135deg, #5865f2, #3a3f9f);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      opacity: 0.85;
+    }
+
+    .creator {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .meta {
+      font-size: 0.8rem;
+      opacity: 0.65;
+    }
+
+    .live {
+      color: #ff5c5c;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      font-size: 0.75rem;
+      opacity: 0.4;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>StudentStream</h1>
+  <a href="/">← Back to home</a>
+</header>
+
+<main>
+
+  <!-- LIVE -->
+  <section class="section">
+    <h2>🔴 Live Now</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="thumb">Live Stream</div>
+        <div class="creator">KaiPlays</div>
+        <div class="meta"><span class="live">LIVE</span> · 23 viewers</div>
+      </div>
+
+      <div class="card">
+        <div class="thumb">Live Stream</div>
+        <div class="creator">NovaFPS</div>
+        <div class="meta"><span class="live">LIVE</span> · 11 viewers</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW -->
+  <section class="section">
+    <h2>✨ New Creators</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="thumb">Channel</div>
+        <div class="creator">StudyWithLex</div>
+        <div class="meta">Joined today</div>
+      </div>
+
+      <div class="card">
+        <div class="thumb">Channel</div>
+        <div class="creator">PixelRift</div>
+        <div class="meta">First stream upcoming</div>
+      </div>
+
+      <div class="card">
+        <div class="thumb">Channel</div>
+        <div class="creator">LateNightDev</div>
+        <div class="meta">New tech creator</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UPCOMING -->
+  <section class="section">
+    <h2>⏰ Upcoming Streams</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="thumb">Scheduled</div>
+        <div class="creator">MusicWithJay</div>
+        <div class="meta">Tonight · 9:30 PM</div>
+      </div>
+
+      <div class="card">
+        <div class="thumb">Scheduled</div>
+        <div class="creator">RankedGrind</div>
+        <div class="meta">Tomorrow · 4:00 PM</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © 2025 StudentStream · Discover creators early
+</footer>
+
+</body>
+</html>
