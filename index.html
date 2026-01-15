@@ -1,153 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>StudentStream – Where small creators get seen first</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<link rel="stylesheet" href="style.css"/>
-
-<!-- Page-only styles -->
-<style>
-/* Scope everything */
-.studentstream-waitlist .waitlist-form {
-margin-top: 30px;
-display: flex;
-flex-direction: column;
-gap: 12px;
-max-width: 420px;
-}
-
-.studentstream-waitlist .name-row {
-display: flex;
-gap: 10px;
-}
-
-.studentstream-waitlist input,
-.studentstream-waitlist select {
-padding: 12px 14px;
-border-radius: 10px;
-border: none;
-outline: none;
-font-size: 0.95rem;
-background: rgba(255,255,255,0.12);
-color: white;
-}
-
-/* Clean modern dropdown */
-.studentstream-waitlist select {
-appearance: none;
--webkit-appearance: none;
--moz-appearance: none;
-
-background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-background-repeat: no-repeat;
-background-position: right 14px center;
-background-size: 12px;
-
-padding-right: 40px;
-}
-
-.studentstream-waitlist select option {
-background: #0b0f1a;
-color: white;
-}
-
-.studentstream-waitlist input::placeholder {
-color: rgba(255,255,255,0.6);
-}
-
-.studentstream-waitlist button {
-margin-top: 10px;
-padding: 12px;
-border-radius: 10px;
-border: none;
-background: linear-gradient(135deg, #3b82f6, #06b6d4);
-color: white;
-font-weight: 600;
-cursor: pointer;
-transition: 0.25s ease;
-}
-
-.studentstream-waitlist button:hover {
-transform: translateY(-2px);
-box-shadow: 0 10px 25px rgba(59,130,246,0.35);
-}
-</style>
+ <meta charset="UTF-8" />
+ <title>StudentStream – Where small creators get seen first</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <link rel="stylesheet" href="style.css"/>
 </head>
-
-<body class="studentstream-waitlist">
+<body>
 
 <section class="hero">
 
-<nav class="nav">
-<div class="logo">StudentStream</div>
-<button class="nav-btn">Join Waitlist</button>
-</nav>
+ <nav class="nav">
+ <div class="logo">StudentStream</div>
+ <button class="nav-btn">Join Waitlist</button>
+ </nav>
 
-<div class="content">
-<h1>Where small creators get seen first.</h1>
-<p>
-Discover young creators before they blow up.
-A new platform to get noticed, collaborate, and build real projects.
-</p>
+ <div class="content">
+ <h1>Where small creators get seen first.</h1>
+ <p>
+ Discover young creators before they blow up. 
+ A new platform to get noticed, collab, and build real projects.
+ </p>
 
-<form class="waitlist-form">
+ <!-- WAITLIST FORM -->
+ <form class="waitlist-form" action="https://formspree.io/f/xojqgpan" method="POST">
 
-<div class="name-row">
-<input type="text" placeholder="First name" required>
-<input type="text" placeholder="Last name" required>
-</div>
+ <div class="form-row">
+ <input type="text" name="first_name" placeholder="First name" required>
+ <input type="text" name="last_name" placeholder="Last name" required>
+ </div>
 
-<input type="email" placeholder="Email address" required>
+ <div class="form-row">
+ <input type="email" name="email" placeholder="Email address" required>
 
-<select required>
-<option value="">I am a...</option>
-<option>Content Creator</option>
-<option>Streamer</option>
-<option>Artist / Designer</option>
-<option>Musician</option>
-<option>Developer</option>
-<option>Other</option>
-</select>
+ <select name="role" required>
+ <option value="" disabled selected>I am a...</option>
+ <option>Content Creator</option>
+ <option>Streamer</option>
+ <option>Artist / Designer</option>
+ <option>Musician</option>
+ <option>Developer</option>
+ <option>Other</option>
+ </select>
 
-<button type="submit">Join the Waitlist</button>
+ <button type="submit" class="join-btn">Join the Waitlist</button>
+ </div>
 
-</form>
+ <p class="form-note">Early spots limited · No spam · Early access only</p>
 
-<div class="trust">
-Early spots limited · No spam · Early access only
-</div>
+ </form>
 
-<div class="bullets">
-<span>No gatekeeping</span>
-<span>Made for young creators</span>
-<span>Launchpad for projects</span>
-</div>
+ <div class="trust">
+ Early spots limited · No spam · Early access only
+ </div>
 
-</div>
+ <div class="bullets">
+ <span>No gatekeeping</span>
+ <span>Made for young creators</span>
+ <span>Launchpad for projects</span>
+ </div>
+ </div>
 
-<!-- Floating Cards -->
-<div class="floating-cards">
-<div class="card card1">
-<strong>Mia Chen</strong><br>
-Digital Artist<br>
-2.3k followers
-</div>
+ <!-- Floating Cards -->
+ <div class="floating-cards">
+ <div class="card card1">
+ <strong>Mia Chen</strong><br/>
+ Digital Artist<br/>
+ 2.3k followers
+ </div>
 
-<div class="card card2">
-<strong>Trending Creators</strong><br>
-+12% today
-</div>
+ <div class="card card2">
+ <strong>Trending Creators</strong><br/>
+ +12% today 
+ </div>
 
-<div class="card card3">
-<strong>New Collab</strong><br>
-Music × Animation
-</div>
-</div>
+ <div class="card card3">
+ <strong>New Collab</strong><br/>
+ Music × Animation
+ </div>
+ </div>
+
+</section>
+
+<!-- HOW IT WORKS / GOAL SECTION -->
+<section class="how-it-works">
+
+ <h2>Our goal</h2>
+ <p class="goal-text">
+ StudentStream exists to give small creators real visibility — not just the ones who already blew up.
+ We’re building a platform where talent comes first, not follower count.
+ </p>
+
+ <div class="steps">
+
+ <div class="step">
+ <h3>1. Join early</h3>
+ <p>Creators join the waitlist and build a simple profile showcasing what they do.</p>
+ </div>
+
+ <div class="step">
+ <h3>2. Get discovered</h3>
+ <p>We surface new creators instead of hiding them behind big accounts.</p>
+ </div>
+
+ <div class="step">
+ <h3>3. Collaborate</h3>
+ <p>Find other creators to build projects, content, and startups together.</p>
+ </div>
+
+ <div class="step">
+ <h3>4. Grow</h3>
+ <p>Turn ideas into real work, real teams, and real opportunities.</p>
+ </div>
+
+ </div>
 
 </section>
 
 </body>
 </html>
-
-
