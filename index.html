@@ -3,42 +3,73 @@
 <head>
 <meta charset="UTF-8" />
 <title>StudentStream – Where small creators get seen first</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<link rel="stylesheet" href="style.css"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<section class="hero">
-
-<nav class="nav">
+<header class="navbar">
 <div class="logo">StudentStream</div>
-<button class="nav-btn">Join Waitlist</button>
-</nav>
+</header>
 
-<div class="content">
+<main class="hero">
+<div class="hero-left">
 <h1>Where small creators get seen first.</h1>
-<p>
-Discover young creators before they blow up.
+<p class="subtitle">
+Discover rising streamers, young entrepreneurs, and new brands before they blow up.
 Build projects, collaborate, and grow together.
 </p>
 
-<form class="waitlist-form">
-<input type="email" placeholder="Email address" required>
+<form
+class="waitlist-form"
+action="https://formspree.io/f/xojqgpan"
+method="POST"
+>
+<div class="input-row">
+<input type="text" name="first_name" placeholder="First name" required />
+<input type="text" name="last_name" placeholder="Last name" required />
+</div>
+
+<input type="email" name="email" placeholder="Email address" required />
+
 <button type="submit">Join the Waitlist</button>
 </form>
 
 <div class="trust">
-Early access · No spam · Limited spots
+Early access • No spam • Limited spots
 </div>
 </div>
 
-<div class="floating-cards">
-<div class="card c1">🎨 Digital Artists</div>
-<div class="card c2">🎵 Musicians</div>
-<div class="card c3">🎮 Streamers</div>
+<div class="hero-right">
+<div class="hero-cards">
+
+<div class="card card1">
+<div class="emoji">🎮</div>
+<h3>Streamers</h3>
+<p>Grow an audience before everyone else.</p>
 </div>
 
-</section>
+<div class="card card2">
+<div class="emoji">🚀</div>
+<h3>Young Entrepreneurs</h3>
+<p>Launch ideas & build in public.</p>
+</div>
+
+<div class="card card3">
+<div class="emoji">🧢</div>
+<h3>Young Brands</h3>
+<p>Show products to real supporters.</p>
+</div>
+
+<div class="card card4">
+<div class="emoji">🎨</div>
+<h3>Creators</h3>
+<p>Collaborate and get discovered.</p>
+</div>
+
+</div>
+</div>
+</main>
 
 </body>
 </html>
