@@ -9,118 +9,146 @@ body {
 background: radial-gradient(circle at top, #0f172a, #020617);
 color: white;
 min-height: 100vh;
-overflow-x: hidden;
 }
 
-.hero {
-min-height: 100vh;
-padding: 40px;
-position: relative;
-}
-
-.nav {
-display: flex;
-justify-content: space-between;
-align-items: center;
+.navbar {
+padding: 24px 60px;
 }
 
 .logo {
 font-weight: 700;
-font-size: 1.2rem;
+font-size: 20px;
+color: #8b5cf6;
 }
 
-.nav-btn {
-background: linear-gradient(135deg, #3b82f6, #06b6d4);
-border: none;
-padding: 10px 18px;
-border-radius: 999px;
-color: white;
-cursor: pointer;
+.hero {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 80px 60px;
+gap: 60px;
 }
 
-.content {
-max-width: 500px;
-margin-top: 100px;
+.hero-left {
+max-width: 520px;
 }
 
-.content h1 {
-font-size: 3rem;
+.hero-left h1 {
+font-size: 48px;
 line-height: 1.1;
+margin-bottom: 20px;
 }
 
-.content p {
-margin-top: 15px;
-opacity: 0.8;
+.subtitle {
+color: #b3b7c6;
+font-size: 18px;
+margin-bottom: 30px;
 }
 
 .waitlist-form {
-margin-top: 30px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+margin-bottom: 12px;
+}
+
+.input-row {
 display: flex;
 gap: 10px;
 }
 
 .waitlist-form input {
-flex: 1;
-padding: 12px 14px;
+padding: 14px 16px;
 border-radius: 10px;
 border: none;
 outline: none;
+background: #0f172a;
+color: white;
+border: 1px solid #1e293b;
+width: 100%;
 }
 
 .waitlist-form button {
-padding: 12px 18px;
+padding: 14px;
 border-radius: 10px;
 border: none;
-background: linear-gradient(135deg, #3b82f6, #06b6d4);
+background: linear-gradient(135deg, #6366f1, #8b5cf6);
 color: white;
+font-weight: 600;
 cursor: pointer;
+transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.waitlist-form button:hover {
+transform: translateY(-2px);
+box-shadow: 0 10px 30px rgba(99,102,241,.4);
 }
 
 .trust {
-margin-top: 15px;
-font-size: 0.85rem;
-opacity: 0.6;
+margin-top: 8px;
+font-size: 13px;
+color: #94a3b8;
 }
 
 /* Floating cards */
 
-.floating-cards {
-position: absolute;
-right: 80px;
-top: 150px;
+.hero-right {
+position: relative;
+}
+
+.hero-cards {
+position: relative;
+width: 360px;
+height: 360px;
 }
 
 .card {
-background: rgba(255,255,255,0.08);
+position: absolute;
+background: rgba(15, 23, 42, 0.9);
+border: 1px solid rgba(99,102,241,.3);
 backdrop-filter: blur(10px);
-padding: 16px 20px;
-border-radius: 14px;
-margin-bottom: 20px;
-width: 180px;
-animation: float 6s ease-in-out infinite;
+border-radius: 16px;
+padding: 18px;
+width: 200px;
+color: white;
+box-shadow: 0 20px 40px rgba(0,0,0,.4);
+animation: floatCard 7s ease-in-out infinite;
 }
 
-.c2 {
-animation-delay: 1.5s;
-}
-.c3 {
-animation-delay: 3s;
+.card h3 {
+margin: 8px 0 4px;
 }
 
-@keyframes float {
-0% { transform: translateY(0px); }
-50% { transform: translateY(-20px); }
-100% { transform: translateY(0px); }
+.card p {
+font-size: 13px;
+color: #b3b7c6;
 }
 
-/* Mobile */
+.emoji {
+font-size: 24px;
+}
+
+.card1 { top: 0; left: 70px; }
+.card2 { top: 120px; left: 0; animation-delay: 1s; }
+.card3 { top: 230px; left: 140px; animation-delay: 2s; }
+.card4 { top: 80px; left: 180px; animation-delay: 3s; }
+
+@keyframes floatCard {
+0%,100% { transform: translateY(0px); }
+50% { transform: translateY(-18px); }
+}
 
 @media (max-width: 900px) {
-.floating-cards {
-display: none;
+.hero {
+flex-direction: column;
+text-align: center;
 }
 
-.content h1 {
-font-size: 2.2rem;
+.input-row {
+flex-direction: column;
+}
+
+.hero-right {
+margin-top: 50px;
 }
 }
