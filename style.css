@@ -1,47 +1,39 @@
 * {
-box-sizing: border-box;
 margin: 0;
 padding: 0;
+box-sizing: border-box;
 font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 body {
-background: radial-gradient(circle at top, #0f172a, #020617);
-color: white;
 min-height: 100vh;
+background: radial-gradient(circle at top, #1b2b5a, #050b1a);
+color: #ffffff;
 }
 
-.navbar {
-padding: 24px 60px;
-}
-
-.logo {
-font-weight: 700;
-font-size: 20px;
-color: #8b5cf6;
-}
-
-.hero {
+.container {
+max-width: 1200px;
+margin: auto;
+padding: 80px 40px;
 display: flex;
-justify-content: space-between;
 align-items: center;
-padding: 80px 60px;
+justify-content: space-between;
 gap: 60px;
 }
 
-.hero-left {
+.left {
 max-width: 520px;
 }
 
-.hero-left h1 {
-font-size: 48px;
+.left h1 {
+font-size: 3rem;
 line-height: 1.1;
 margin-bottom: 20px;
 }
 
-.subtitle {
-color: #b3b7c6;
-font-size: 18px;
+.left p {
+color: #b8c2e0;
+font-size: 1.1rem;
 margin-bottom: 30px;
 }
 
@@ -49,106 +41,108 @@ margin-bottom: 30px;
 display: flex;
 flex-direction: column;
 gap: 12px;
-margin-bottom: 12px;
 }
 
-.input-row {
+.row {
 display: flex;
-gap: 10px;
+gap: 12px;
 }
 
-.waitlist-form input {
-padding: 14px 16px;
-border-radius: 10px;
-border: none;
-outline: none;
-background: #0f172a;
-color: white;
-border: 1px solid #1e293b;
-width: 100%;
-}
-
-.waitlist-form button {
+input {
+flex: 1;
 padding: 14px;
 border-radius: 10px;
 border: none;
-background: linear-gradient(135deg, #6366f1, #8b5cf6);
-color: white;
-font-weight: 600;
-cursor: pointer;
-transition: transform .15s ease, box-shadow .15s ease;
+outline: none;
+font-size: 1rem;
 }
 
-.waitlist-form button:hover {
+button {
+margin-top: 10px;
+padding: 14px;
+border-radius: 12px;
+border: none;
+font-size: 1rem;
+font-weight: 600;
+cursor: pointer;
+background: linear-gradient(135deg, #6d7cff, #8f6bff);
+color: white;
+transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
 transform: translateY(-2px);
-box-shadow: 0 10px 30px rgba(99,102,241,.4);
+box-shadow: 0 10px 25px rgba(140, 120, 255, 0.35);
 }
 
 .trust {
-margin-top: 8px;
-font-size: 13px;
-color: #94a3b8;
+margin-top: 12px;
+font-size: 0.9rem;
+color: #9aa5cc;
 }
 
-/* Floating cards */
+/* RIGHT SIDE FLOATING CARDS */
 
-.hero-right {
+.right {
 position: relative;
-}
-
-.hero-cards {
-position: relative;
-width: 360px;
-height: 360px;
+width: 420px;
+height: 420px;
 }
 
 .card {
 position: absolute;
-background: rgba(15, 23, 42, 0.9);
-border: 1px solid rgba(99,102,241,.3);
+padding: 16px 22px;
+border-radius: 14px;
+background: rgba(255,255,255,0.08);
 backdrop-filter: blur(10px);
-border-radius: 16px;
-padding: 18px;
-width: 200px;
-color: white;
-box-shadow: 0 20px 40px rgba(0,0,0,.4);
-animation: floatCard 7s ease-in-out infinite;
+border: 1px solid rgba(255,255,255,0.15);
+font-weight: 600;
+animation: float 6s ease-in-out infinite;
 }
 
-.card h3 {
-margin: 8px 0 4px;
+.streamer {
+top: 40px;
+left: 40px;
+animation-delay: 0s;
 }
 
-.card p {
-font-size: 13px;
-color: #b3b7c6;
+.founder {
+top: 60px;
+right: 40px;
+animation-delay: 1s;
 }
 
-.emoji {
-font-size: 24px;
+.brand {
+bottom: 80px;
+left: 80px;
+animation-delay: 2s;
 }
 
-.card1 { top: 0; left: 70px; }
-.card2 { top: 120px; left: 0; animation-delay: 1s; }
-.card3 { top: 230px; left: 140px; animation-delay: 2s; }
-.card4 { top: 80px; left: 180px; animation-delay: 3s; }
+.creator {
+bottom: 40px;
+right: 80px;
+animation-delay: 3s;
+}
 
-@keyframes floatCard {
-0%,100% { transform: translateY(0px); }
+@keyframes float {
+0% { transform: translateY(0px); }
 50% { transform: translateY(-18px); }
+100% { transform: translateY(0px); }
 }
+
+/* Mobile */
 
 @media (max-width: 900px) {
-.hero {
+.container {
 flex-direction: column;
 text-align: center;
 }
 
-.input-row {
+.row {
 flex-direction: column;
 }
 
-.hero-right {
-margin-top: 50px;
+.right {
+margin-top: 60px;
 }
 }
