@@ -3,60 +3,37 @@
 <head>
 <meta charset="UTF-8" />
 <title>StudentStream – Where small creators get seen first</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="container hero">
-
-<div class="left hero-content">
+<div class="container">
+<div class="left">
 <h1>Where small creators get seen first.</h1>
 <p>
 StudentStream helps streamers, musicians, student creators, and starter brands
 grow faster, connect with real audiences, and turn ideas into income.
 </p>
 
-<form class="waitlist-form" action="https://formspree.io/f/xojqgpan" method="POST">
-
+<form class="waitlist" action="https://formspree.io/f/xojqgpan" method="POST">
 <div class="row">
 <input type="text" name="first_name" placeholder="First name" required>
 <input type="text" name="last_name" placeholder="Last name" required>
 </div>
-
 <input type="email" name="email" placeholder="Email address" required>
-
 <button type="submit">Join the waitlist</button>
-
-<p class="trust-line">No spam • Early access • Cancel anytime</p>
-<p class="counter">🔥 1,247 creators already joined</p>
-
-<p id="success-msg" class="success-msg">✅ You're on the list!</p>
+<small>Early access • No spam • Limited spots</small>
 </form>
 </div>
 
 <div class="right">
-<div class="floating-cards">
-<div class="float-card">🎥 Grow your stream</div>
-<div class="float-card">💸 Turn content into income</div>
-<div class="float-card">🤝 Find collaborators</div>
-<div class="float-card">🚀 Launch your brand</div>
-<div class="float-card">📈 Get discovered early</div>
+<div class="card c1">🎮 Streamers<br><span>Grow your audience</span></div>
+<div class="card c2">🎵 Musicians<br><span>Promote your music</span></div>
+<div class="card c3">🧑‍🎓 Student Creators<br><span>Build your brand</span></div>
+<div class="card c4">🧢 Starter Brands<br><span>Find customers</span></div>
+<div class="card c5">📈 Monetize<br><span>Turn views into income</span></div>
 </div>
 </div>
-
-</div>
-
-<script>
-const form = document.querySelector(".waitlist-form");
-const msg = document.getElementById("success-msg");
-
-if(form){
-form.addEventListener("submit", () => {
-setTimeout(() => msg.classList.add("show"), 600);
-});
-}
-</script>
 
 </body>
 </html>
