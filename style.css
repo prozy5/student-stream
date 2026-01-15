@@ -190,7 +190,159 @@ button {
   padding: 5px;
   font-size: 14px;
 }
-<div class="studentstream-waitlist">
-<!-- everything for the waitlist page goes here -->
-</div>
+.studentstream-waitlist * {
+box-sizing: border-box;
+font-family: system-ui, -apple-system, sans-serif;
+}
+
+.studentstream-waitlist {
+color: white;
+}
+
+.studentstream-waitlist .hero {
+min-height: 100vh;
+background: linear-gradient(120deg, #2b1055, #7597de, #ff7a18);
+background-size: 400% 400%;
+animation: gradientMove 15s ease infinite;
+position: relative;
+overflow: hidden;
+padding: 40px;
+}
+
+@keyframes gradientMove {
+0% { background-position: 0% 50%; }
+50% { background-position: 100% 50%; }
+100% { background-position: 0% 50%; }
+}
+
+.studentstream-waitlist .nav {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.studentstream-waitlist .logo {
+font-weight: 700;
+font-size: 1.3rem;
+}
+
+.studentstream-waitlist .nav-btn {
+background: rgba(255,255,255,0.15);
+border: none;
+color: white;
+padding: 10px 18px;
+border-radius: 999px;
+cursor: pointer;
+backdrop-filter: blur(10px);
+}
+
+.studentstream-waitlist .content {
+max-width: 600px;
+margin-top: 100px;
+animation: fadeUp 1s ease forwards;
+}
+
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(40px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.studentstream-waitlist h1 {
+font-size: 3rem;
+line-height: 1.1;
+}
+
+.studentstream-waitlist p {
+margin-top: 20px;
+opacity: 0.9;
+}
+
+.studentstream-waitlist .waitlist {
+display: flex;
+margin-top: 30px;
+gap: 10px;
+}
+
+.studentstream-waitlist .waitlist input {
+flex: 1;
+padding: 14px;
+border-radius: 10px;
+border: none;
+}
+
+.studentstream-waitlist .waitlist button {
+padding: 14px 22px;
+border-radius: 10px;
+border: none;
+background: #5b8cff;
+color: white;
+cursor: pointer;
+transition: 0.2s;
+}
+
+.studentstream-waitlist .waitlist button:hover {
+transform: scale(1.05);
+}
+
+.studentstream-waitlist .trust {
+margin-top: 15px;
+font-size: 0.9rem;
+opacity: 0.85;
+}
+
+.studentstream-waitlist .bullets {
+display: flex;
+gap: 15px;
+margin-top: 20px;
+flex-wrap: wrap;
+font-size: 0.9rem;
+}
+
+/* Floating cards */
+
+.studentstream-waitlist .floating-cards .card {
+position: absolute;
+width: 220px;
+padding: 16px;
+border-radius: 16px;
+background: rgba(255,255,255,0.12);
+backdrop-filter: blur(14px);
+box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+animation: float 6s ease-in-out infinite;
+}
+
+.studentstream-waitlist .card1 {
+top: 20%;
+left: 65%;
+}
+
+.studentstream-waitlist .card2 {
+top: 45%;
+left: 78%;
+animation-delay: 1s;
+}
+
+.studentstream-waitlist .card3 {
+top: 65%;
+left: 60%;
+animation-delay: 2s;
+}
+
+@keyframes float {
+0% { transform: translateY(0px); }
+50% { transform: translateY(-20px); }
+100% { transform: translateY(0px); }
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+.studentstream-waitlist .floating-cards {
+display: none;
+}
+
+.studentstream-waitlist h1 {
+font-size: 2.2rem;
+}
+}
 
