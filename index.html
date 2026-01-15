@@ -72,23 +72,6 @@ transition: 0.25s ease;
 transform: translateY(-2px);
 box-shadow: 0 10px 25px rgba(59,130,246,0.35);
 }
-
-/* Success animation */
-.success-message {
-display: none;
-margin-top: 20px;
-padding: 14px 18px;
-border-radius: 12px;
-background: linear-gradient(135deg, #22c55e, #16a34a);
-color: white;
-font-weight: 600;
-animation: popIn 0.5s ease;
-}
-
-@keyframes popIn {
-from {opacity:0; transform:scale(0.9);}
-to {opacity:1; transform:scale(1);}
-}
 </style>
 </head>
 
@@ -108,16 +91,16 @@ Discover young creators before they blow up.
 A new platform to get noticed, collaborate, and build real projects.
 </p>
 
-<form class="waitlist-form" action="https://formspree.io/f/xojqgpan" method="POST">
+<form class="waitlist-form">
 
 <div class="name-row">
-<input type="text" name="first_name" placeholder="First name" required>
-<input type="text" name="last_name" placeholder="Last name" required>
+<input type="text" placeholder="First name" required>
+<input type="text" placeholder="Last name" required>
 </div>
 
-<input type="email" name="email" placeholder="Email address" required>
+<input type="email" placeholder="Email address" required>
 
-<select name="role" required>
+<select required>
 <option value="">I am a...</option>
 <option>Content Creator</option>
 <option>Streamer</option>
@@ -130,11 +113,6 @@ A new platform to get noticed, collaborate, and build real projects.
 <button type="submit">Join the Waitlist</button>
 
 </form>
-
-<!-- Success message -->
-<div class="success-message" id="successMessage">
-🎉 You’re in! We’ll email you early access soon.
-</div>
 
 <div class="trust">
 Early spots limited · No spam · Early access only
@@ -169,37 +147,6 @@ Music × Animation
 
 </section>
 
-<script>
-const form = document.querySelector(".waitlist-form");
-const successMessage = document.getElementById("successMessage");
-
-form.addEventListener("submit", async (e) => {
-e.preventDefault();
-
-const formData = new FormData(form);
-
-try {
-const res = await fetch(form.action, {
-method: "POST",
-body: formData,
-headers: { "Accept": "application/json" }
-});
-
-if (res.ok) {
-form.style.opacity = "0";
-setTimeout(() => {
-form.style.display = "none";
-successMessage.style.display = "block";
-}, 300);
-form.reset();
-} else {
-alert("Something went wrong. Try again.");
-}
-} catch {
-alert("Network error. Try again.");
-}
-});
-</script>
-
 </body>
 </html>
+
