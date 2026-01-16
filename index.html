@@ -26,7 +26,11 @@ StudentStream helps streamers, musicians, student creators, and starter brands
 grow faster, connect with real audiences, and turn ideas into income.
 </p>
 
-<form class="waitlist" id="waitlistForm">
+<form class="waitlist" action="https://formspree.io/f/xojqgpan" method="POST">
+
+<!-- Auto redirect -->
+<input type="hidden" name="_redirect" value="welcome.html?access=early&first_name={{first_name}}">
+
 <div class="row">
 <input type="text" name="first_name" placeholder="First name" required>
 <input type="text" name="last_name" placeholder="Last name" required>
@@ -56,35 +60,37 @@ grow faster, connect with real audiences, and turn ideas into income.
 <p>We’re launching step-by-step with creators and builders.</p>
 
 <div class="roadmap-cards">
-<div class="r-card"><h4>Now</h4><span>Creator profiles, discovery, onboarding.</span></div>
-<div class="r-card"><h4>Next</h4><span>Collabs, projects, monetization tools.</span></div>
-<div class="r-card"><h4>Later</h4><span>Brands, payouts, mobile apps.</span></div>
+<div class="r-card">
+<h4>Now</h4>
+<span>
+Creator profiles, discovery pages, waitlist onboarding,
+early community access, and feedback system.
+</span>
+</div>
+
+<div class="r-card">
+<h4>Next</h4>
+<span>
+Creator matching, collaboration tools, project boards,
+and first monetization features.
+</span>
+</div>
+
+<div class="r-card">
+<h4>Later</h4>
+<span>
+Brand partnerships, payouts, creator analytics,
+and full mobile apps.
+</span>
+</div>
 </div>
 
 <a class="roadmap-link" href="roadmap.html">View full roadmap →</a>
 </div>
 </section>
 
-<script>
-const form = document.getElementById("waitlistForm");
-
-form.addEventListener("submit", async (e) => {
-e.preventDefault();
-
-const formData = new FormData(form);
-const firstName = formData.get("first_name");
-
-await fetch("https://formspree.io/f/xojqgpan", {
-method: "POST",
-body: formData,
-headers: { 'Accept': 'application/json' }
-});
-
-window.location.href = `welcome.html?access=early&first_name=${encodeURIComponent(firstName)}`;
-});
-</script>
-
 </body>
 </html>
+
 
 
