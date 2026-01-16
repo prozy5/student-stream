@@ -9,111 +9,96 @@
 <body>
 
 <nav class="top-nav">
-<div class="logo">StudentStream</div>
-<div class="nav-links">
-<a href="roadmap.html" class="roadmap-btn">Product roadmap →</a>
-<a href="#waitlist" class="nav-btn">Join waitlist</a>
-</div>
+  <div class="logo">StudentStream</div>
+  <div class="nav-links">
+    <a href="roadmap.html" class="roadmap-btn">Product roadmap →</a>
+    <a href="#waitlist" class="nav-btn">Join waitlist</a>
+  </div>
 </nav>
 
 <section class="hero" id="waitlist">
-<div class="container">
+  <div class="container">
 
-<div class="left">
-<h1>Where small creators get seen first.</h1>
-<p>
-StudentStream helps streamers, musicians, student creators, and starter brands
-grow faster, connect with real audiences, and turn ideas into income.
-</p>
+    <div class="left">
+      <h1>Where small creators get seen first.</h1>
+      <p>
+        StudentStream helps streamers, musicians, student creators, and starter brands
+        grow faster, connect with real audiences, and turn ideas into income.
+      </p>
 
-<form class="waitlist" id="waitlistForm">
+      <form class="waitlist" action="https://formspree.io/f/xojqgpan" method="POST">
+        
+        <div class="row">
+          <input type="text" name="first_name" placeholder="First name" required>
+          <input type="text" name="last_name" placeholder="Last name" required>
+        </div>
 
-<div class="row">
-<input type="text" name="first_name" id="first_name" placeholder="First name" required>
-<input type="text" name="last_name" placeholder="Last name" required>
-</div>
+        <input type="email" name="email" placeholder="Email address" required>
 
-<input type="email" name="email" placeholder="Email address" required>
+        <!-- NEW ROLE FIELD -->
+        <select name="role" required>
+          <option value="">I am a...</option>
+          <option value="Creator">🎥 Creator / Streamer</option>
+          <option value="Musician">🎵 Musician / Artist</option>
+          <option value="Student Creator">🧑‍🎓 Student Creator</option>
+          <option value="Editor">✂️ Editor / Designer</option>
+          <option value="Brand">🧢 Brand / Business</option>
+          <option value="Explorer">👀 Just exploring</option>
+        </select>
 
-<button type="submit">Join the waitlist</button>
-<small>Early access • No spam • Limited spots</small>
+        <button type="submit">Join the waitlist</button>
+        <small>Early access • No spam • Limited spots</small>
+      </form>
+    </div>
 
-</form>
-</div>
+    <div class="right">
+      <div class="card c1">🎮 Streamers<br><span>Grow your audience</span></div>
+      <div class="card c2">🎵 Musicians<br><span>Promote your music</span></div>
+      <div class="card c3">🧑‍🎓 Student creators<br><span>Build your brand</span></div>
+      <div class="card c4">🧢 Starter brands<br><span>Find customers</span></div>
+      <div class="card c5">💰 Monetize<br><span>Turn views into income</span></div>
+    </div>
 
-<div class="right">
-<div class="card c1">🎮 Streamers<br><span>Grow your audience</span></div>
-<div class="card c2">🎵 Musicians<br><span>Promote your music</span></div>
-<div class="card c3">🧑‍🎓 Student creators<br><span>Build your brand</span></div>
-<div class="card c4">🧢 Starter brands<br><span>Find customers</span></div>
-<div class="card c5">💰 Monetize<br><span>Turn views into income</span></div>
-</div>
-
-</div>
+  </div>
 </section>
 
 <section class="roadmap-preview">
-<div class="roadmap-inner">
-<h2>Building StudentStream in public</h2>
-<p>We’re launching step-by-step with creators and builders.</p>
+  <div class="roadmap-inner">
+    <h2>Building StudentStream in public</h2>
+    <p>We’re launching step-by-step with creators and builders.</p>
 
-<div class="roadmap-cards">
-<div class="r-card">
-<h4>Now</h4>
-<span>
-Creator profiles, discovery pages, waitlist onboarding,
-early community access, and feedback system.
-</span>
-</div>
+    <div class="roadmap-cards">
+      <div class="r-card">
+        <h4>Now</h4>
+        <span>
+          Creator profiles, discovery pages, waitlist onboarding,
+          early community access, and feedback system.
+        </span>
+      </div>
 
-<div class="r-card">
-<h4>Next</h4>
-<span>
-Creator matching, collaboration tools, project boards,
-and first monetization features.
-</span>
-</div>
+      <div class="r-card">
+        <h4>Next</h4>
+        <span>
+          Creator matching, collaboration tools, project boards,
+          and first monetization features.
+        </span>
+      </div>
 
-<div class="r-card">
-<h4>Later</h4>
-<span>
-Brand partnerships, payouts, creator analytics,
-and full mobile apps.
-</span>
-</div>
-</div>
+      <div class="r-card">
+        <h4>Later</h4>
+        <span>
+          Brand partnerships, payouts, creator analytics,
+          and full mobile apps.
+        </span>
+      </div>
+    </div>
 
-<a class="roadmap-link" href="roadmap.html">View full roadmap →</a>
-</div>
+    <a class="roadmap-link" href="roadmap.html">View full roadmap →</a>
+  </div>
 </section>
-
-<script>
-const form = document.getElementById("waitlistForm");
-
-form.addEventListener("submit", async function(e) {
-e.preventDefault();
-
-const firstName = document.getElementById("first_name").value;
-const formData = new FormData(form);
-
-try {
-await fetch("https://formspree.io/f/xojqgpan", {
-method: "POST",
-body: formData,
-headers: {
-"Accept": "application/json"
-}
-});
-
-window.location.href = `welcome.html?access=early&first_name=${encodeURIComponent(firstName)}`;
-
-} catch (err) {
-alert("Something went wrong. Please try again.");
-}
-});
-</script>
 
 </body>
 </html>
+
 
 
