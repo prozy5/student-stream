@@ -2,183 +2,70 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>StudentStream – Welcome</title>
+<title>Welcome to StudentStream</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Access lock -->
-<script>
-const params = new URLSearchParams(window.location.search);
-if (params.get("access") !== "early") {
-window.location.href = "/";
-}
-</script>
-
 <link rel="stylesheet" href="style.css">
 
 <style>
-body {
-background: linear-gradient(120deg, #0a0f2c, #0b1a4a, #1a0f3d);
-color: #fff;
-font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.hub-container {
-max-width: 1100px;
-margin: 0 auto;
-padding: 60px 24px;
-}
-
-.hub-header {
+.welcome-container {
+min-height: 100vh;
 display: flex;
-justify-content: space-between;
 align-items: center;
-margin-bottom: 50px;
+justify-content: center;
+text-align: center;
+padding: 40px;
 }
 
-.badge {
-background: linear-gradient(90deg, #6a7cff, #8b5cf6);
-padding: 6px 14px;
-border-radius: 999px;
-font-size: 13px;
-font-weight: 600;
-}
-
-.section {
-margin-bottom: 60px;
-}
-
-.section h2 {
-font-size: 26px;
-margin-bottom: 12px;
-}
-
-.section p {
-color: #cfd6ff;
-max-width: 700px;
-line-height: 1.6;
-}
-
-.cards {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-gap: 18px;
-margin-top: 24px;
-}
-
-.card {
+.welcome-box {
+max-width: 520px;
 background: rgba(255,255,255,0.06);
 border: 1px solid rgba(255,255,255,0.08);
-backdrop-filter: blur(10px);
-padding: 20px;
-border-radius: 16px;
+backdrop-filter: blur(12px);
+padding: 40px;
+border-radius: 20px;
+box-shadow: 0 20px 50px rgba(0,0,0,0.4);
 }
 
-.card span {
-color: #9aa7ff;
-font-size: 14px;
-}
+.welcome-box h1 { font-size: 32px; margin-bottom: 16px; }
+.welcome-box p { color: #cfd6ff; line-height: 1.6; margin-bottom: 28px; }
 
-.updates {
-display: flex;
-flex-direction: column;
-gap: 14px;
-margin-top: 20px;
-}
-
-.update {
-background: rgba(255,255,255,0.05);
-border-left: 4px solid #6a7cff;
-padding: 14px 16px;
-border-radius: 10px;
-}
-
-.links {
-display: flex;
-gap: 16px;
-flex-wrap: wrap;
-margin-top: 20px;
-}
-
-.links a {
-color: #6ea8ff;
+.welcome-box a {
+display: inline-block;
+padding: 12px 22px;
+border-radius: 12px;
+background: linear-gradient(90deg,#6a7cff,#8b5cf6);
+color: white;
 text-decoration: none;
-font-weight: 500;
-}
-
-.links a:hover {
-text-decoration: underline;
-}
-
-@media (max-width: 700px) {
-.hub-header {
-flex-direction: column;
-align-items: flex-start;
-gap: 12px;
-}
+font-weight: 600;
 }
 </style>
 </head>
-
 <body>
 
-<div class="hub-container">
-
-<div class="hub-header">
-<h1>Welcome to StudentStream 👋</h1>
-<div class="badge">Early Access Member</div>
-</div>
-
-<!-- What this is -->
-<div class="section">
-<h2>What is StudentStream?</h2>
+<div class="welcome-container">
+<div class="welcome-box">
+<h1 id="welcome-title">Welcome to StudentStream 👋</h1>
 <p>
-StudentStream is a platform built for streamers, musicians, student creators,
-and starter brands to grow faster, get discovered earlier, collaborate easier,
-and turn creativity into real income.
+You're officially early. You'll get feature previews, updates, and early access invites.
 </p>
 
-<div class="cards">
-<div class="card">🎮 Streamers<br><span>Audience growth & discovery</span></div>
-<div class="card">🎵 Musicians<br><span>Music promotion & collabs</span></div>
-<div class="card">🧑‍🎓 Student creators<br><span>Build real brands early</span></div>
-<div class="card">🧢 Starter brands<br><span>Find first customers</span></div>
+<a href="roadmap.html">View roadmap</a>
 </div>
 </div>
 
-<!-- What's coming -->
-<div class="section">
-<h2>What we're building first</h2>
+<script>
+const params = new URLSearchParams(window.location.search);
 
-<div class="cards">
-<div class="card">Creator profiles & discovery</div>
-<div class="card">Collaboration matching</div>
-<div class="card">Marketplace for services</div>
-<div class="card">Monetization tools</div>
-</div>
-</div>
+if (params.get("access") !== "early") {
+window.location.href = "index.html";
+}
 
-<!-- Updates -->
-<div class="section">
-<h2>Latest updates</h2>
-
-<div class="updates">
-<div class="update">🚧 Designing creator profile system</div>
-<div class="update">🎨 Improving landing page & onboarding</div>
-<div class="update">📊 Setting up early user feedback program</div>
-</div>
-</div>
-
-<!-- Links -->
-<div class="section">
-<h2>Explore</h2>
-
-<div class="links">
-<a href="roadmap.html">View full roadmap →</a>
-<a href="/">Back to homepage →</a>
-</div>
-</div>
-
-</div>
+const firstName = params.get("first_name");
+if (firstName) {
+document.getElementById("welcome-title").textContent =
+`Welcome to StudentStream, ${decodeURIComponent(firstName)} 👋`;
+}
+</script>
 
 </body>
 </html>
