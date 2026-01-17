@@ -1,69 +1,154 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>StudentStream Messages</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Messages</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-body{margin:0;font-family:system-ui;background:#0a0f2c;color:white}
-.chat{max-width:600px;margin:auto;padding:20px}
-.messages{height:60vh;overflow-y:auto;border:1px solid #333;padding:10px;border-radius:10px}
-.msg{margin:6px 0;padding:8px 12px;background:#1c245a;border-radius:12px;width:fit-content}
-.input{display:flex;margin-top:10px}
+body{margin:0;font-family:sans-serif;background:#0b1028;color:white;display:flex;height:100vh}
+.sidebar{width:280px;background:#0f153a;overflow:auto}
+.user{padding:12px;border-bottom:1px solid #222;cursor:pointer}
+.user:hover{background:#1b2260}
+.staff{color:#ffd36a;font-size:12px;margin-left:6px}
+.online{color:#00ff9c;font-size:10px}
+.chat{flex:1;display:flex;flex-direction:column}
+.top{padding:10px;border-bottom:1px solid #333}
+.messages{flex:1;padding:10px;overflow:auto}
+.msg{max-width:70%;margin:6px 0;padding:10px;border-radius:10px}
+.me{background:#6a7cff;margin-left:auto}
+.them{background:#1e255a}
+.input{display:flex;padding:10px;border-top:1px solid #333}
 input{flex:1;padding:10px;border-radius:8px;border:none}
-button{margin-left:8px;padding:10px 14px;border-radius:8px;border:none;background:#6a7cff;color:white}
+button{margin-left:8px;background:#6a7cff;border:none;color:white;padding:10px;border-radius:8px}
+.typing{font-size:12px;color:#aaa;padding-left:10px}
+.seen{font-size:10px;color:#aaa;text-align:right}
+.search{width:100%;padding:8px;border:none}
 </style>
 </head>
 <body>
 
-<div class="chat">
-<h2>Messages</h2>
-<div class="messages" id="messages"></div>
+<div class="sidebar">
+<input class="search" placeholder="Search..." oninput="searchUsers(this.value)">
+<div id="users"></div>
+</div>
 
+<div class="chat">
+<div class="top" id="chatHeader">Select a user</div>
+<div class="typing" id="typing"></div>
+<div class="messages" id="messages"></div>
 <div class="input">
-<input id="text" placeholder="Type message...">
+<input id="msg" placeholder="Message..." oninput="typing()">
 <button onclick="send()">Send</button>
 </div>
 </div>
 
 <script>
-const supabase = supabase.createClient("YOUR_URL","YOUR_PUBLIC_KEY")
+const supabase = supabase.createClient("YOUR_URL","YOUR_KEY");
 
-async function loadMessages(){
-  const { data } = await supabase.from("messages").select("*").order("created_at")
-  render(data)
+let me, selectedUser, isStaff=false;
+
+(async()=>{
+const {data:{user}}=await supabase.auth.getUser();
+me=user.id;
+
+const profile=await supabase.from("profiles").select("*").eq("id",me).single();
+isStaff=profile.data.is_staff;
+
+loadUsers();
+setInterval(updateOnline,15000);
+subscribeTyping();
+})();
+
+async function loadUsers(){
+const {data}=await supabase.from("profiles").select("*").neq("id",me);
+renderUsers(data);
 }
 
-function render(msgs){
-  const box=document.getElementById("messages")
-  box.innerHTML=""
-  msgs.forEach(m=>{
-    const d=document.createElement("div")
-    d.className="msg"
-    d.textContent=m.content
-    box.appendChild(d)
-  })
+function renderUsers(list){
+const box=document.getElementById("users");
+box.innerHTML="";
+list.forEach(u=>{
+const div=document.createElement("div");
+div.className="user";
+div.innerHTML=`${u.username||u.id.slice(0,6)}
+${u.is_staff?'<span class="staff">STAFF</span>':''}
+<span class="online">●</span>`;
+div.onclick=()=>openChat(u);
+box.appendChild(div);
+});
+}
+
+function searchUsers(q){
+loadUsers();
+}
+
+function openChat(u){
+selectedUser=u;
+document.getElementById("chatHeader").innerText=u.username;
+loadMessages();
+markSeen();
+}
+
+async function loadMessages(){
+const {data}=await supabase.from("messages").select("*")
+.or(`and(sender_id.eq.${me},receiver_id.eq.${selectedUser.id}),and(sender_id.eq.${selectedUser.id},receiver_id.eq.${me})`)
+.order("created_at");
+
+const box=document.getElementById("messages");
+box.innerHTML="";
+data.forEach(m=>{
+if(m.staff_only && !isStaff) return;
+
+const d=document.createElement("div");
+d.className="msg "+(m.sender_id==me?"me":"them");
+d.innerHTML=m.content;
+box.appendChild(d);
+});
+
+box.scrollTop=box.scrollHeight;
 }
 
 async function send(){
-  const text=document.getElementById("text").value
-  if(!text) return
+const text=msg.value.trim();
+if(!text||!selectedUser) return;
 
-  await supabase.from("messages").insert({
-    content:text
-  })
-
-  document.getElementById("text").value=""
+await supabase.from("messages").insert({
+sender_id:me,
+receiver_id:selectedUser.id,
+content:text,
+staff_only:false
+});
+msg.value="";
 }
 
-supabase
-.channel('public:messages')
-.on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},payload=>{
-  loadMessages()
-})
-.subscribe()
+async function markSeen(){
+await supabase.from("messages").update({seen:true})
+.eq("receiver_id",me).eq("sender_id",selectedUser.id);
+}
 
-loadMessages()
+function typing(){
+supabase.from("typing_status").upsert({
+user_id:me,
+chatting_with:selectedUser.id,
+updated_at:new Date()
+});
+}
+
+function subscribeTyping(){
+supabase.channel("typing")
+.on("postgres_changes",{event:"*",table:"typing_status"},payload=>{
+const t=payload.new;
+if(t.chatting_with===me && t.user_id===selectedUser?.id){
+document.getElementById("typing").innerText="Typing...";
+setTimeout(()=>typingBox.innerText="",2000);
+}
+}).subscribe();
+}
+
+function updateOnline(){
+supabase.from("profiles").update({last_seen:new Date()}).eq("id",me);
+}
 </script>
 
 </body>
