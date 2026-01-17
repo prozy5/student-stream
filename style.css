@@ -326,3 +326,37 @@ button:active, a:active, .card:active, .r-card:active, .nav-item:active {
     height: 280px;
   }
 }
+/* FIX FLOATING CARDS ON MOBILE */
+@media (max-width: 900px) {
+
+  .right {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+    margin-top: 30px;
+  }
+
+  .card {
+    position: relative;
+    width: 90%;
+    max-width: 320px;
+    animation: floatSoft 4s ease-in-out infinite;
+  }
+
+  /* Remove desktop positions */
+  .c1,.c2,.c3,.c4,.c5{
+    top:auto;
+    left:auto;
+    right:auto;
+    bottom:auto;
+  }
+}
+
+/* softer mobile animation */
+@keyframes floatSoft {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
