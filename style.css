@@ -249,3 +249,45 @@ margin-top: 60px;
 flex-direction: column;
 }
 }
+@media (max-width: 600px) {
+
+  .container {
+    padding: 14px;
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  h1 { font-size: 20px; }
+  h2 { font-size: 17px; }
+
+  body {
+    font-size: 14px;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .badge {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  #userEmail {
+    word-break: break-all;
+    font-size: 14px;
+  }
+
+  .chat-box {
+    max-height: 140px;
+  }
+
+}
