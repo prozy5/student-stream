@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Create Listing</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:sans-serif;background:#0b1028;color:white;padding:20px}
+input,select,textarea,button{width:100%;margin:8px 0;padding:10px;border-radius:6px;border:none}
+button{background:#6a7cff;color:white;font-weight:bold}
+</style>
+</head>
+<body>
+
+<h2>Create Marketplace Listing</h2>
+
+<input id="title" placeholder="Title">
+<textarea id="description" placeholder="Description"></textarea>
+<input id="price" type="number" placeholder="Price">
+
+<select id="category">
+<option>Clothing & Fashion</option>
+<option>Digital Services</option>
+<option>Content Creation</option>
+<option>Graphics & Design</option>
+<option>Music & Audio</option>
+<option>Gaming</option>
+<option>Social Media Pages</option>
+<option>Website & Apps</option>
+<option>Video Editing</option>
+<option>Photography</option>
+<option>Brand Deals</option>
+<option>Physical Items</option>
+<option>Other</option>
+</select>
+
+<input id="image" type="file" accept="image/*">
+
+<button onclick="createListing()">Publish</button>
+
+<script>
+const supabase = supabase.createClient("YOUR_URL","YOUR_KEY");
+
+async function createListing(){
+  const {data:{user}} = await supabase.auth.getUser();
+  if(!user){ alert("Login first"); return; }
+
+  const file = document.getElementById("image").files[0];
+  let imageUrl = null;
+
+  if(file){
+    const filePath = `${user.id}/${Date.now()}-${file.name}`;
+
+    const {error} = await supabase.storage
+      .from("marketplace-images")
+      .upload(filePath, file);
+
+    if(error){ alert(error.message); return; }
+
+    const {data} = supabase.storage
+      .from("marketplace-images")
+      .getPublicUrl(filePath);
+
+    imageUrl = data.publicUrl;
+  }
+
+  await supabase.from("marketplace_listings").insert({
+    seller_id: user.id,
+    title: title.value,
+    description: description.value,
+    price: price.value,
+    category: category.value,
+    image_url: imageUrl
+  });
+
+  alert("Listing created!");
+  location.reload();
+}
+</script>
+</body>
+</html>
