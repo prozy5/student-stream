@@ -1,0 +1,112 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #0b1028;
+  color: white;
+}
+
+.admin-app {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  background: #0f153a;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.sidebar button {
+  background: none;
+  border: none;
+  color: #cfd8ff;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.sidebar button:hover {
+  background: #1a225a;
+}
+
+.owner-btn {
+  color: #ffd36a;
+}
+
+.logout {
+  margin-top: auto;
+  background: #ff4d4d;
+  color: white;
+  border-radius: 8px;
+}
+
+.content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #151c48;
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 18px;
+}
+
+.owner-panel {
+  border: 2px solid #ffd36a;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-box {
+  background: #151c48;
+  padding: 20px;
+  border-radius: 12px;
+  width: 280px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+@media(max-width: 700px) {
+  .sidebar {
+    width: 70px;
+  }
+  .sidebar h2 {
+    display: none;
+  }
+}
