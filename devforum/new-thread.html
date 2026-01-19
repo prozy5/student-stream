@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New Thread – StudentStream DevForum</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
+
+body{
+background:#0b1028;
+color:white;
+min-height:100vh;
+}
+
+.header{
+padding:16px;
+border-bottom:1px solid #222;
+background:#0f153a;
+font-weight:700;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+padding:20px;
+}
+
+h2{margin-bottom:16px}
+
+label{
+display:block;
+margin-top:16px;
+margin-bottom:6px;
+color:#aab3ff;
+font-size:14px;
+}
+
+input, select, textarea{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:none;
+outline:none;
+background:#12184a;
+color:white;
+font-size:14px;
+}
+
+textarea{
+min-height:160px;
+resize:vertical;
+}
+
+.toggle{
+display:flex;
+align-items:center;
+gap:10px;
+margin-top:12px;
+font-size:14px;
+color:#ffd36a;
+}
+
+button{
+margin-top:20px;
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:linear-gradient(90deg,#6a7cff,#8b5cf6);
+color:white;
+font-weight:700;
+font-size:15px;
+cursor:pointer;
+}
+
+button:hover{
+opacity:.9;
+}
+
+.back{
+margin-bottom:12px;
+display:inline-block;
+color:#9bb3ff;
+text-decoration:none;
+font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">StudentStream DevForum</div>
+
+<div class="container">
+
+<a class="back" href="category.html">← Back to category</a>
+
+<h2>Create new thread</h2>
+
+<label>Thread title</label>
+<input id="title" placeholder="What's this about?">
+
+<label>Category</label>
+<select id="category">
+<option>Platform Updates</option>
+<option>Bug Reports</option>
+<option>Marketplace</option>
+<option>Messaging</option>
+<option>Feature Requests</option>
+<option>Off Topic</option>
+</select>
+
+<label>Post content</label>
+<textarea id="content" placeholder="Write your post..."></textarea>
+
+<div class="toggle">
+<input type="checkbox" id="staffOnly">
+<label for="staffOnly">Staff only thread</label>
+</div>
+
+<button onclick="createThread()">Create Thread</button>
+
+</div>
+
+<script>
+function createThread(){
+  const title=document.getElementById("title").value.trim();
+  const content=document.getElementById("content").value.trim();
+
+  if(!title || !content){
+    alert("Fill in all fields");
+    return;
+  }
+
+  alert("Thread created (backend coming next)");
+
+  window.location.href="category.html";
+}
+</script>
+
+</body>
+</html>
