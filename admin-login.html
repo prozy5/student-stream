@@ -1,0 +1,14 @@
+<input id="email">
+<input id="password" type="password">
+<button onclick="login()">Login</button>
+
+<script>
+async function login() {
+  await supabase.auth.signInWithPassword({
+    email: email.value,
+    password: password.value
+  });
+
+  location.href = "/admin.html";
+}
+</script>
