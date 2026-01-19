@@ -4,195 +4,171 @@
 <meta charset="UTF-8">
 <title>StudentStream Status</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
-  --bg: #0b1020;
-  --card: #121a33;
-  --text: #e6ecff;
-  --muted: #9aa4c7;
-  --good: #22c55e;
-  --bad: #ef4444;
-  --warn: #facc15;
+:root{
+--bg:#020617;--panel:#0b1220;--border:#1e293b;
+--text:#e5e7eb;--muted:#94a3b8;
+--green:#22c55e;--yellow:#facc15;--orange:#fb923c;--red:#ef4444;
 }
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui;background:radial-gradient(circle at top,#0f172a,#020617);color:var(--text)}
+.container{max-width:1000px;margin:auto;padding:20px}
+header{text-align:center}
+h1{margin:0}
+.subtitle{color:var(--muted)}
+.banner{margin:16px 0;padding:14px;border-radius:14px;font-weight:700}
+.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.bad{background:rgba(239,68,68,.15);color:var(--red)}
 
-* { box-sizing: border-box; }
+.grid{display:grid;gap:16px}
+@media(min-width:800px){.grid{grid-template-columns:2fr 1fr}}
 
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(160deg,#0b1020,#05080f);
-  color: var(--text);
-}
+.card{background:var(--panel);border-radius:18px;padding:16px}
 
-header {
-  padding: 24px;
-  text-align: center;
-}
+.category{margin-bottom:16px}
+.category h3{margin:8px 0;color:#93c5fd}
 
-header h1 {
-  margin: 0;
-  font-size: 26px;
-}
+.service{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.service:last-child{border:none}
 
-header p {
-  color: var(--muted);
-  margin-top: 6px;
-}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px}
+.operational{background:var(--green)}
+.degraded{background:var(--yellow)}
+.partial_outage{background:var(--orange)}
+.major_outage{background:var(--red)}
 
-.container {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
-}
+.incident{border-left:4px solid var(--red);padding-left:10px;margin-bottom:10px}
+.badge{font-size:12px;color:#93c5fd}
 
-.card {
-  background: var(--card);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,.3);
-}
-
-.services {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
-  gap: 14px;
-}
-
-.service {
-  background: #0f1630;
-  border-radius: 12px;
-  padding: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.status {
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.operational { color: var(--good); }
-.degraded { color: var(--warn); }
-.down { color: var(--bad); }
-
-.incident {
-  border-left: 4px solid var(--warn);
-  padding-left: 12px;
-  margin-bottom: 12px;
-}
-
-.incident small {
-  color: var(--muted);
-}
-
-footer {
-  text-align: center;
-  padding: 20px;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-@media(max-width:600px){
-  header h1 { font-size: 22px; }
-}
+footer{text-align:center;margin-top:30px;color:var(--muted)}
+.small{font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>StudentStream System Status</h1>
-  <p>Live service availability & platform health</p>
-</header>
-
 <div class="container">
 
-  <div class="card">
-    <h2>Services</h2>
-    <div class="services" id="services"></div>
-  </div>
+<header>
+<h1>StudentStream System Status</h1>
+<div class="subtitle">Realtime platform health</div>
+<div id="banner" class="banner ok">Loading...</div>
+<div id="uptime" class="small"></div>
+</header>
 
-  <div class="card">
-    <h2>Incidents</h2>
-    <div id="incidents"></div>
-  </div>
+<div class="grid">
+
+<div class="card">
+<h2>Services</h2>
+<div id="services"></div>
+</div>
+
+<div class="card">
+<h2>Active Incidents</h2>
+<div id="incidents"></div>
+<a href="history.html" class="small">View incident history →</a>
+</div>
 
 </div>
 
-<footer>
-  Powered by StudentStream Cloud Infrastructure
-</footer>
+<footer>Powered by StudentStream Cloud Infrastructure</footer>
+
+</div>
 
 <script>
-const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const supabase = window.supabase.createClient(
+  "https://iabzmoxzbqzcqgypxctr.supabase.co",
+  "https://iabzmoxzbqzcqgypxctr.supabase.co"
+);
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const servicesDiv=document.getElementById("services");
+const incidentsDiv=document.getElementById("incidents");
+const banner=document.getElementById("banner");
+const uptimeDiv=document.getElementById("uptime");
 
-const servicesDiv = document.getElementById("services");
-const incidentsDiv = document.getElementById("incidents");
+function statusDot(s){return `<span class="dot ${s}"></span>${s.replace("_"," ")}`}
 
-function statusClass(status){
-  if(status === "operational") return "operational";
-  if(status === "degraded") return "degraded";
-  return "down";
+function groupBy(arr,key){
+ return arr.reduce((a,c)=>{
+  (a[c[key]] ||= []).push(c);
+  return a;
+ },{});
 }
 
-async function loadServices(){
-  const { data } = await supabase.from("services").select("*").order("id");
-  servicesDiv.innerHTML = "";
-  data.forEach(s=>{
-    const el = document.createElement("div");
-    el.className = "service";
-    el.innerHTML = `
-      <span>${s.name}</span>
-      <span class="status ${statusClass(s.status)}">${s.status}</span>
-    `;
-    servicesDiv.appendChild(el);
-  });
+async function loadStatus(){
+
+const {data:services}=await supabase.from("system_status").select("*");
+const {data:incidents}=await supabase.from("incidents").select("*").neq("status","resolved");
+
+renderServices(services||[]);
+renderIncidents(incidents||[]);
+renderBanner(services||[]);
+calcUptime(services||[]);
 }
 
-async function loadIncidents(){
-  const { data } = await supabase
-    .from("incidents")
-    .select("*")
-    .order("created_at",{ascending:false})
-    .limit(10);
-
-  incidentsDiv.innerHTML = "";
-
-  if(!data.length){
-    incidentsDiv.innerHTML = "<p style='color:var(--muted)'>No incidents reported.</p>";
-    return;
-  }
-
-  data.forEach(i=>{
-    const el = document.createElement("div");
-    el.className = "incident";
-    el.innerHTML = `
-      <strong>${i.title || "Incident"}</strong><br>
-      ${i.description || ""}
-      <br><small>${new Date(i.created_at).toLocaleString()}</small>
-    `;
-    incidentsDiv.appendChild(el);
-  });
+function renderServices(data){
+const grouped=groupBy(data,"category");
+servicesDiv.innerHTML=Object.keys(grouped).map(cat=>`
+<div class="category">
+<h3>${cat}</h3>
+${grouped[cat].map(s=>`
+<div class="service">
+<div>${s.service_name}</div>
+<div>${statusDot(s.status)}</div>
+</div>`).join("")}
+</div>`).join("");
 }
 
-function setupRealtime(){
-  supabase.channel("status-updates")
-    .on("postgres_changes",{event:"*",schema:"public",table:"services"},loadServices)
-    .on("postgres_changes",{event:"*",schema:"public",table:"incidents"},loadIncidents)
-    .subscribe();
+function renderIncidents(data){
+if(!data.length){
+incidentsDiv.innerHTML="<div class='badge'>No active incidents</div>";
+return;
+}
+incidentsDiv.innerHTML=data.map(i=>`
+<div class="incident">
+<strong>${i.title||"Incident"}</strong><br>
+${i.description||""}
+<div class="badge">${i.severity} • ${i.status}</div>
+</div>`).join("");
 }
 
-loadServices();
-loadIncidents();
-setupRealtime();
+function renderBanner(services){
+const bad=services.filter(s=>s.status!=="operational");
+if(!bad.length){
+banner.className="banner ok";
+banner.textContent="All systems operational";
+}else{
+banner.className="banner bad";
+banner.textContent=`${bad.length} services experiencing issues`;
+}
+}
+
+async function calcUptime(services){
+let total=0,up=0;
+for(const s of services){
+const {data}=await supabase.from("service_uptime")
+.select("status",{count:"exact"})
+.eq("service_name",s.service_name);
+
+if(data){
+total+=data.length;
+up+=data.filter(r=>r.status==="operational").length;
+}
+}
+if(total>0){
+const pct=((up/total)*100).toFixed(2);
+uptimeDiv.textContent=`30-day average uptime: ${pct}%`;
+}
+}
+
+loadStatus();
+
+supabase.channel("realtime-status")
+.on("postgres_changes",{event:"*",schema:"public",table:"system_status"},loadStatus)
+.on("postgres_changes",{event:"*",schema:"public",table:"incidents"},loadStatus)
+.subscribe();
+
 </script>
-
 </body>
 </html>
