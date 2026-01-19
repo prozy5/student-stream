@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudentStream DevForum</title>
+
+<style>
+:root{
+  --bg:#0b1028;
+  --panel:#121842;
+  --card:#171f55;
+  --accent:#6a7cff;
+  --text:#ffffff;
+  --muted:#9aa3ff;
+  --success:#00ff9c;
+  --warn:#ffd36a;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,Segoe UI,Arial;
+  background:var(--bg);
+  color:var(--text);
+}
+
+header{
+  background:var(--panel);
+  padding:14px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #222;
+}
+
+.logo{
+  font-weight:700;
+  font-size:18px;
+}
+
+.search{
+  background:#0d1338;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  color:white;
+  width:180px;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;
+  margin-bottom:20px;
+}
+
+.stat{
+  background:var(--card);
+  padding:14px;
+  border-radius:10px;
+  text-align:center;
+}
+
+.categories, .threads{
+  background:var(--panel);
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:20px;
+}
+
+.section-title{
+  padding:14px;
+  font-weight:600;
+  border-bottom:1px solid #222;
+}
+
+.category, .thread{
+  display:flex;
+  justify-content:space-between;
+  padding:14px;
+  border-bottom:1px solid #222;
+}
+
+.category:hover, .thread:hover{
+  background:#1a2360;
+  cursor:pointer;
+}
+
+.badge{
+  font-size:11px;
+  padding:3px 6px;
+  border-radius:6px;
+  margin-left:6px;
+}
+
+.owner{background:#ff5c5c}
+.admin{background:#ffd36a;color:#000}
+.staff{background:#6affc9;color:#000}
+
+.pinned{
+  color:#ffd36a;
+  font-weight:600;
+}
+
+.user{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.online{
+  color:var(--success);
+  font-size:11px;
+}
+
+footer{
+  text-align:center;
+  padding:20px;
+  color:#777;
+  font-size:13px;
+}
+
+@media(max-width:600px){
+  .search{width:110px}
+  .category, .thread{flex-direction:column;gap:6px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">StudentStream DevForum</div>
+  <input class="search" placeholder="Search forum...">
+</header>
+
+<div class="container">
+
+  <div class="stats">
+    <div class="stat">👥 Members<br><b>1,248</b></div>
+    <div class="stat">💬 Threads<br><b>342</b></div>
+    <div class="stat">⚙️ Developers<br><b>38</b></div>
+    <div class="stat">🟢 Online<br><b>24</b></div>
+  </div>
+
+  <div class="categories">
+    <div class="section-title">Categories</div>
+
+    <div class="category">
+      <div>📢 Announcements</div>
+      <div class="user">Staff Only</div>
+    </div>
+
+    <div class="category">
+      <div>🛠 Platform Updates</div>
+      <div class="user">Releases & changes</div>
+    </div>
+
+    <div class="category">
+      <div>🐞 Bug Reports</div>
+      <div class="user">Help improve StudentStream</div>
+    </div>
+
+    <div class="category">
+      <div>💡 Feature Requests</div>
+      <div class="user">Community ideas</div>
+    </div>
+
+    <div class="category">
+      <div>💬 General Discussion</div>
+      <div class="user">Talk about anything</div>
+    </div>
+  </div>
+
+  <div class="threads">
+    <div class="section-title">Pinned Threads</div>
+
+    <div class="thread pinned">
+      <div>
+        Welcome to StudentStream DevForum
+        <span class="badge owner">OWNER</span>
+      </div>
+      <div class="user">Deondre • 1h ago</div>
+    </div>
+
+    <div class="thread pinned">
+      <div>
+        Platform Roadmap 2026
+        <span class="badge admin">ADMIN</span>
+      </div>
+      <div class="user">Admin • 3h ago</div>
+    </div>
+  </div>
+
+  <div class="threads">
+    <div class="section-title">Latest Threads</div>
+
+    <div class="thread">
+      <div>
+        Messaging system feedback
+        <span class="badge staff">STAFF</span>
+      </div>
+      <div class="user">Alex • 🟢 Online</div>
+    </div>
+
+    <div class="thread">
+      <div>Marketplace image upload issue</div>
+      <div class="user">Jordan • 2h ago</div>
+    </div>
+
+    <div class="thread">
+      <div>Feature request: creator payouts</div>
+      <div class="user">Maya • 5h ago</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+StudentStream DevForum • Cloud Infrastructure • Community Driven
+</footer>
+
+</body>
+</html>
