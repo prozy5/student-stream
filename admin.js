@@ -1,79 +1,234 @@
-const supabase = supabase.createClient(
-  "YOUR_SUPABASE_URL",
-  "YOUR_SUPABASE_ANON_KEY"
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://iabzmoxzbqzcqgypxctr.supabase.co",
+  "https://iabzmoxzbqzcqgypxctr.supabase.co"
 );
 
-let currentUser = null;
-let isOwner = false;
+let currentUserProfile = null;
 
-async function init() {
+/* =========================
+   AUTH + ROLE CHECK
+========================= */
+
+async function initAdmin() {
   const { data: { user } } = await supabase.auth.getUser();
+
   if (!user) {
-    alert("Login required");
-    location.href = "/login.html";
+    window.location.href = "/login.html";
     return;
   }
 
-  currentUser = user.id;
-
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
 
-  if (!profile.is_admin) {
-    alert("Not authorized");
-    location.href = "/";
+  if (error || !profile || !profile.is_admin) {
+    alert("Access denied.");
+    window.location.href = "/";
     return;
   }
 
-  if (!profile.is_owner) {
-    document.getElementById("ownerBtn").style.display = "none";
-  } else {
-    isOwner = true;
+  currentUserProfile = profile;
+
+  if (profile.is_owner) {
+    document.getElementById("ownerPanel").style.display = "block";
   }
 
-  loadStats();
+  loadDashboardStats();
+  loadUsers();
+  loadListings();
+  loadReports();
+  loadMessages();
 }
 
-function showSection(id) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+document.addEventListener("DOMContentLoaded", initAdmin);
+
+/* =========================
+   DASHBOARD
+========================= */
+
+async function loadDashboardStats() {
+  const users = await supabase.from("profiles").select("id", { count: "exact", head: true });
+  const listings = await supabase.from("marketplace_listings").select("id", { count: "exact", head: true });
+  const messages = await supabase.from("messages").select("id", { count: "exact", head: true });
+
+  document.getElementById("usersCount").innerText = users.count || 0;
+  document.getElementById("listingsCount").innerText = listings.count || 0;
+  document.getElementById("messagesCount").innerText = messages.count || 0;
 }
 
-function openOwnerPanel() {
-  document.getElementById("ownerModal").style.display = "flex";
-}
+/* =========================
+   USERS PANEL
+========================= */
 
-async function verifyOwner() {
-  const pw = document.getElementById("ownerPassword").value;
+async function loadUsers() {
+  const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
 
-  const { data, error } = await supabase.rpc("verify_owner_password", {
-    pw
+  const container = document.getElementById("usersList");
+  container.innerHTML = "";
+
+  data.forEach(user => {
+    const div = document.createElement("div");
+    div.className = "admin-row";
+
+    div.innerHTML = `
+      <b>${user.username}</b> (${user.id})
+      ${user.banned ? "🚫" : ""}
+      ${user.is_verified ? "✅" : ""}
+      <button onclick="toggleBan('${user.id}', ${user.banned})">Ban</button>
+      <button onclick="verifyUser('${user.id}')">Verify</button>
+      <button onclick="toggleStaff('${user.id}', ${user.is_staff})">Staff</button>
+    `;
+
+    container.appendChild(div);
   });
+}
 
-  if (data === true) {
-    document.getElementById("ownerModal").style.display = "none";
-    showSection("owner");
-  } else {
-    alert("Wrong password");
+async function toggleBan(id, current) {
+  await supabase.from("profiles").update({ banned: !current }).eq("id", id);
+  loadUsers();
+}
+
+async function verifyUser(id) {
+  await supabase.from("profiles").update({ is_verified: true }).eq("id", id);
+  loadUsers();
+}
+
+async function toggleStaff(id, current) {
+  await supabase.from("profiles").update({ is_staff: !current }).eq("id", id);
+  loadUsers();
+}
+
+/* =========================
+   MARKETPLACE PANEL
+========================= */
+
+async function loadListings() {
+  const { data } = await supabase
+    .from("marketplace_listings")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const container = document.getElementById("marketplaceList");
+  container.innerHTML = "";
+
+  data.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "admin-row";
+
+    div.innerHTML = `
+      <b>${item.title}</b> by ${item.user_id}
+      <button onclick="deleteListing('${item.id}')">Delete</button>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+async function deleteListing(id) {
+  if (!confirm("Delete this listing?")) return;
+
+  await supabase.from("marketplace_listings").delete().eq("id", id);
+  loadListings();
+}
+
+/* =========================
+   REPORTS PANEL
+========================= */
+
+async function loadReports() {
+  const { data } = await supabase
+    .from("reports")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const container = document.getElementById("reportsList");
+  container.innerHTML = "";
+
+  data.forEach(r => {
+    const div = document.createElement("div");
+    div.className = "admin-row";
+
+    div.innerHTML = `
+      <b>${r.type}</b> → ${r.target_id}
+      <p>${r.reason}</p>
+      <button onclick="resolveReport('${r.id}')">Resolve</button>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+async function resolveReport(id) {
+  await supabase.from("reports").update({ resolved: true }).eq("id", id);
+  loadReports();
+}
+
+/* =========================
+   MESSAGES PANEL
+========================= */
+
+async function loadMessages() {
+  const { data } = await supabase
+    .from("messages")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  const container = document.getElementById("messagesList");
+  container.innerHTML = "";
+
+  data.forEach(msg => {
+    const div = document.createElement("div");
+    div.className = "admin-row";
+
+    div.innerHTML = `
+      <b>${msg.sender_id}</b> → ${msg.receiver_id}
+      <p>${msg.content}</p>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+/* =========================
+   OWNER PANEL (LOCKED)
+========================= */
+
+async function ownerLogin(password) {
+  if (!currentUserProfile.is_owner) {
+    alert("Owner only.");
+    return;
   }
+
+  if (password !== "CHANGE_THIS_PASSWORD") {
+    alert("Wrong password");
+    return;
+  }
+
+  document.getElementById("ownerPanelContent").style.display = "block";
 }
 
-async function loadStats() {
-  const users = await supabase.from("profiles").select("*", { count: "exact", head: true });
-  const listings = await supabase.from("marketplace_listings").select("*", { count: "exact", head: true });
-  const msgs = await supabase.from("messages").select("*", { count: "exact", head: true });
+/* =========================
+   LOGOUT
+========================= */
 
-  document.getElementById("userCount").innerText = users.count;
-  document.getElementById("listingCount").innerText = listings.count;
-  document.getElementById("msgCount").innerText = msgs.count;
+async function logout() {
+  await supabase.auth.signOut();
+  window.location.href = "/login.html";
 }
 
-function logout() {
-  supabase.auth.signOut();
-  location.href = "/";
-}
+/* =========================
+   GLOBAL EXPORTS
+========================= */
 
-init();
+window.toggleBan = toggleBan;
+window.verifyUser = verifyUser;
+window.toggleStaff = toggleStaff;
+window.deleteListing = deleteListing;
+window.resolveReport = resolveReport;
+window.ownerLogin = ownerLogin;
+window.logout = logout;
