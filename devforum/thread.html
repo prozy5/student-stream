@@ -1,250 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>StudentStream Forum Thread</title>
+<title>Thread | DevForum</title>
+<link rel="stylesheet" href="forum.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-body {
-  margin:0;
-  font-family: system-ui;
-  background:#0b1220;
-  color:#e5e7eb;
-}
-
-.container {
-  max-width:900px;
-  margin:auto;
-  padding:30px;
-}
-
-h1 { margin-bottom:20px; }
-
-.reply {
-  background:#111a2e;
-  border-radius:10px;
-  padding:15px;
-  margin-bottom:12px;
-  border:1px solid #1f2a44;
-}
-
-.reply-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:8px;
-}
-
-.username {
-  font-weight:700;
-}
-
-.badge {
-  font-size:11px;
-  padding:3px 7px;
-  border-radius:999px;
-  margin-left:6px;
-  font-weight:700;
-}
-
-.owner { 
-  background:linear-gradient(135deg,#facc15,#f59e0b);
-  color:#000;
-  box-shadow:0 0 12px rgba(250,204,21,.6);
-}
-
-.admin {
-  background:#ef4444;
-}
-
-.mod {
-  background:#3b82f6;
-}
-
-.user {
-  background:#374151;
-}
-
-.reply-content {
-  margin-top:6px;
-}
-
-.delete-btn {
-  background:#dc2626;
-  border:none;
-  color:white;
-  padding:4px 8px;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-form {
-  margin-top:25px;
-  display:flex;
-  gap:10px;
-}
-
-textarea {
-  flex:1;
-  padding:10px;
-  border-radius:8px;
-  border:none;
-  resize:none;
-}
-
-button {
-  background:#22c55e;
-  border:none;
-  color:black;
-  padding:10px 16px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:700;
-}
-</style>
 </head>
 <body>
 
-<div class="container">
-  <h1 id="threadTitle">Thread</h1>
+<header class="topbar">
+  <a href="index.html" class="logo">← DevForum</a>
+</header>
 
-  <div id="replies"></div>
+<div class="thread-page">
 
-  <form id="replyForm">
-    <textarea id="replyText" placeholder="Write a reply..." required></textarea>
-    <button type="submit">Send</button>
-  </form>
+<div id="threadBox"></div>
+
+<div class="reply-box">
+  <textarea id="replyText" placeholder="Write a reply..."></textarea>
+  <button onclick="postReply()">Reply</button>
 </div>
 
-<script>
-/* ============================
-   CONFIG
-============================ */
-const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
+<div id="replies"></div>
 
-const THREAD_ID = new URLSearchParams(window.location.search).get("id") || 1;
+</div>
 
-// Fake auth example (replace later)
-const currentUser = {
-  id: crypto.randomUUID(),
-  username: "Deondre",
-  role: "owner" // owner | admin | mod | user
-};
-
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-/* ============================
-   LOAD THREAD
-============================ */
-async function loadThread() {
-  const { data } = await supabase
-    .from("forum_threads")
-    .select("*")
-    .eq("id", THREAD_ID)
-    .single();
-
-  if (data) {
-    document.getElementById("threadTitle").innerText = data.title;
-  }
-}
-
-/* ============================
-   RENDER REPLY
-============================ */
-function renderReply(reply) {
-  const div = document.createElement("div");
-  div.className = "reply";
-  div.dataset.id = reply.id;
-
-  const badgeClass = reply.role || "user";
-
-  div.innerHTML = `
-    <div class="reply-header">
-      <div>
-        <span class="username">${reply.username}</span>
-        <span class="badge ${badgeClass}">${badgeClass.toUpperCase()}</span>
-      </div>
-      ${canModerate() ? `<button class="delete-btn" onclick="deleteReply(${reply.id})">Delete</button>` : ""}
-    </div>
-    <div class="reply-content">${reply.content}</div>
-  `;
-
-  document.getElementById("replies").appendChild(div);
-}
-
-/* ============================
-   LOAD REPLIES
-============================ */
-async function loadReplies() {
-  const { data } = await supabase
-    .from("forum_replies")
-    .select("*")
-    .eq("thread_id", THREAD_ID)
-    .order("created_at");
-
-  document.getElementById("replies").innerHTML = "";
-  data.forEach(renderReply);
-}
-
-/* ============================
-   REALTIME
-============================ */
-supabase
-  .channel("replies")
-  .on("postgres_changes", {
-    event: "INSERT",
-    schema: "public",
-    table: "forum_replies",
-    filter: `thread_id=eq.${THREAD_ID}`
-  }, payload => {
-    renderReply(payload.new);
-  })
-  .subscribe();
-
-/* ============================
-   POST REPLY
-============================ */
-document.getElementById("replyForm").addEventListener("submit", async e => {
-  e.preventDefault();
-
-  const text = replyText.value.trim();
-  if (!text) return;
-
-  await supabase.from("forum_replies").insert({
-    thread_id: THREAD_ID,
-    user_id: currentUser.id,
-    username: currentUser.username,
-    role: currentUser.role,
-    content: text
-  });
-
-  replyText.value = "";
-});
-
-/* ============================
-   MODERATION
-============================ */
-function canModerate() {
-  return ["owner","admin","mod"].includes(currentUser.role);
-}
-
-async function deleteReply(id) {
-  if (!confirm("Delete this reply?")) return;
-
-  await supabase.from("forum_replies").delete().eq("id", id);
-
-  const el = document.querySelector(`[data-id="${id}"]`);
-  if (el) el.remove();
-}
-
-/* ============================
-   INIT
-============================ */
-loadThread();
-loadReplies();
-</script>
-
+<script src="thread.js"></script>
 </body>
 </html>
