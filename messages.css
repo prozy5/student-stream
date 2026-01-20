@@ -1,0 +1,184 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar */
+
+.sidebar {
+  width: 280px;
+  background: #020617;
+  border-right: 1px solid #1e293b;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 1px solid #1e293b;
+}
+
+.search-box {
+  padding: 10px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: #0f172a;
+  color: white;
+}
+
+.users {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.user {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.user:hover {
+  background: #0f172a;
+}
+
+.user.active {
+  background: #1e293b;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background: #2563eb;
+  border-radius: 50%;
+}
+
+.avatar.small {
+  width: 32px;
+  height: 32px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.status {
+  font-size: 12px;
+}
+
+.online {
+  color: #22c55e;
+}
+
+.offline {
+  color: #64748b;
+}
+
+/* Chat */
+
+.chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #0f172a;
+}
+
+.chat-header {
+  padding: 14px;
+  border-bottom: 1px solid #1e293b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-status {
+  font-size: 13px;
+  color: #22c55e;
+}
+
+.messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  max-width: 60%;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.received {
+  background: #1e293b;
+  align-self: flex-start;
+}
+
+.sent {
+  background: #2563eb;
+  align-self: flex-end;
+}
+
+.input-bar {
+  padding: 12px;
+  border-top: 1px solid #1e293b;
+  display: flex;
+  gap: 10px;
+}
+
+.input-bar input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #020617;
+  color: white;
+}
+
+.input-bar button {
+  background: #2563eb;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+.input-bar button:hover {
+  background: #1d4ed8;
+}
