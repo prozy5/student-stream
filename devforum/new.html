@@ -1,134 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>New Thread – StudentStream DevForum</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<title>New Thread</title>
+<link rel="stylesheet" href="forum.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-body{
-  margin:0;
-  font-family:system-ui, sans-serif;
-  background:#0b1020;
-  color:#fff;
-}
-
-header{
-  padding:16px;
-  background:#111736;
-  text-align:center;
-  font-weight:600;
-}
-
-.container{
-  max-width:700px;
-  margin:auto;
-  padding:16px;
-}
-
-input, textarea, select{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:none;
-  margin-bottom:12px;
-  font-size:14px;
-}
-
-textarea{
-  min-height:140px;
-  resize:vertical;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  background:#6a7cff;
-  border:none;
-  color:white;
-  border-radius:10px;
-  font-size:16px;
-  cursor:pointer;
-}
-
-button:disabled{
-  opacity:.6;
-}
-
-.back{
-  display:block;
-  margin-bottom:12px;
-  color:#8f9bff;
-  text-decoration:none;
-  font-size:14px;
-}
-</style>
 </head>
-
 <body>
 
-<header>Create New Thread</header>
+<div class="new-thread">
 
-<div class="container">
-
-<a class="back" href="index.html">← Back to forum</a>
+<h2>Create Thread</h2>
 
 <input id="title" placeholder="Thread title">
-
 <select id="category">
-  <option value="General">General</option>
-  <option value="Announcements">Announcements</option>
-  <option value="Bugs">Bugs</option>
-  <option value="Features">Feature Requests</option>
-  <option value="Development">Development</option>
+  <option>Development</option>
+  <option>Bugs</option>
+  <option>Ideas</option>
+  <option>Announcements</option>
 </select>
 
 <textarea id="content" placeholder="Write your post..."></textarea>
 
-<button id="postBtn" onclick="createThread()">Post Thread</button>
+<button onclick="createThread()">Post</button>
 
 </div>
 
-<script>
-const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
-
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-async function createThread(){
-  const title = document.getElementById("title").value.trim();
-  const content = document.getElementById("content").value.trim();
-  const category = document.getElementById("category").value;
-
-  if(!title || !content){
-    alert("Fill in all fields");
-    return;
-  }
-
-  document.getElementById("postBtn").disabled = true;
-
-  const { data:auth } = await supabase.auth.getUser();
-  const user = auth.user;
-
-  const { error } = await supabase.from("threads").insert({
-    title,
-    content,
-    category,
-    user_id: user ? user.id : null
-  });
-
-  if(error){
-    alert("Error posting thread");
-    console.error(error);
-    document.getElementById("postBtn").disabled = false;
-    return;
-  }
-
-  location.href = "index.html";
-}
-</script>
-
+<script src="new.js"></script>
 </body>
 </html>
