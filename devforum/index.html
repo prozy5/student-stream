@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>StudentStream DevForum</title>
@@ -8,171 +8,142 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body{margin:0;font-family:system-ui;background:#0b1020;color:#fff}
-header{padding:14px;background:#111736;font-weight:700}
-.container{max-width:900px;margin:auto;padding:14px}
+body{
+  background:#0e0e14;
+  color:white;
+  font-family:system-ui;
+  padding:20px;
+}
+
+h1{margin-bottom:10px;}
 
 .thread{
-  background:#141b3a;
-  padding:12px;
+  background:#15151c;
+  padding:14px;
   border-radius:10px;
   margin-bottom:12px;
-  cursor:pointer;
 }
 
-.thread:hover{background:#1a2260}
+.thread-title{
+  font-size:17px;
+  font-weight:700;
+}
 
-.meta{font-size:12px;color:#aaa}
+.user-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:6px;
+  font-size:13px;
+}
+
+/* ---------- BADGES SYSTEM ---------- */
 
 .badge{
-  padding:2px 6px;
-  border-radius:6px;
+  position:relative;
+  padding:4px 10px;
+  border-radius:999px;
   font-size:10px;
-  margin-left:6px;
+  font-weight:900;
+  letter-spacing:1px;
+  border:1px solid rgba(255,255,255,0.2);
+  text-transform:uppercase;
 }
 
-.staff{background:#ffd36a;color:#000}
-.owner{background:#ff5cff;color:#000}
-
-.new-box{
-  background:#141b3a;
-  padding:12px;
-  border-radius:10px;
-  margin-bottom:16px;
+.owner{
+  background: linear-gradient(135deg,#ff0080,#7928ff,#00e0ff);
+  background-size:300% 300%;
+  animation: ownerGlow 3s ease infinite;
+  box-shadow:0 0 10px rgba(255,0,128,.8);
 }
 
-input,textarea,select{
-  width:100%;
-  margin-top:6px;
-  padding:8px;
-  border-radius:8px;
-  border:none;
+.admin{
+  background:linear-gradient(135deg,#ffb300,#ff6a00);
+  box-shadow:0 0 10px rgba(255,170,0,.7);
 }
 
-button{
-  margin-top:8px;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:#6a7cff;
-  color:#fff;
-  width:100%;
+.mod{
+  background:linear-gradient(135deg,#00ff99,#00b36b);
+  box-shadow:0 0 10px rgba(0,255,153,.6);
+}
+
+.badge::after{
+  content:attr(data-tooltip);
+  position:absolute;
+  bottom:130%;
+  left:50%;
+  transform:translateX(-50%);
+  background:#0d0d14;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:11px;
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+}
+
+.badge:hover::after{opacity:1;}
+
+@keyframes ownerGlow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
 </style>
 </head>
 <body>
 
-<header>StudentStream DevForum</header>
-
-<div class="container">
-
-<div class="new-box">
-  <h3>New Thread</h3>
-  <input id="title" placeholder="Thread title">
-  <select id="category">
-    <option>General</option>
-    <option>Development</option>
-    <option>Ideas</option>
-    <option>Bug Reports</option>
-    <option>Announcements</option>
-  </select>
-  <textarea id="content" placeholder="Write something..."></textarea>
-  <button onclick="createThread()">Post</button>
-</div>
-
+<h1>StudentStream DevForum</h1>
 <div id="threads"></div>
 
-</div>
-
 <script>
-const SUPABASE_URL = "YOUR_PROJECT_URL";
-const SUPABASE_KEY = "YOUR_ANON_KEY";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseUrl = "YOUR_PROJECT_URL";
+const supabaseKey = "YOUR_ANON_KEY";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-let me = null;
-let profiles = {};
+const threadsDiv = document.getElementById("threads");
 
-init();
-
-async function init(){
-  const {data:{user}} = await supabase.auth.getUser();
-  me = user?.id || null;
-
-  await loadProfiles();
-  await loadThreads();
-  subscribeThreads();
-}
-
-async function loadProfiles(){
-  const {data} = await supabase.from("profiles").select("*");
-  data.forEach(p=>profiles[p.id]=p);
+function badgeHTML(role){
+  if(role === "owner") return `<span class="badge owner" data-tooltip="Founder of StudentStream 👑">OWNER</span>`;
+  if(role === "admin") return `<span class="badge admin" data-tooltip="StudentStream Administrator">ADMIN</span>`;
+  if(role === "mod") return `<span class="badge mod" data-tooltip="Forum Moderator">MOD</span>`;
+  return "";
 }
 
 async function loadThreads(){
-  const {data} = await supabase
+  const { data, error } = await supabase
     .from("threads")
-    .select("*")
-    .order("created_at",{ascending:false});
+    .select("id,title,created_at, profiles(username, role)")
+    .order("created_at", { ascending:false });
 
-  renderThreads(data);
-}
+  threadsDiv.innerHTML = "";
 
-function renderThreads(list){
-  const box=document.getElementById("threads");
-  box.innerHTML="";
+  data.forEach(thread=>{
+    const user = thread.profiles;
+    const badge = badgeHTML(user.role);
 
-  list.forEach(t=>{
-    const user = profiles[t.user_id] || {};
-    let badge = "";
-    if(user.is_owner) badge = `<span class="badge owner">OWNER</span>`;
-    else if(user.is_staff) badge = `<span class="badge staff">STAFF</span>`;
-
-    box.innerHTML += `
-      <div class="thread" onclick="openThread('${t.id}')">
-        <b>${t.title}</b>
-        <div class="meta">
-          ${t.category} • ${user.username||short(t.user_id)} ${badge}
+    threadsDiv.innerHTML += `
+      <div class="thread">
+        <div class="thread-title">${thread.title}</div>
+        <div class="user-row">
+          <span>${user.username}</span>
+          ${badge}
         </div>
       </div>
     `;
   });
 }
 
-async function createThread(){
-  const t=title.value.trim();
-  const c=content.value.trim();
-  const cat=category.value;
+loadThreads();
 
-  if(!t||!c) return alert("Fill everything");
+/* ---------- REALTIME ---------- */
 
-  await supabase.from("threads").insert({
-    title:t,
-    content:c,
-    category:cat,
-    user_id:me
-  });
+supabase.channel("forum-realtime")
+  .on("postgres_changes", { event:"*", schema:"public", table:"threads" }, () => {
+    loadThreads();
+  })
+  .subscribe();
 
-  title.value="";
-  content.value="";
-}
-
-function openThread(id){
-  location.href=`thread.html?id=${id}`;
-}
-
-function subscribeThreads(){
-  supabase.channel("threads")
-    .on("postgres_changes",{event:"INSERT",table:"threads"},()=>{
-      loadThreads();
-    })
-    .subscribe();
-}
-
-function short(id){
-  if(!id) return "Guest";
-  return id.slice(0,6);
-}
 </script>
-
 </body>
 </html>
