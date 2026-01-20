@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SS Clips • StudentStream</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+  --bg: #020617;
+  --panel: #0f172a;
+  --card: #111827;
+  --accent: #2563eb;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Top Bar */
+.topbar {
+  height: 60px;
+  background: #020617;
+  border-bottom: 1px solid #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.top-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  background: var(--accent);
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Layout */
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr 260px;
+  height: calc(100vh - 60px);
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--panel);
+  padding: 15px;
+  border-right: 1px solid #1e293b;
+}
+
+.category {
+  padding: 10px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.category.active,
+.category:hover {
+  background: #1e293b;
+  color: white;
+}
+
+/* Feed */
+.feed {
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.clip-card {
+  background: var(--card);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  border: 1px solid #1e293b;
+}
+
+.clip-video {
+  width: 100%;
+  height: 260px;
+  background: black;
+}
+
+.clip-content {
+  padding: 12px;
+}
+
+.clip-actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+
+.clip-user {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.clip-desc {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Creator Panel */
+.creator-panel {
+  background: var(--panel);
+  padding: 15px;
+  border-left: 1px solid #1e293b;
+}
+
+.creator-card {
+  text-align: center;
+}
+
+.avatar {
+  width: 70px;
+  height: 70px;
+  background: #1e293b;
+  border-radius: 50%;
+  margin: auto;
+}
+
+.creator-name {
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.follow-btn {
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar,
+  .creator-panel {
+    display: none;
+  }
+
+  .clip-video {
+    height: 360px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="logo">SS Clips</div>
+  <div class="top-actions">
+    <button class="btn">Upload</button>
+    <button class="btn">Profile</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="category active">For You</div>
+    <div class="category">Projects</div>
+    <div class="category">Music</div>
+    <div class="category">Startups</div>
+    <div class="category">Tech</div>
+    <div class="category">Gaming</div>
+    <div class="category">School Life</div>
+  </div>
+
+  <!-- Feed -->
+  <div class="feed">
+
+    <div class="clip-card">
+      <div class="clip-video"></div>
+      <div class="clip-content">
+        <div class="clip-actions">❤️ 124 &nbsp; 💬 12 &nbsp; 🔁 9</div>
+        <div class="clip-user">@alexdev · 2h ago</div>
+        <div class="clip-desc">Building my startup dashboard from scratch 🚀</div>
+      </div>
+    </div>
+
+    <div class="clip-card">
+      <div class="clip-video"></div>
+      <div class="clip-content">
+        <div class="clip-actions">❤️ 87 &nbsp; 💬 6 &nbsp; 🔁 4</div>
+        <div class="clip-user">@musicbyjay · 5h ago</div>
+        <div class="clip-desc">New beat preview 🎧 feedback?</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Creator Panel -->
+  <div class="creator-panel">
+    <div class="creator-card">
+      <div class="avatar"></div>
+      <div class="creator-name">@alexdev</div>
+      <div class="clip-desc">Student founder • building in public</div>
+      <button class="btn follow-btn">Follow</button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
