@@ -1,183 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>StudentStream DevForum – Thread</title>
+<title>Thread – StudentStream DevForum</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
+body{margin:0;font-family:system-ui;background:#0b1020;color:#fff}
+header{padding:14px;background:#111736;font-weight:600}
+.container{max-width:800px;margin:auto;padding:14px}
 
-body{
-background:#0b1028;
-color:#fff;
-min-height:100vh;
-}
-
-.header{
-padding:16px;
-border-bottom:1px solid #222;
-font-weight:700;
-font-size:18px;
-background:#0f153a;
-}
-
-.container{
-max-width:900px;
-margin:auto;
-padding:16px;
-}
-
-.post,.reply{
-background:#12184a;
-border-radius:12px;
-padding:14px;
-margin-bottom:12px;
-box-shadow:0 10px 20px rgba(0,0,0,.3);
-}
-
-.post-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:8px;
-}
-
-.user{
-font-weight:600;
-}
-
-.badge{
-padding:2px 6px;
-border-radius:6px;
-font-size:11px;
-margin-left:6px;
-}
-
-.staff{background:#ffd36a;color:#000}
-.admin{background:#ff6a6a}
-.owner{background:#6affc9;color:#000}
-
-.time{
-font-size:12px;
-color:#aaa;
-}
-
-.content{
-margin:10px 0;
-line-height:1.5;
-color:#e5e9ff;
-}
-
-.actions{
-display:flex;
-gap:12px;
-font-size:13px;
-color:#9bb3ff;
-}
-
-.actions span{
-cursor:pointer;
-}
-
-.reply-box{
-margin-top:20px;
-background:#0f153a;
+.thread-box,.reply{
+background:#141b3a;
 padding:12px;
-border-radius:12px;
+border-radius:10px;
+margin-bottom:12px;
 }
 
-textarea{
-width:100%;
-min-height:90px;
-border-radius:8px;
-border:none;
-padding:10px;
-resize:none;
-background:#1a2060;
-color:white;
-}
+.author{font-size:13px;color:#aaa}
+.staff{color:#ffd36a;font-weight:600;margin-left:6px}
 
-button{
-margin-top:10px;
-padding:10px 16px;
-border:none;
-border-radius:8px;
-background:#6a7cff;
-color:white;
-font-weight:600;
-cursor:pointer;
-}
+.reply-box{display:flex;gap:8px;margin-top:12px}
+textarea{flex:1;padding:10px;border-radius:8px;border:none}
+button{padding:10px 14px;border:none;border-radius:8px;background:#6a7cff;color:#fff}
 
-@media(max-width:600px){
-.container{padding:10px}
-}
+.mod-btn{color:#ff7a7a;font-size:12px;cursor:pointer;margin-left:8px}
 </style>
 </head>
-
 <body>
 
-<div class="header">StudentStream DevForum</div>
+<header>
+<a href="index.html" style="color:#8fa0ff;text-decoration:none">← Back</a>
+</header>
 
 <div class="container">
 
-<!-- MAIN THREAD POST -->
-<div class="post">
-  <div class="post-header">
-    <div class="user">
-      Deondre
-      <span class="badge owner">OWNER</span>
-    </div>
-    <div class="time">2 hours ago</div>
-  </div>
+<div id="thread"></div>
 
-  <div class="content">
-    Welcome to the official StudentStream DevForum 🚀  
-    This is where we’ll post updates, take feedback, and build the platform together.
-  </div>
+<h3>Replies</h3>
+<div id="replies"></div>
 
-  <div class="actions">
-    <span>👍 Like</span>
-    <span>💬 Reply</span>
-  </div>
-</div>
-
-<!-- REPLIES -->
-<div class="reply">
-  <div class="post-header">
-    <div class="user">
-      ModAlex
-      <span class="badge staff">STAFF</span>
-    </div>
-    <div class="time">1 hour ago</div>
-  </div>
-
-  <div class="content">
-    This forum layout already looks clean. Can’t wait for launch day 🔥
-  </div>
-</div>
-
-<div class="reply">
-  <div class="post-header">
-    <div class="user">
-      User123
-    </div>
-    <div class="time">30 min ago</div>
-  </div>
-
-  <div class="content">
-    StudentStream is about to be huge fr.
-  </div>
-</div>
-
-<!-- REPLY BOX -->
 <div class="reply-box">
-  <h3 style="margin-bottom:8px;">Write a reply</h3>
-  <textarea placeholder="Type your reply..."></textarea>
-  <button>Post Reply</button>
+<textarea id="replyText" placeholder="Write a reply..."></textarea>
+<button onclick="sendReply()">Send</button>
 </div>
 
 </div>
+
+<script>
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const params = new URLSearchParams(location.search);
+const threadId = params.get("id");
+
+let me = null;
+let isStaff = false;
+
+init();
+
+async function init(){
+const {data:{user}} = await supabase.auth.getUser();
+me = user?.id || null;
+
+if(me){
+const p = await supabase.from("profiles").select("*").eq("id",me).single();
+if(p.data) isStaff = p.data.is_staff;
+}
+
+loadThread();
+loadReplies();
+subscribeReplies();
+}
+
+async function loadThread(){
+const {data} = await supabase.from("threads").select("*").eq("id",threadId).single();
+document.getElementById("thread").innerHTML = `
+<div class="thread-box">
+<h2>${data.title}</h2>
+<p>${data.content}</p>
+<div class="author">Posted by ${short(data.user_id)}</div>
+${isStaff ? `<span class="mod-btn" onclick="deleteThread()">Delete Thread</span>` : ""}
+</div>
+`;
+}
+
+async function loadReplies(){
+const {data} = await supabase.from("replies").select("*").eq("thread_id",threadId).order("created_at");
+renderReplies(data);
+}
+
+function renderReplies(list){
+const box = document.getElementById("replies");
+box.innerHTML="";
+list.forEach(r=>{
+box.innerHTML += `
+<div class="reply">
+<div>${r.content}</div>
+<div class="author">
+${short(r.user_id)}
+${r.is_staff?'<span class="staff">STAFF</span>':''}
+${isStaff?`<span class="mod-btn" onclick="deleteReply('${r.id}')">Delete</span>`:""}
+</div>
+</div>
+`;
+});
+}
+
+async function sendReply(){
+const text = replyText.value.trim();
+if(!text) return;
+
+await supabase.from("replies").insert({
+thread_id: threadId,
+content: text,
+user_id: me
+});
+
+replyText.value="";
+}
+
+function subscribeReplies(){
+supabase.channel("replies")
+.on("postgres_changes",{event:"INSERT",table:"replies",filter:`thread_id=eq.${threadId}`},payload=>{
+loadReplies();
+})
+.subscribe();
+}
+
+async function deleteReply(id){
+if(!confirm("Delete reply?")) return;
+await supabase.from("replies").delete().eq("id",id);
+loadReplies();
+}
+
+async function deleteThread(){
+if(!confirm("Delete thread?")) return;
+await supabase.from("threads").delete().eq("id",threadId);
+location.href="index.html";
+}
+
+function short(id){
+if(!id) return "Guest";
+return id.slice(0,6);
+}
+</script>
 
 </body>
 </html>
