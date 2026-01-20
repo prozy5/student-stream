@@ -2,136 +2,150 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>StudentStream – Launching April 4, 2026</title>
+<title>StudentStream — Launching April 4</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;font-family:Inter,system-ui,Arial,sans-serif}
 body{
-  font-family:system-ui, -apple-system, Segoe UI, Roboto;
-  background:radial-gradient(circle at top,#1b2cff,#060b23);
-  color:white;
-  min-height:100vh;
+margin:0;
+min-height:100vh;
+background:radial-gradient(circle at top,#1a2b6d,#050816);
+color:#fff;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
 }
 
-/* NAV */
-nav{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:20px 8%;
-}
-.logo{
-  font-weight:900;
-  font-size:1.4rem;
-}
-nav a{
-  color:white;
-  text-decoration:none;
-  padding:10px 16px;
-  border-radius:8px;
-  background:rgba(255,255,255,0.08);
+.container{
+max-width:1100px;
+width:100%;
+display:grid;
+grid-template-columns:1.1fr .9fr;
+gap:40px;
+align-items:center;
 }
 
-/* HERO */
-.hero{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:50px;
-  padding:80px 8%;
-  align-items:center;
+h1{
+font-size:3rem;
+margin:0 0 15px;
+line-height:1.1;
 }
 
-.hero h1{
-  font-size:3rem;
-  line-height:1.1;
-  margin-bottom:20px;
+p{
+opacity:.85;
+max-width:520px;
 }
 
-.hero p{
-  opacity:.85;
-  margin-bottom:30px;
-  max-width:480px;
+.badge{
+display:inline-block;
+background:rgba(0,136,255,.15);
+color:#7ab6ff;
+padding:6px 14px;
+border-radius:999px;
+font-size:.85rem;
+margin-bottom:20px;
+border:1px solid rgba(122,182,255,.25);
 }
 
 .countdown{
-  display:flex;
-  gap:12px;
-  margin-bottom:30px;
+display:flex;
+gap:12px;
+margin:25px 0;
 }
 
 .time-box{
-  background:rgba(255,255,255,0.1);
-  padding:14px 18px;
-  border-radius:12px;
-  text-align:center;
-  min-width:70px;
-}
-.time-box span{
-  display:block;
-  font-size:1.4rem;
-  font-weight:800;
+background:rgba(255,255,255,.06);
+padding:12px 16px;
+border-radius:12px;
+min-width:70px;
+text-align:center;
+backdrop-filter: blur(6px);
 }
 
-.form-box{
-  background:rgba(255,255,255,0.08);
-  padding:30px;
-  border-radius:18px;
-  backdrop-filter: blur(12px);
+.time-box b{
+display:block;
+font-size:1.4rem;
 }
 
-input,select,button{
-  width:100%;
-  padding:14px;
-  border-radius:10px;
-  border:none;
-  margin-bottom:12px;
-  font-size:1rem;
+.form-card{
+background:rgba(255,255,255,.07);
+border:1px solid rgba(255,255,255,.12);
+border-radius:20px;
+padding:28px;
+box-shadow:0 0 40px rgba(0,0,0,.4);
 }
 
-button{
-  background:linear-gradient(90deg,#5b6cff,#7c8cff);
-  color:white;
-  font-weight:800;
-  cursor:pointer;
+form input, form select{
+width:100%;
+padding:14px;
+border-radius:12px;
+border:none;
+margin-bottom:12px;
+background:rgba(255,255,255,.95);
+font-size:1rem;
 }
 
-small{opacity:.7}
+form button{
+width:100%;
+padding:14px;
+border-radius:14px;
+border:none;
+font-weight:600;
+font-size:1rem;
+cursor:pointer;
+background:linear-gradient(135deg,#4facfe,#00f2fe);
+color:#00111f;
+transition:.2s;
+}
 
-/* MOBILE */
+form button:hover{
+transform:translateY(-1px);
+box-shadow:0 10px 25px rgba(0,150,255,.35);
+}
+
+.small{
+font-size:.8rem;
+opacity:.6;
+margin-top:8px;
+text-align:center;
+}
+
 @media(max-width:900px){
-  .hero{grid-template-columns:1fr}
+.container{grid-template-columns:1fr}
 }
 </style>
 </head>
+
 <body>
 
-<nav>
-  <div class="logo">StudentStream</div>
-  <a href="#waitlist">Join Waitlist</a>
-</nav>
+<div class="container">
 
-<section class="hero" id="waitlist">
-
+  <!-- LEFT -->
   <div>
-    <h1>Where small creators get seen first.</h1>
+    <span class="badge">Launching April 4, 2026 🚀</span>
+
+    <h1>Where creators, founders, and brands get seen first.</h1>
+
     <p>
-      StudentStream is a new creator platform built for streamers, musicians, students, and builders.
-      Grow faster. Get discovered. Monetize earlier.
+StudentStream is a next-gen platform for streamers, artists, entrepreneurs, startups,
+and modern brands to grow faster, build real audiences, and monetize earlier.
     </p>
 
     <div class="countdown" id="countdown">
-      <div class="time-box"><span id="days">0</span>Days</div>
-      <div class="time-box"><span id="hours">0</span>Hours</div>
-      <div class="time-box"><span id="mins">0</span>Mins</div>
-      <div class="time-box"><span id="secs">0</span>Secs</div>
+      <div class="time-box"><b id="d">--</b>Days</div>
+      <div class="time-box"><b id="h">--</b>Hours</div>
+      <div class="time-box"><b id="m">--</b>Mins</div>
+      <div class="time-box"><b id="s">--</b>Secs</div>
     </div>
 
-    <p><strong>Launching April 4, 2026 🚀</strong></p>
+    <p style="opacity:.6">Creators • Entrepreneurs • Startups • Brands • Builders</p>
   </div>
 
-  <div class="form-box">
-    <h2 style="margin-bottom:15px">Join the waitlist</h2>
+  <!-- RIGHT -->
+  <div class="form-card">
+    <h2>Join the early access waitlist</h2>
 
     <form id="waitlistForm">
       <input type="text" id="firstName" placeholder="First name" required>
@@ -140,61 +154,57 @@ small{opacity:.7}
 
       <select id="roleSelect" required>
         <option value="">I am a...</option>
-        <option>Streamer</option>
-        <option>Musician</option>
-        <option>Student Creator</option>
-        <option>Brand Owner</option>
-        <option>Developer / Builder</option>
+        <option value="Streamer">🎮 Streamer</option>
+        <option value="Musician">🎵 Musician / Artist</option>
+        <option value="Creator">📸 Content Creator</option>
+        <option value="Entrepreneur">🚀 Entrepreneur / Founder</option>
+        <option value="Brand">🏷 Brand / Business Owner</option>
+        <option value="Developer">🛠 Developer / Builder</option>
+        <option value="Investor">💼 Investor / Partner</option>
       </select>
 
       <button type="submit">Join the Waitlist</button>
-      <small>Early access • No spam • Limited spots</small>
+      <div class="small">Early access • No spam • Limited spots</div>
     </form>
   </div>
 
-</section>
+</div>
 
 <script>
 // Countdown
-const launchDate = new Date("April 4, 2026 00:00:00").getTime();
+const launchDate = new Date("2026-04-04T00:00:00").getTime();
 
 setInterval(()=>{
   const now = new Date().getTime();
   const diff = launchDate - now;
 
-  const days = Math.floor(diff / (1000*60*60*24));
-  const hours = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-  const mins = Math.floor((diff%(1000*60*60))/(1000*60));
-  const secs = Math.floor((diff%(1000*60))/1000);
+  if(diff <= 0) return;
 
-  document.getElementById("days").innerText = days;
-  document.getElementById("hours").innerText = hours;
-  document.getElementById("mins").innerText = mins;
-  document.getElementById("secs").innerText = secs;
+  document.getElementById("d").textContent = Math.floor(diff / (1000*60*60*24));
+  document.getElementById("h").textContent = Math.floor((diff / (1000*60*60)) % 24);
+  document.getElementById("m").textContent = Math.floor((diff / (1000*60)) % 60);
+  document.getElementById("s").textContent = Math.floor((diff / 1000) % 60);
 },1000);
 
-// Formspree
-document.getElementById("waitlistForm").addEventListener("submit", async function(e){
+// Formspree submit
+document.getElementById("waitlistForm").addEventListener("submit", async e=>{
   e.preventDefault();
 
-  const first = firstName.value;
-  const last = lastName.value;
-  const email = emailField.value;
-  const role = roleSelect.value;
+  const data = {
+    first_name: firstName.value,
+    last_name: lastName.value,
+    email: emailField.value,
+    role: roleSelect.value
+  };
 
   await fetch("https://formspree.io/f/xojqgpan",{
     method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      first_name:first,
-      last_name:last,
-      email:email,
-      role:role
-    })
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(data)
   });
 
   alert("You're on the waitlist 🚀");
-  this.reset();
+  e.target.reset();
 });
 </script>
 
