@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>StudentStream Staff Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#0a0f2c;
+  font-family:system-ui;
+  color:white;
+}
+.box{
+  background:#11183d;
+  padding:30px;
+  border-radius:14px;
+  width:320px;
+  text-align:center;
+}
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+}
+button{
+  background:#6a7cff;
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
+.error{color:#ff6b6b;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Staff Login</h2>
+  <input type="password" id="password" placeholder="Staff password">
+  <button onclick="login()">Login</button>
+  <div id="error" class="error"></div>
+</div>
+
+<script>
+const STAFF_PASSWORD = "studentstream2026"; // change this
+
+function login(){
+  const input = document.getElementById("password").value;
+
+  if(input === STAFF_PASSWORD){
+    localStorage.setItem("staff_auth","true");
+    window.location.href = "staff-dashboard.html";
+  } else {
+    document.getElementById("error").innerText = "Wrong password";
+  }
+}
+</script>
+
+</body>
+</html>
