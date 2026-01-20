@@ -1,0 +1,95 @@
+/* Base */
+.user-card{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  background:#15151c;
+  border-radius:10px;
+  width:fit-content;
+  margin:12px 0;
+  color:white;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+}
+
+.username{
+  font-weight:700;
+  font-size:16px;
+}
+
+/* Badge base */
+.badge{
+  position:relative;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:1px;
+  cursor:default;
+  text-transform:uppercase;
+  border:1px solid rgba(255,255,255,0.2);
+  transition:transform .2s ease;
+}
+
+.badge:hover{
+  transform:translateY(-2px) scale(1.05);
+}
+
+/* OWNER */
+.owner{
+  background: linear-gradient(135deg,#ff0080,#7928ff,#00e0ff);
+  background-size:300% 300%;
+  animation: ownerGlow 3s ease infinite, ownerFloat 2.5s ease-in-out infinite;
+  box-shadow:
+    0 0 10px rgba(255,0,128,0.8),
+    0 0 20px rgba(121,40,255,0.7),
+    0 0 30px rgba(0,224,255,0.6);
+}
+
+/* ADMIN */
+.admin{
+  background:linear-gradient(135deg,#ffb300,#ff6a00);
+  box-shadow:0 0 10px rgba(255,170,0,.7);
+}
+
+/* MOD */
+.mod{
+  background:linear-gradient(135deg,#00ff99,#00b36b);
+  box-shadow:0 0 10px rgba(0,255,153,.6);
+}
+
+/* Tooltip */
+.badge::after{
+  content:attr(data-tooltip);
+  position:absolute;
+  bottom:130%;
+  left:50%;
+  transform:translateX(-50%);
+  background:#0d0d14;
+  color:white;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:11px;
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:0 0 10px rgba(0,0,0,.6);
+}
+
+.badge:hover::after{
+  opacity:1;
+}
+
+/* Animations */
+@keyframes ownerGlow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+@keyframes ownerFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-2px)}
+}
