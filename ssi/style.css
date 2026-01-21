@@ -1,56 +1,75 @@
-body {
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   font-family: system-ui, Arial, sans-serif;
-  background: #0a0d12;
-  color: #e5e7eb;
+}
+
+body {
+  background: #05070c;
+  color: #e6e6e6;
 }
 
 .hero {
   text-align: center;
-  padding: 50px 20px;
-  border-bottom: 1px solid #1f2933;
-  background: radial-gradient(circle at top, #0f172a, #020617);
+  padding: 60px 20px;
+  border-bottom: 1px solid #1a1a1a;
 }
 
 .logo {
-  width: 110px;
-  margin-bottom: 15px;
-  filter: drop-shadow(0 0 12px rgba(0, 200, 255, 0.35));
+  width: 130px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
 }
 
 .tagline {
-  color: #9ca3af;
-  margin-top: 5px;
+  color: #8fa3b8;
+  font-size: 1rem;
 }
 
-.section {
+section {
   padding: 40px 20px;
   max-width: 900px;
   margin: auto;
 }
 
-.section h2 {
-  border-left: 4px solid #22d3ee;
-  padding-left: 10px;
+h2 {
   margin-bottom: 15px;
+  color: #9fc2ff;
 }
 
-.cards {
+.mission p {
+  line-height: 1.6;
+  color: #cfd8e3;
+}
+
+.cases {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 15px;
 }
 
-.card {
-  background: #020617;
-  border: 1px solid #1f2933;
-  padding: 20px;
-  border-radius: 10px;
+.case-box {
+  padding: 15px;
+  border: 1px solid #1f2a3a;
+  background: #0b1220;
+  border-radius: 6px;
+}
+
+.case-box.locked {
+  opacity: 0.4;
+}
+
+.videos p {
+  color: #aaa;
 }
 
 footer {
   text-align: center;
   padding: 30px;
-  color: #6b7280;
-  font-size: 14px;
+  color: #555;
+  font-size: 0.9rem;
 }
