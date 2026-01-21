@@ -1,19 +1,13 @@
-// INTRO LOADER
-window.onload = () => {
-  setTimeout(() => {
-    document.getElementById("intro").style.display = "none";
-    document.getElementById("site").classList.remove("hidden");
-  }, 2000);
-};
+// Intro
+setTimeout(()=>{
+  document.getElementById("intro").style.display="none";
+  document.getElementById("app").classList.remove("hidden");
+},2000);
 
-// LOGIN MODAL
-const loginBtn = document.getElementById("loginBtn");
-const modal = document.getElementById("loginModal");
+// Login modal
+const modal=document.getElementById("loginModal");
+document.getElementById("loginBtn").onclick=()=>modal.classList.remove("hidden");
 
-loginBtn.onclick = () => {
-  modal.classList.remove("hidden");
-};
-
-function closeLogin() {
-  modal.classList.add("hidden");
+function closeLogin(){
+modal.classList.add("hidden");
 }
