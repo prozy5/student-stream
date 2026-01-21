@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Status</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{margin:0;font-family:system-ui;background:#0b0f14;color:#e5e7eb}
+.container{max-width:900px;margin:auto;padding:20px}
+.card{background:#111827;padding:16px;border-radius:12px;margin-bottom:12px}
+.badge{padding:4px 10px;border-radius:999px;font-size:12px}
+.ok{background:#064e3b;color:#34d399}
+.down{background:#7f1d1d;color:#f87171}
+small{color:#9ca3af}
+.loading{opacity:.6}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>System Status</h1>
+
+<div id="components" class="loading">Loading components…</div>
+
+<h2>Incidents</h2>
+<div id="incidents" class="loading">Loading incidents…</div>
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const componentsDiv = document.getElementById("components");
+const incidentsDiv = document.getElementById("incidents");
+
+function badge(status){
+  return status==="operational"
+    ? '<span class="badge ok">Operational</span>'
+    : '<span class="badge down">Issue</span>';
+}
+
+async function loadComponents(){
+  const {data,error}=await supabase
+    .from("status_components")
+    .select("*")
+    .order("id");
+
+  if(error){
+    componentsDiv.innerHTML="Error loading components";
+    console.error(error);
+    return;
+  }
+
+  componentsDiv.classList.remove("loading");
+  componentsDiv.innerHTML=data.map(c=>`
+    <div class="card">
+      <b>${c.name}</b><br>
+      ${badge(c.status)}
+    </div>
+  `).join("");
+}
+
+async function loadIncidents(){
+  const {data,error}=await supabase
+    .from("status_incidents")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    incidentsDiv.innerHTML="Error loading incidents";
+    console.error(error);
+    return;
+  }
+
+  incidentsDiv.classList.remove("loading");
+
+  if(data.length===0){
+    incidentsDiv.innerHTML="<small>No incidents reported</small>";
+    return;
+  }
+
+  incidentsDiv.innerHTML=data.map(i=>`
+    <div class="card">
+      <b>${i.title}</b>
+      <p>${i.description||""}</p>
+      <small>${new Date(i.created_at).toLocaleString()}</small>
+    </div>
+  `).join("");
+}
+
+loadComponents();
+loadIncidents();
+
+/* realtime */
+supabase.channel("status-live")
+  .on("postgres_changes",{event:"*",schema:"public",table:"status_components"},loadComponents)
+  .on("postgres_changes",{event:"*",schema:"public",table:"status_incidents"},loadIncidents)
+  .subscribe();
+</script>
+</body>
+</html>
