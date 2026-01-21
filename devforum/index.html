@@ -1,52 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>StudentStream DevForum</title>
-<link rel="stylesheet" href="forum.css">
+<link rel="stylesheet" href="css/forum.css">
 </head>
 <body>
+<h1>StudentStream DevForum</h1>
+<a href="new.html">+ New Thread</a>
 
-<header>
-  <h2>StudentStream DevForum</h2>
-  <a href="new.html">+ New Thread</a>
-</header>
+<div id="threads"></div>
 
-<div class="container" id="threads"></div>
-
-<script type="module">
-import { supabase, OWNER_ID, getUser } from "./devforum.js";
-
-const threadsDiv = document.getElementById("threads");
-
-async function loadThreads() {
-  const { data } = await supabase
-    .from("forum_threads")
-    .select("*")
-    .order("created_at", { ascending:false });
-
-  threadsDiv.innerHTML = "";
-
-  data.forEach(t=>{
-    const div = document.createElement("div");
-    div.className="thread";
-    div.onclick=()=>location=`thread.html?id=${t.id}`;
-
-    let badge = t.author_id===OWNER_ID ? `<span class="badge">FOUNDER</span>` : "";
-
-    div.innerHTML = `
-      <b>${t.title}</b> ${badge}<br>
-      <small>by ${t.author_name}</small>
-    `;
-    threadsDiv.appendChild(div);
-  });
-}
-
-loadThreads();
-
-supabase.channel("threads")
-  .on("postgres_changes",{event:"INSERT",schema:"public",table:"forum_threads"},loadThreads)
-  .subscribe();
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/forum.js"></script>
 </body>
 </html>
