@@ -2,38 +2,33 @@
 <html>
 <head>
 <title>New Thread</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link rel="stylesheet" href="forum.css">
 </head>
 <body>
 
-<h2>New Thread</h2>
+<header><a href="index.html">← Back</a></header>
 
-<input id="title" placeholder="Title"><br><br>
-<input id="username" placeholder="Your name"><br><br>
-<textarea id="content" placeholder="Content"></textarea><br><br>
+<div class="container">
+  <input id="title" placeholder="Thread title">
+  <textarea id="content" placeholder="Thread content"></textarea>
+  <button onclick="post()">Post</button>
+</div>
 
-<button onclick="post()">Post</button>
+<script type="module">
+import { supabase, getUser } from "./devforum.js";
+const user = getUser();
 
-<script>
-const supabase = supabaseJs.createClient(
-  "https://iabzmoxzbqzcqgypxctr.supabase.co",
-  "PASTE_YOUR_REAL_ANON_KEY_HERE"
-);
-
-async function post() {
-  const title = title.value;
+async function post(){
+  const title = document.getElementById("title").value;
   const content = document.getElementById("content").value;
-  const username = document.getElementById("username").value;
 
-  const { error } = await supabase.from("forum_posts").insert([
-    { title, content, username }
-  ]);
+  await supabase.from("forum_threads").insert({
+    title, content,
+    author_id:user.id,
+    author_name:user.name
+  });
 
-  if (error) {
-    alert("Failed: " + error.message);
-  } else {
-    window.location.href = "index.html";
-  }
+  location="index.html";
 }
 </script>
 
