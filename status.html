@@ -8,212 +8,135 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
---bg1:#070b1a;
---bg2:#0c1b3a;
---card:#0f2450;
---border:#1b3b7a;
---ok:#16c784;
---deg:#facc15;
---down:#ef4444;
-}
-
-*{box-sizing:border-box}
-body{
+body {
 margin:0;
-font-family:system-ui,-apple-system,Segoe UI,Roboto;
-background:radial-gradient(circle at top,var(--bg2),var(--bg1));
-color:#eaf1ff;
+font-family: system-ui, -apple-system, BlinkMacSystemFont;
+background: linear-gradient(135deg,#0f172a,#1e3a8a);
+color:#fff;
 }
-
-.container{
-max-width:1000px;
-margin:auto;
-padding:30px 20px 80px;
-}
-
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:30px;
-}
-
-h1{margin:0;font-size:28px}
-
-.badge{
-padding:6px 14px;
-border-radius:999px;
-font-size:13px;
-font-weight:600;
-}
-
-.ok{background:var(--ok);color:#003b26}
-.deg{background:var(--deg);color:#3b2f00}
-.down{background:var(--down);color:#3b0000}
-
-.section{margin-top:35px}
-.section h2{margin-bottom:12px}
-
-.card{
-background:linear-gradient(180deg,#0f2450,#0a1633);
-border:1px solid var(--border);
-border-radius:14px;
-padding:16px 18px;
-margin-bottom:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-animation:fade .3s ease;
-}
-
-@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1}}
-
-.name{font-weight:600}
-.time{font-size:12px;color:#9fb4ff}
-
-.pulse{
-animation:pulse 2s infinite;
-}
-@keyframes pulse{
-0%{box-shadow:0 0 0 0 rgba(22,199,132,.6)}
-70%{box-shadow:0 0 0 12px rgba(22,199,132,0)}
-100%{box-shadow:0 0 0 0 rgba(22,199,132,0)}
-}
-
-.incident{background:#2a0f16;border-color:#7a1b2d}
-
-footer{
-margin-top:50px;
-text-align:center;
-font-size:13px;
-color:#7f94c9;
-}
-
-.loading{text-align:center;color:#9fb4ff;margin-top:20px}
+.container{max-width:900px;margin:auto;padding:30px}
+.card{background:#0b1220;border-radius:14px;padding:20px;margin-bottom:20px}
+.component{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e293b}
+.badge{padding:4px 10px;border-radius:999px;font-size:12px}
+.ok{background:#22c55e}
+.warn{background:#facc15;color:#000}
+.down{background:#ef4444}
+.incident{border-left:4px solid #f97316;padding-left:10px;margin-top:10px}
+.footer{opacity:.6;font-size:12px;text-align:center;margin-top:40px}
 </style>
 </head>
+
 <body>
-
 <div class="container">
-
-<header>
 <h1>StudentStream Status</h1>
-<span id="overall" class="badge ok pulse">Operational</span>
-</header>
+<div id="overall" class="badge ok">Loading...</div>
 
-<div class="section">
+<div class="card">
 <h2>Components</h2>
-<div id="components" class="loading">Loading…</div>
+<div id="components">Loading...</div>
 </div>
 
-<div class="section">
-<h2>Incidents</h2>
-<div id="incidents" class="loading">Loading…</div>
+<div class="card">
+<h2>Active Incidents</h2>
+<div id="incidents">Loading...</div>
 </div>
 
-<footer>
-Live status • Powered by Supabase Realtime • StudentStream © 2026
-</footer>
+<div class="card">
+<h2>Incident History</h2>
+<div id="history">Loading...</div>
+</div>
 
+<div class="footer">
+Live status · Powered by Supabase Realtime · StudentStream © 2026
+</div>
 </div>
 
 <script>
-const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
+const supabase = window.supabase.createClient(
+"https://iabzmoxzbqzcqgypxctr.supabase.co",
+"sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC"
+);
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const componentsDiv = document.getElementById("components");
+const incidentsDiv = document.getElementById("incidents");
+const historyDiv = document.getElementById("history");
+const overallDiv = document.getElementById("overall");
 
-function badgeClass(s){
-if(s==="operational") return "ok";
-if(s==="degraded") return "deg";
+function badgeClass(status){
+if(status==="operational") return "ok";
+if(status==="degraded") return "warn";
 return "down";
 }
 
 async function loadComponents(){
-const { data } = await supabase
-.from("status_components")
-.select("*")
-.order("created_at",{ascending:false});
+const {data,error}=await supabase.from("status_components").select("*").order("name");
+if(error){componentsDiv.innerHTML="Failed to load";return;}
 
-const map = {};
-data.forEach(r=>{
-if(!map[r.name]) map[r.name]=r;
-});
+componentsDiv.innerHTML="";
+let allOk=true;
 
-const list = Object.values(map);
-const el = document.getElementById("components");
-el.innerHTML="";
+data.forEach(c=>{
+if(c.status!=="operational") allOk=false;
 
-let overall="operational";
-
-list.forEach(c=>{
-if(c.status==="outage") overall="outage";
-else if(c.status==="degraded" && overall==="operational") overall="degraded";
-
-const card=document.createElement("div");
-card.className="card";
-card.innerHTML=`
-<div>
-<div class="name">${c.name}</div>
-<div class="time">${new Date(c.created_at).toLocaleString()}</div>
-</div>
+componentsDiv.innerHTML+=`
+<div class="component">
+<span>${c.name}</span>
 <span class="badge ${badgeClass(c.status)}">${c.status}</span>
-`;
-el.appendChild(card);
+</div>`;
 });
 
-const badge=document.getElementById("overall");
-badge.className="badge pulse "+badgeClass(overall);
-badge.textContent=overall.charAt(0).toUpperCase()+overall.slice(1);
+overallDiv.textContent = allOk?"All Systems Operational":"Service Disruption";
+overallDiv.className = "badge " + (allOk?"ok":"warn");
 }
 
 async function loadIncidents(){
-const el=document.getElementById("incidents");
+const {data}=await supabase.from("status_incidents")
+.select("*").is("resolved_at",null).order("created_at",{ascending:false});
 
-const { data, error } = await supabase
-.from("status_incidents")
-.select("*")
-.order("created_at",{ascending:false})
-.limit(5);
+incidentsDiv.innerHTML = data.length? "" : "No active incidents";
 
-if(error || !data.length){
-el.textContent="No active incidents 🎉";
-return;
-}
-
-el.innerHTML="";
 data.forEach(i=>{
-const card=document.createElement("div");
-card.className="card incident";
-card.innerHTML=`
-<div>
-<div class="name">${i.title}</div>
-<div class="time">${i.description||""}</div>
-</div>
-<span class="badge down">${i.status}</span>
-`;
-el.appendChild(card);
+incidentsDiv.innerHTML+=`
+<div class="incident">
+<strong>${i.title}</strong><br>
+${i.description||""}<br>
+<small>${new Date(i.created_at).toLocaleString()}</small>
+</div>`;
 });
 }
 
-async function refresh(){
-await loadComponents();
-await loadIncidents();
+async function loadHistory(){
+const {data}=await supabase.from("status_incidents")
+.select("*").not("resolved_at","is",null).order("created_at",{ascending:false}).limit(10);
+
+historyDiv.innerHTML = data.length? "" : "No past incidents";
+
+data.forEach(i=>{
+historyDiv.innerHTML+=`
+<div class="incident">
+<strong>${i.title}</strong> (resolved)<br>
+<small>${new Date(i.resolved_at).toLocaleString()}</small>
+</div>`;
+});
 }
 
-refresh();
-
-/* Realtime subscriptions */
-
+function realtime(){
 supabase.channel("status-live")
-.on("postgres_changes",{event:"*",schema:"public",table:"status_components"},refresh)
-.on("postgres_changes",{event:"*",schema:"public",table:"status_incidents"},refresh)
+.on("postgres_changes",{event:"*",schema:"public",table:"status_components"},loadComponents)
+.on("postgres_changes",{event:"*",schema:"public",table:"status_incidents"},()=>{
+loadIncidents();loadHistory();
+})
 .subscribe();
+}
 
-/* Backup refresh every 60s */
-setInterval(refresh,60000);
+async function init(){
+await loadComponents();
+await loadIncidents();
+await loadHistory();
+realtime();
+}
+
+init();
 </script>
-
 </body>
 </html>
