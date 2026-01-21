@@ -1,71 +1,117 @@
-const supabaseUrl = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const supabaseKey = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
+// devforum.js
 
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "PASTE_YOUR_REAL_ANON_KEY_HERE";
 
-const postsDiv = document.getElementById("posts");
+const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function loadPosts() {
+// Elements
+const threadsContainer = document.getElementById("threads");
+const form = document.getElementById("newThreadForm");
+const titleInput = document.getElementById("threadTitle");
+const contentInput = document.getElementById("threadContent");
+const statusText = document.getElementById("statusText");
+
+// Utility
+function setStatus(msg) {
+  if (statusText) statusText.textContent = msg;
+}
+
+// Load threads
+async function loadThreads() {
+  setStatus("Loading threads...");
+
   const { data, error } = await supabase
     .from("forum_posts")
-    .select("id, content, created_at, profiles(username, avatar_url)")
+    .select("*")
     .order("created_at", { ascending: false });
 
   if (error) {
     console.error(error);
+    setStatus("Failed to load threads");
     return;
   }
 
-  postsDiv.innerHTML = "";
-  data.forEach(renderPost);
-}
+  threadsContainer.innerHTML = "";
 
-function renderPost(post) {
-  const div = document.createElement("div");
-  div.className = "post";
-
-  div.innerHTML = `
-    <img class="avatar" src="${post.profiles?.avatar_url || ''}">
-    <div class="post-content">
-      <div class="username">${post.profiles?.username || "Anonymous"}</div>
-      <div class="time">${new Date(post.created_at).toLocaleString()}</div>
-      <div class="text">${post.content}</div>
-    </div>
-  `;
-
-  postsDiv.prepend(div);
-}
-
-async function createPost() {
-  const content = document.getElementById("postContent").value.trim();
-  if (!content) return;
-
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    alert("Login required");
+  if (data.length === 0) {
+    threadsContainer.innerHTML = "<p>No threads yet.</p>";
+    setStatus("Ready");
     return;
   }
 
-  await supabase.from("forum_posts").insert({
-    content,
-    user_id: user.id
+  data.forEach(thread => {
+    const div = document.createElement("div");
+    div.className = "thread-card";
+
+    div.innerHTML = `
+      <h3>${escapeHtml(thread.title)}</h3>
+      <p>${escapeHtml(thread.content)}</p>
+      <span class="thread-date">${new Date(thread.created_at).toLocaleString()}</span>
+    `;
+
+    div.onclick = () => {
+      window.location.href = `thread.html?id=${thread.id}`;
+    };
+
+    threadsContainer.appendChild(div);
   });
 
-  document.getElementById("postContent").value = "";
+  setStatus("Ready");
 }
 
-supabase
-  .channel("forum_posts")
-  .on(
-    "postgres_changes",
-    { event: "INSERT", schema: "public", table: "forum_posts" },
-    payload => {
-      renderPost(payload.new);
-    }
-  )
-  .subscribe();
+// Post new thread
+async function createThread(e) {
+  e.preventDefault();
 
-loadPosts();
+  const title = titleInput.value.trim();
+  const content = contentInput.value.trim();
+
+  if (!title || !content) return;
+
+  setStatus("Posting...");
+
+  const { error } = await supabase.from("forum_posts").insert([
+    { title, content }
+  ]);
+
+  if (error) {
+    console.error(error);
+    alert("Failed to post thread");
+    setStatus("Error");
+    return;
+  }
+
+  titleInput.value = "";
+  contentInput.value = "";
+
+  setStatus("Posted!");
+  loadThreads();
+}
+
+// Realtime updates
+function enableRealtime() {
+  supabase
+    .channel("forum_posts_changes")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "forum_posts" },
+      () => loadThreads()
+    )
+    .subscribe();
+}
+
+// XSS protection
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Init
+if (form) {
+  form.addEventListener("submit", createThread);
+}
+
+loadThreads();
+enableRealtime();
