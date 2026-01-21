@@ -2,211 +2,259 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>StudentStream Status</title>
+<title>StudentStream System Status</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body{margin:0;font-family:system-ui;background:#0b0e14;color:#e5e7eb}
-.container{max-width:1000px;margin:auto;padding:30px}
-header{display:flex;justify-content:space-between;align-items:center}
-h1{margin:0}
-.badge{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600}
-.operational{background:#16a34a}
-.degraded{background:#f59e0b}
-.down{background:#dc2626}
-.maintenance{background:#6366f1}
-.card{background:#111827;padding:16px;border-radius:12px;margin-top:12px}
-.flex{display:flex;gap:10px;align-items:center}
-select,input,textarea,button{
-background:#1f2933;color:white;border:1px solid #333;padding:8px;border-radius:6px
+:root {
+--bg:#0b0f1a;
+--card:#121a2a;
+--accent:#6c7cff;
+--good:#22c55e;
+--warn:#facc15;
+--bad:#ef4444;
 }
-button{cursor:pointer}
-.admin{border-top:1px solid #333;margin-top:40px;padding-top:20px}
-.hidden{display:none}
-.small{font-size:12px;color:#9ca3af}
-.incident-update{margin-left:15px;border-left:2px solid #333;padding-left:10px;margin-top:6px}
+
+body {
+margin:0;
+font-family:system-ui,Segoe UI,Roboto;
+background:linear-gradient(135deg,#0b0f1a,#0e1530);
+color:#e5e7eb;
+}
+
+header {
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 30px;
+border-bottom:1px solid #1f2a44;
+}
+
+h1 { margin:0;font-size:22px; }
+
+.badge {
+padding:6px 14px;
+border-radius:999px;
+font-weight:600;
+font-size:13px;
+}
+
+.grid {
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:16px;
+padding:25px;
+}
+
+.card {
+background:var(--card);
+padding:16px;
+border-radius:12px;
+border:1px solid #1f2a44;
+}
+
+.component {
+display:flex;
+justify-content:space-between;
+margin:8px 0;
+}
+
+.status-good {color:var(--good)}
+.status-warn {color:var(--warn)}
+.status-bad {color:var(--bad)}
+
+.incident {
+border-left:4px solid var(--warn);
+padding-left:10px;
+margin:10px 0;
+}
+
+.admin {
+display:none;
+margin:25px;
+padding:20px;
+border:1px solid #334155;
+border-radius:12px;
+background:#0f172a;
+}
+
+input,textarea,select,button {
+background:#0b1222;
+color:white;
+border:1px solid #334155;
+padding:8px;
+border-radius:6px;
+margin:4px 0;
+}
+
+button {
+cursor:pointer;
+background:var(--accent);
+border:none;
+}
 </style>
 </head>
-
 <body>
-<div class="container">
 
 <header>
 <h1>StudentStream System Status</h1>
-<span id="overallBadge" class="badge operational">Operational</span>
+<span id="globalStatus" class="badge">Loading...</span>
 </header>
 
-<h2>Components</h2>
+<section class="grid">
+<div class="card">
+<h3>Components</h3>
 <div id="components"></div>
+</div>
 
-<h2>Incidents</h2>
+<div class="card">
+<h3>Incidents</h3>
 <div id="incidents"></div>
+</div>
+</section>
 
-<div id="adminPanel" class="admin hidden">
-<h2>Admin Panel</h2>
+<section class="admin" id="adminPanel">
+<h3>Admin Panel</h3>
 
-<h3>Add Component</h3>
-<input id="newComponent" placeholder="Component name">
-<button onclick="addComponent()">Add</button>
-
-<h3>Create Incident</h3>
-<input id="incTitle" placeholder="Title"><br><br>
-<textarea id="incDesc" placeholder="Description"></textarea><br><br>
-<select id="incSeverity">
-<option>minor</option>
-<option>major</option>
-<option>critical</option>
+<h4>Add / Update Component</h4>
+<input id="compName" placeholder="Component name">
+<select id="compStatus">
+<option value="operational">Operational</option>
+<option value="degraded">Degraded</option>
+<option value="down">Down</option>
 </select>
-<button onclick="createIncident()">Create</button>
+<button onclick="saveComponent()">Save</button>
 
-</div>
-
-</div>
+<h4>Create Incident</h4>
+<input id="incTitle" placeholder="Title">
+<textarea id="incDesc" placeholder="Description"></textarea>
+<button onclick="createIncident()">Create Incident</button>
+</section>
 
 <script>
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
 const OWNER_UID = "0801d47e-6bc7-4916-bf0a-e2de667d21ea";
 
-const supabase = window.supabase.createClient(
-"https://iabzmoxzbqzcqgypxctr.supabase.co",
-"sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC"
-);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function init(){
-await supabase.auth.signInAnonymously();
-checkAdmin();
-loadAll();
-realtime();
+let currentUser = null;
+
+async function initAuth(){
+const { data } = await supabase.auth.getUser();
+if(data.user){
+currentUser = data.user;
+if(data.user.id === OWNER_UID){
+document.getElementById("adminPanel").style.display="block";
 }
-
-async function checkAdmin(){
-const {data} = await supabase.auth.getUser();
-if(data.user?.id === OWNER_UID){
-document.getElementById("adminPanel").classList.remove("hidden");
 }
 }
 
-async function loadAll(){
-loadComponents();
-loadIncidents();
+function statusColor(status){
+if(status==="operational") return "status-good";
+if(status==="degraded") return "status-warn";
+return "status-bad";
 }
 
 async function loadComponents(){
-const {data} = await supabase.from("status_components").select("*");
-const el = document.getElementById("components");
-el.innerHTML = "";
-let worst = "operational";
+const { data } = await supabase.from("status_components").select("*").order("id");
+const box = document.getElementById("components");
+box.innerHTML="";
+let global="operational";
 
 data.forEach(c=>{
-if(c.status==="down") worst="down";
-else if(c.status==="degraded" && worst!=="down") worst="degraded";
+if(c.status==="down") global="down";
+if(c.status==="degraded" && global!=="down") global="degraded";
 
-el.innerHTML += `
-<div class="card flex">
-<strong>${c.name}</strong>
-<span class="badge ${c.status}">${c.status}</span>
-${adminControls(c)}
+box.innerHTML += `
+<div class="component">
+<span>${c.name}</span>
+<span class="${statusColor(c.status)}">${c.status}</span>
 </div>`;
 });
 
-updateOverall(worst);
-}
-
-function updateOverall(status){
-const badge = document.getElementById("overallBadge");
-badge.className = "badge "+status;
-badge.innerText = status.toUpperCase();
-}
-
-function adminControls(c){
-if(!document.getElementById("adminPanel").classList.contains("hidden")){
-return `
-<select onchange="updateComponent(${c.id},this.value)">
-<option ${c.status==="operational"?"selected":""}>operational</option>
-<option ${c.status==="degraded"?"selected":""}>degraded</option>
-<option ${c.status==="down"?"selected":""}>down</option>
-<option ${c.status==="maintenance"?"selected":""}>maintenance</option>
-</select>`;
-}
-return "";
-}
-
-async function updateComponent(id,status){
-await supabase.from("status_components").update({status}).eq("id",id);
-}
-
-async function addComponent(){
-const name = newComponent.value;
-if(!name) return;
-await supabase.from("status_components").insert({name});
-newComponent.value="";
+setGlobal(global);
 }
 
 async function loadIncidents(){
-const {data} = await supabase
-.from("status_incidents")
-.select("*, status_updates(*)")
-.order("created_at",{ascending:false});
+const { data } = await supabase.from("status_incidents")
+.select("*").order("created_at",{ascending:false});
 
-const el = document.getElementById("incidents");
-el.innerHTML="";
+const box=document.getElementById("incidents");
+box.innerHTML="";
+
+if(!data.length){
+box.innerHTML="<p>No active incidents.</p>";
+return;
+}
 
 data.forEach(i=>{
-let updatesHTML = "";
-i.status_updates.forEach(u=>{
-updatesHTML+=`<div class="incident-update small">${u.message}</div>`;
-});
-
-el.innerHTML+=`
-<div class="card">
-<strong>${i.title}</strong> (${i.severity})<br>
+box.innerHTML+=`
+<div class="incident">
+<strong>${i.title}</strong><br>
 ${i.description}<br>
-<span class="small">Status: ${i.status}</span>
-${updatesHTML}
-${incidentAdmin(i)}
+<small>${new Date(i.created_at).toLocaleString()}</small>
 </div>`;
 });
 }
 
-function incidentAdmin(i){
-if(!document.getElementById("adminPanel").classList.contains("hidden")){
-return `
-<br>
-<input placeholder="Update message" id="upd${i.id}">
-<button onclick="addUpdate(${i.id})">Add update</button>
-<button onclick="resolveIncident(${i.id})">Resolve</button>
-`;
+function setGlobal(status){
+const el=document.getElementById("globalStatus");
+if(status==="operational"){
+el.textContent="Operational";
+el.style.background="var(--good)";
+} else if(status==="degraded"){
+el.textContent="Degraded";
+el.style.background="var(--warn)";
+} else {
+el.textContent="Major Outage";
+el.style.background="var(--bad)";
 }
-return "";
-}
-
-async function addUpdate(id){
-const msg = document.getElementById("upd"+id).value;
-if(!msg) return;
-await supabase.from("status_updates").insert({incident_id:id,message:msg});
 }
 
-async function resolveIncident(id){
-await supabase.from("status_incidents").update({
-status:"resolved",
-resolved_at:new Date()
-}).eq("id",id);
+async function saveComponent(){
+const name=document.getElementById("compName").value;
+const status=document.getElementById("compStatus").value;
+if(!name) return alert("Name required");
+
+const { data:existing } = await supabase
+.from("status_components").select("*").eq("name",name).single();
+
+if(existing){
+await supabase.from("status_components")
+.update({status}).eq("id",existing.id);
+} else {
+await supabase.from("status_components")
+.insert({name,status});
+}
+
+loadComponents();
 }
 
 async function createIncident(){
-await supabase.from("status_incidents").insert({
-title:incTitle.value,
-description:incDesc.value,
-severity:incSeverity.value,
-status:"investigating"
-});
+const title=document.getElementById("incTitle").value;
+const description=document.getElementById("incDesc").value;
+
+if(!title) return alert("Title required");
+
+await supabase.from("status_incidents")
+.insert({title,description,status:"open"});
+
+loadIncidents();
 }
 
-function realtime(){
-supabase.channel("status")
+function setupRealtime(){
+supabase.channel("status-updates")
 .on("postgres_changes",{event:"*",schema:"public",table:"status_components"},loadComponents)
 .on("postgres_changes",{event:"*",schema:"public",table:"status_incidents"},loadIncidents)
-.on("postgres_changes",{event:"*",schema:"public",table:"status_updates"},loadIncidents)
 .subscribe();
+}
+
+async function init(){
+await initAuth();
+await loadComponents();
+await loadIncidents();
+setupRealtime();
 }
 
 init();
