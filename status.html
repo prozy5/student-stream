@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>StudentStream System Status</title>
+<title>StudentStream Status</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -10,220 +10,183 @@
 <style>
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background: radial-gradient(circle at top, #0b1a2a, #05070d);
-  color: #e6f0ff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0b0f1a;
+  color: #eaeaf0;
+}
+
+header {
+  padding: 24px;
+  background: #0f1629;
+  border-bottom: 1px solid #1e2a4a;
+}
+
+h1 {
+  margin: 0;
+  font-size: 22px;
 }
 
 .container {
   max-width: 900px;
   margin: auto;
-  padding: 30px 20px 60px;
-}
-
-h1 {
-  font-size: 2.4rem;
-  margin-bottom: 5px;
-  color: #7dd3fc;
-}
-
-.subtitle {
-  color: #8aa4c8;
-  margin-bottom: 30px;
-}
-
-.card {
-  background: rgba(20,30,60,0.55);
-  border: 1px solid rgba(100,160,255,0.15);
-  border-radius: 12px;
   padding: 20px;
-  margin-bottom: 20px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 25px rgba(80,140,255,0.05);
 }
-
-.status-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 1.1rem;
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.ok { background: #22c55e; box-shadow: 0 0 10px #22c55eaa; }
-.warn { background: #facc15; box-shadow: 0 0 10px #facc15aa; }
-.bad { background: #ef4444; box-shadow: 0 0 10px #ef4444aa; }
 
 .component {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 14px;
+  margin-bottom: 10px;
+  background: #121a33;
+  border-radius: 10px;
+  border: 1px solid #1e2a4a;
 }
 
-.component:last-child {
-  border-bottom: none;
-}
-
-.component-name {
-  font-weight: 600;
-}
-
-.component-desc {
-  font-size: 0.85rem;
-  color: #9fb4d6;
-}
-
-.badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.badge.ok { background: #134e2a; color: #4ade80; }
-.badge.warn { background: #4a3b09; color: #fde047; }
-.badge.bad { background: #4a1111; color: #f87171; }
+.status-ok { color: #4ade80; }
+.status-down { color: #f87171; }
+.status-degraded { color: #facc15; }
 
 .incident {
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: #1a1220;
+  border: 1px solid #3b1a55;
+  padding: 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
-.footer {
-  text-align: center;
-  margin-top: 40px;
-  color: #6b84b3;
-  font-size: 0.85rem;
+.loading {
+  opacity: 0.6;
+}
+
+.error {
+  background: #2a1111;
+  color: #ffb4b4;
+  padding: 12px;
+  border-radius: 8px;
 }
 </style>
 </head>
+
 <body>
 
+<header>
+  <h1>🚦 StudentStream System Status</h1>
+</header>
+
 <div class="container">
-  <h1>StudentStream Status</h1>
-  <div class="subtitle">Real-time platform health & incident monitoring</div>
 
-  <div class="card" id="systemCard">
-    <div class="status-banner">
-      <div class="dot ok" id="systemDot"></div>
-      <div id="systemText">Checking system status...</div>
-    </div>
-  </div>
+<h2>System Components</h2>
+<div id="components" class="loading">Loading components…</div>
 
-  <div class="card">
-    <h3>System Components</h3>
-    <div id="components">Loading...</div>
-  </div>
+<h2>Incidents</h2>
+<div id="incidents" class="loading">Loading incidents…</div>
 
-  <div class="card">
-    <h3>Active Incidents</h3>
-    <div id="incidents">Loading...</div>
-  </div>
+<div id="errors"></div>
 
-  <div class="footer">
-    © 2026 StudentStream • Status powered by Supabase
-  </div>
 </div>
 
 <script>
 const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
 
-const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const componentsDiv = document.getElementById("components");
+const incidentsDiv = document.getElementById("incidents");
+const errorsDiv = document.getElementById("errors");
 
 function statusClass(status) {
-  if (status === "operational") return "ok";
-  if (status === "degraded") return "warn";
-  return "bad";
+  if (!status) return "";
+  status = status.toLowerCase();
+  if (status.includes("operational")) return "status-ok";
+  if (status.includes("down")) return "status-down";
+  if (status.includes("degraded")) return "status-degraded";
+  return "";
 }
 
 async function loadComponents() {
   const { data, error } = await supabase
     .from("status_components")
     .select("*")
-    .order("order_index");
+    .order("order_index", { ascending: true });
 
   if (error) {
-    document.getElementById("components").textContent = error.message;
-    return [];
+    showError(error);
+    componentsDiv.textContent = "Failed to load components.";
+    return;
   }
 
-  const container = document.getElementById("components");
-  container.innerHTML = "";
+  componentsDiv.classList.remove("loading");
+  componentsDiv.innerHTML = "";
 
-  let worst = "operational";
+  if (!data.length) {
+    componentsDiv.textContent = "No components found.";
+    return;
+  }
 
   data.forEach(c => {
-    if (c.status === "down") worst = "down";
-    else if (c.status === "degraded" && worst !== "down") worst = "degraded";
-
-    const row = document.createElement("div");
-    row.className = "component";
-    row.innerHTML = `
-      <div>
-        <div class="component-name">${c.name}</div>
-        <div class="component-desc">${c.description || ""}</div>
-      </div>
-      <div class="badge ${statusClass(c.status)}">${c.status}</div>
+    const el = document.createElement("div");
+    el.className = "component";
+    el.innerHTML = `
+      <div>${c.name}</div>
+      <div class="${statusClass(c.status)}">${c.status}</div>
     `;
-    container.appendChild(row);
+    componentsDiv.appendChild(el);
   });
-
-  return worst;
 }
 
 async function loadIncidents() {
   const { data, error } = await supabase
     .from("status_incidents")
     .select("*")
-    .eq("active", true)
-    .order("created_at", { ascending: false });
-
-  const container = document.getElementById("incidents");
+    .order("created_at", { ascending: false })
+    .limit(5);
 
   if (error) {
-    container.textContent = error.message;
+    showError(error);
+    incidentsDiv.textContent = "Failed to load incidents.";
     return;
   }
+
+  incidentsDiv.classList.remove("loading");
+  incidentsDiv.innerHTML = "";
 
   if (!data.length) {
-    container.textContent = "No active incidents 🎉";
+    incidentsDiv.textContent = "No active incidents 🎉";
     return;
   }
 
-  container.innerHTML = "";
-
   data.forEach(i => {
-    const div = document.createElement("div");
-    div.className = "incident";
-    div.innerHTML = `<strong>${i.title}</strong><br>${i.description}`;
-    container.appendChild(div);
+    const el = document.createElement("div");
+    el.className = "incident";
+    el.innerHTML = `
+      <strong>${i.title}</strong><br>
+      <small>${new Date(i.created_at).toLocaleString()}</small>
+      <p>${i.description || ""}</p>
+    `;
+    incidentsDiv.appendChild(el);
   });
 }
 
-function setSystemStatus(status) {
-  const text = document.getElementById("systemText");
-  const dot = document.getElementById("systemDot");
+function showError(err) {
+  console.error(err);
+  const div = document.createElement("div");
+  div.className = "error";
+  div.textContent = err.message || JSON.stringify(err);
+  errorsDiv.appendChild(div);
+}
 
-  dot.className = "dot " + statusClass(status);
-
-  if (status === "operational") text.textContent = "All systems operational";
-  else if (status === "degraded") text.textContent = "Partial system degradation";
-  else text.textContent = "Major system outage";
+function subscribeRealtime() {
+  supabase.channel("status-realtime")
+    .on("postgres_changes", { event: "*", schema: "public", table: "status_components" }, loadComponents)
+    .on("postgres_changes", { event: "*", schema: "public", table: "status_incidents" }, loadIncidents)
+    .subscribe();
 }
 
 async function init() {
-  const systemStatus = await loadComponents();
-  setSystemStatus(systemStatus);
+  await loadComponents();
   await loadIncidents();
+  subscribeRealtime();
 }
 
 init();
