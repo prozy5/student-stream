@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>StudentStream Status – Supabase Test</title>
+<style>
+body { font-family: Arial; background:#0b1220; color:#e5e7eb; padding:20px; }
+.card { background:#111827; padding:15px; margin:10px 0; border-radius:8px; }
+.ok { color:#22c55e; }
+.warn { color:#facc15; }
+.bad { color:#ef4444; }
+small { color:#9ca3af; }
+pre { background:#020617; padding:10px; border-radius:6px; overflow:auto; }
+</style>
+</head>
+<body>
+
+<h1>StudentStream Status Page – Supabase Test</h1>
+
+<div class="card">
+System: <span id="systemStatus">Loading...</span>
+</div>
+
+<div class="card">
+<h3>Components</h3>
+<div id="components">Loading...</div>
+</div>
+
+<div class="card">
+<h3>Active Incidents</h3>
+<div id="incidents">Loading...</div>
+</div>
+
+<div class="card">
+<h3>Debug Output</h3>
+<pre id="debug">Starting…</pre>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
+
+const debug = msg => {
+  document.getElementById("debug").textContent += "\n" + msg;
+};
+
+debug("JS running");
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+debug("Supabase client created");
+
+async function loadStatus() {
+
+  // Components
+  const componentsRes = await supabase.from("status_components").select("*").order("order_index");
+
+  if (componentsRes.error) {
+    document.getElementById("components").innerHTML = "<span class='bad'>ERROR loading components</span>";
+    debug("Components error: " + JSON.stringify(componentsRes.error));
+  } else {
+    debug("Components loaded: " + componentsRes.data.length);
+
+    if (componentsRes.data.length === 0) {
+      document.getElementById("components").innerHTML = "<small>No components in table</small>";
+    } else {
+      document.getElementById("components").innerHTML = componentsRes.data.map(c =>
+        `<div>${c.name} — <b>${c.status}</b></div>`
+      ).join("");
+    }
+  }
+
+  // Incidents
+  const incidentsRes = await supabase.from("status_incidents").select("*").eq("resolved", false);
+
+  if (incidentsRes.error) {
+    document.getElementById("incidents").innerHTML = "<span class='bad'>ERROR loading incidents</span>";
+    debug("Incidents error: " + JSON.stringify(incidentsRes.error));
+  } else {
+    debug("Incidents loaded: " + incidentsRes.data.length);
+
+    if (incidentsRes.data.length === 0) {
+      document.getElementById("incidents").innerHTML = "<small>No active incidents</small>";
+    } else {
+      document.getElementById("incidents").innerHTML = incidentsRes.data.map(i =>
+        `<div>${i.title}</div>`
+      ).join("");
+    }
+  }
+
+  // System status
+  let system = "Operational";
+  if (componentsRes.data?.some(c => c.status !== "operational")) system = "Degraded";
+  if (incidentsRes.data?.length > 0) system = "Major Outage";
+
+  const statusEl = document.getElementById("systemStatus");
+  statusEl.textContent = system;
+  statusEl.className = system === "Operational" ? "ok" : system === "Degraded" ? "warn" : "bad";
+}
+
+loadStatus();
+</script>
+
+</body>
+</html>
