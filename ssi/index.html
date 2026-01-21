@@ -3,55 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <title>SS:I — StudentStream Investigations</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="hero">
-  <img src="logo.png" class="logo" alt="SS:I Logo">
-  <h1>StudentStream Investigations</h1>
-  <p class="tagline">Documenting the unexplained. Researching the ignored.</p>
-</header>
-
-<section class="mission">
-  <h2>Mission</h2>
-  <p>
-    StudentStream Investigations (SS:I) is a digital research and documentation division
-    created to explore unexplained events, strange stories, hidden internet phenomena,
-    and real-world mysteries through structured investigation, media, and analysis.
-  </p>
-</section>
-
-<section class="cases">
-  <h2>Case Files</h2>
-
-  <div class="case-box">
-    <span class="case-id">CASE 001</span>
-    <span class="case-title">Initial Investigation — Coming Soon</span>
+<!-- LOADING SCREEN -->
+<div id="loader">
+  <div class="loader-content">
+    <img src="logo.png" class="loader-logo">
+    <p id="loading-text">Initializing SS:I systems...</p>
   </div>
+</div>
 
-  <div class="case-box locked">
-    <span class="case-id">CASE 002</span>
-    <span class="case-title">Classified</span>
-  </div>
+<!-- MAIN SITE -->
+<div id="site" class="hidden">
 
-  <div class="case-box locked">
-    <span class="case-id">CASE 003</span>
-    <span class="case-title">Classified</span>
-  </div>
-</section>
+  <header>
+    <img src="logo.png" class="logo">
+    <h1>StudentStream Investigations</h1>
+    <p class="tagline">Documenting the unexplained. Researching the ignored.</p>
+  </header>
 
-<section class="videos">
-  <h2>Video Reports</h2>
-  <div class="video-box">
-    No reports published yet.
-  </div>
-</section>
+  <section class="panel">
+    <h2>Mission</h2>
+    <p>
+      SS:I is a digital investigation division of StudentStream focused on uncovering strange events,
+      unexplained stories, hidden internet phenomena, and real-world mysteries through documentation,
+      research, and media.
+    </p>
+  </section>
 
-<footer>
-  <p>© 2026 StudentStream Investigations</p>
-</footer>
+  <section class="panel">
+    <h2>Case Files</h2>
+
+    <div class="case">Case 001 — Coming Soon</div>
+    <div class="case locked">Case 002 — Locked</div>
+    <div class="case locked">Case 003 — Locked</div>
+  </section>
+
+  <section class="panel">
+    <h2>Video Reports</h2>
+    <p>No reports published yet.</p>
+  </section>
+
+  <footer>
+    © 2026 StudentStream Investigations
+  </footer>
+
+</div>
 
 <script src="app.js"></script>
 </body>
