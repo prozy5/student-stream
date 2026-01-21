@@ -1,96 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Thread</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-body{background:#0b0d14;color:white;font-family:sans-serif;padding:20px}
-.post{padding:12px;border-bottom:1px solid #1f2933}
-textarea{width:100%;height:80px}
-button{padding:8px 12px;background:#4f46e5;border:none;color:white;border-radius:6px}
-.badge{font-size:10px;padding:3px 6px;border-radius:5px}
-.owner{background:#facc15;color:black}
-.admin{background:#ef4444}
-.mod{background:#3b82f6}
-</style>
+  <title>Thread</title>
+  <link rel="stylesheet" href="forum.css">
 </head>
 <body>
 
-<h2 id="title"></h2>
-<div id="posts"></div>
+<header class="topbar">
+  <a href="index.html">← Back</a>
+</header>
 
-<textarea id="msg"></textarea>
-<button onclick="send()">Reply</button>
+<div class="thread-container">
 
-<script>
-const supabase=supabase.createClient("URL","KEY")
-const params=new URLSearchParams(location.search)
-const threadId=params.get("id")
+  <div class="post">
 
-let user,profile
+    <div class="user">
+      <img src="avatar.png">
+      <div>
+        <strong>Deondre</strong>
+        <span class="badge owner">FOUNDER</span>
+      </div>
+    </div>
 
-async function init(){
- const res=await supabase.auth.getUser()
- if(!res.data.user){location.href="/auth.html";return}
- user=res.data.user
- profile=(await supabase.from("profiles").select("*").eq("id",user.id).single()).data
+    <div class="content">
+      Welcome to the official StudentStream dev forum.
+    </div>
 
- loadThread()
- loadPosts()
- subscribeRealtime()
-}
+    <div class="mod-tools">
+      <button>Lock</button>
+      <button>Delete</button>
+      <button>Pin</button>
+    </div>
 
-async function loadThread(){
- const {data}=await supabase.from("forum_threads").select("*").eq("id",threadId).single()
- title.innerText=data.title
-}
+  </div>
 
-async function loadPosts(){
- const {data}=await supabase.from("forum_posts")
- .select("*,profiles(username,role)")
- .eq("thread_id",threadId)
- .order("created_at")
+  <div class="reply">
+    <strong>User123</strong>
+    <p>This looks clean 🔥</p>
+  </div>
 
- const box=document.getElementById("posts")
- box.innerHTML=""
+  <textarea placeholder="Write reply..."></textarea>
+  <button>Post Reply</button>
 
- data.forEach(p=>{
-   let badge=""
-   if(p.profiles.role==="owner") badge=`<span class="badge owner">FOUNDER</span>`
-   if(p.profiles.role==="admin") badge=`<span class="badge admin">ADMIN</span>`
-   if(p.profiles.role==="mod") badge=`<span class="badge mod">MOD</span>`
-
-   box.innerHTML+=`
-   <div class="post">
-     <b>${p.profiles.username}</b> ${badge}
-     <div>${p.content}</div>
-   </div>`
- })
-}
-
-async function send(){
- if(!msg.value)return
- await supabase.from("forum_posts").insert({
-   thread_id:threadId,
-   user_id:user.id,
-   content:msg.value
- })
- msg.value=""
-}
-
-function subscribeRealtime(){
- supabase.channel("forum")
- .on("postgres_changes",{event:"INSERT",table:"forum_posts",filter:`thread_id=eq.${threadId}`},payload=>{
-   loadPosts()
- })
- .subscribe()
-}
-
-init()
-</script>
+</div>
 
 </body>
 </html>
