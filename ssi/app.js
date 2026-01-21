@@ -1,1 +1,1 @@
-console.log("SSI loaded.");
+console.log("SS:I online");
