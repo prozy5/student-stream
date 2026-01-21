@@ -2,42 +2,60 @@
 <html>
 <head>
   <title>Status Test</title>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
 </head>
 <body>
-  <h1>Status Page Test</h1>
-  <pre id="out">Loading...</pre>
+<h1>Status Page Test</h1>
+<pre id="out">Starting...</pre>
 
-  <!-- Supabase client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script>
-    // Show JS errors on the page
-    window.onerror = function(msg, url, line, col, error) {
-      document.getElementById("out").textContent =
-        "JS ERROR:\n" + msg + "\n\n" + (error?.stack || "");
-    };
+<script>
+(function () {
 
-    const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
+  const out = document.getElementById("out");
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  function log(msg) {
+    out.textContent += "\n" + msg;
+  }
 
-    async function load() {
-      const { data, error } = await supabase
-        .from('status_components')
-        .select('*');   // removed order_index
+  window.onerror = function(msg, url, line, col, error) {
+    out.textContent = "JS ERROR:\n" + msg + "\nLine: " + line;
+  };
 
-      if (error) {
-        document.getElementById('out').textContent =
-          "SUPABASE ERROR:\n" + JSON.stringify(error, null, 2);
-      } else {
-        document.getElementById('out').textContent =
-          JSON.stringify(data, null, 2);
-      }
+  log("Script loaded");
+
+  const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
+
+  if (!window.supabase) {
+    log("Supabase library FAILED to load");
+    return;
+  }
+
+  log("Supabase library OK");
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  async function load() {
+    log("Querying database...");
+
+    const result = await supabase
+      .from("status_components")
+      .select("*");
+
+    if (result.error) {
+      log("SUPABASE ERROR:");
+      log(JSON.stringify(result.error, null, 2));
+    } else {
+      log("DATA:");
+      log(JSON.stringify(result.data, null, 2));
     }
+  }
 
-    load();
-  </script>
+  load();
+
+})();
+</script>
 </body>
 </html>
