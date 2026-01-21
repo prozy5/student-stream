@@ -1,45 +1,16 @@
 <!DOCTYPE html>
 <html>
 <body>
+<pre id="out">Start</pre>
 
-<pre id="debug">Starting...</pre>
+<script>
+document.getElementById("out").textContent += "\nJS is working";
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
-const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
-
-const debug = document.getElementById("debug");
-
-function log(x){ debug.textContent += "\n" + x; }
-
-log("SDK loaded: " + !!window.supabase + " / " + !!window.supabaseJs);
-
-const clientFactory = window.supabase || window.supabaseJs;
-
-if(!clientFactory){
-  log("❌ Supabase SDK not found");
-  throw "SDK missing";
-}
-
-log("Creating client...");
-
-const supabase = clientFactory.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-log("Client created");
-
-(async () => {
-  log("Querying table...");
-  const { data, error } = await supabase.from("status_components").select("*");
-
-  if(error){
-    log("ERROR: " + JSON.stringify(error));
-  } else {
-    log("Rows: " + data.length);
-    log(JSON.stringify(data, null, 2));
-  }
-})();
+document.getElementById("out").textContent += "\nSupabase loaded: " + !!window.supabase;
 </script>
 
 </body>
