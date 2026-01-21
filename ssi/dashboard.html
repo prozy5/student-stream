@@ -1,0 +1,33 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabase = supabase.createClient("URL","ANON_KEY");
+
+async function checkAuth(){
+  const { data } = await supabase.auth.getUser();
+  if(!data.user) location.href="agent.html";
+}
+checkAuth();
+
+async function uploadVideo(){
+  const title=document.getElementById("vtitle").value;
+  const file=document.getElementById("vfile").files[0];
+
+  const path = Date.now()+"_"+file.name;
+
+  await supabase.storage.from("videos").upload(path,file);
+
+  const url = supabase.storage.from("videos").getPublicUrl(path).data.publicUrl;
+
+  await supabase.from("videos").insert({title,url});
+  alert("Uploaded");
+}
+
+async function createCase(){
+  const title=document.getElementById("ctitle").value;
+  const desc=document.getElementById("cdesc").value;
+  const content=document.getElementById("ccontent").value;
+
+  await supabase.from("cases").insert({title,description:desc,content});
+  alert("Case created");
+}
+</script>
