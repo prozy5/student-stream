@@ -1,48 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Thread</title>
-  <link rel="stylesheet" href="forum.css">
+<title>Thread</title>
+<link rel="stylesheet" href="forum.css">
 </head>
 <body>
 
-<header class="topbar">
-  <a href="index.html">← Back</a>
-</header>
+<header><a href="index.html">← Back</a></header>
 
-<div class="thread-container">
+<div class="container">
+  <div id="thread"></div>
+  <hr>
+  <div id="replies"></div>
 
-  <div class="post">
-
-    <div class="user">
-      <img src="avatar.png">
-      <div>
-        <strong>Deondre</strong>
-        <span class="badge owner">FOUNDER</span>
-      </div>
-    </div>
-
-    <div class="content">
-      Welcome to the official StudentStream dev forum.
-    </div>
-
-    <div class="mod-tools">
-      <button>Lock</button>
-      <button>Delete</button>
-      <button>Pin</button>
-    </div>
-
-  </div>
-
-  <div class="reply">
-    <strong>User123</strong>
-    <p>This looks clean 🔥</p>
-  </div>
-
-  <textarea placeholder="Write reply..."></textarea>
-  <button>Post Reply</button>
-
+  <textarea id="replyBox" placeholder="Reply..."></textarea>
+  <button onclick="reply()">Send</button>
 </div>
+
+<script type="module">
+import { supabase, OWNER_ID, getUser } from "./devforum.js";
+const user = getUser();
+
+const id = new URLSearchParams(location.search).get("id");
+
+async function loadThread(){
+  const { data } = await supabase.from("forum_threads").select("*").eq("id",id).single();
+
+  let badge = data.author_id===OWNER_ID ? `<span class="badge">FOUNDER</span>` : "";
+
+  document.getElementById("thread").innerHTML = `
+    <h2>${data.title}</h2>
+    <small>${data.author_name} ${badge}</small>
+    <p>${data.content}</p>
+  `;
+}
+
+async function loadReplies(){
+  const { data } = await supabase.from("forum_replies")
+    .select("*").eq("thread_id",id).order("created_at");
+
+  const box = document.getElementById("replies");
+  box.innerHTML="";
+  data.forEach(r=>{
+    box.innerHTML += `<div class="reply"><b>${r.author_name}</b><br>${r.content}</div>`;
+  });
+}
+
+async function reply(){
+  const text = replyBox.value;
+
+  await supabase.from("forum_replies").insert({
+    thread_id:id,
+    content:text,
+    author_id:user.id,
+    author_name:user.name
+  });
+
+  replyBox.value="";
+}
+
+loadThread();
+loadReplies();
+
+supabase.channel("replies")
+.on("postgres_changes",{event:"INSERT",schema:"public",table:"forum_replies"},loadReplies)
+.subscribe();
+
+</script>
 
 </body>
 </html>
