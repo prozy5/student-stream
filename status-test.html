@@ -1,113 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>StudentStream Status Debug</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-<style>
-body {
-  font-family: system-ui, Arial, sans-serif;
-  background: #0f1115;
-  color: #e5e7eb;
-  padding: 20px;
-}
-h1 { color: #60a5fa; }
-#debug {
-  background: #111827;
-  border: 1px solid #1f2933;
-  padding: 12px;
-  white-space: pre-wrap;
-  margin-bottom: 20px;
-  font-size: 13px;
-}
-.card {
-  background: #111827;
-  border: 1px solid #1f2933;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-}
-.ok { color: #22c55e; }
-.bad { color: #ef4444; }
-</style>
+  <meta charset="UTF-8">
+  <title>Status Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
-<h1>StudentStream Status Debug</h1>
-
-<div id="debug">Starting…</div>
-<div id="components">Loading components…</div>
+<h2>Status Test</h2>
+<pre id="log">Starting...\n</pre>
 
 <script>
+const log = (m) => document.getElementById("log").textContent += m + "\n";
+
 const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
+const SUPABASE_KEY = "PASTE_LONG_JWT_KEY_HERE";
 
-const debug = document.getElementById("debug");
-const componentsDiv = document.getElementById("components");
+log("Creating client...");
 
-function log(msg) {
-  debug.textContent += "\n" + msg;
-}
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function run() {
-  try {
-    log("JS running ✅");
+log("Querying table...");
 
-    if (!window.supabase) {
-      log("❌ Supabase library not loaded");
-      return;
-    }
+async function test() {
+  const { data, error } = await supabase
+    .from("status_components")
+    .select("*");
 
-    log("Supabase loaded ✅");
-
-    log("Creating client…");
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    log("Querying status_components…");
-
-    const { data, error } = await supabase
-      .from("status_components")
-      .select("*")
-      .order("order_index");
-
-    if (error) {
-      log("❌ QUERY ERROR:");
-      log(JSON.stringify(error, null, 2));
-      componentsDiv.textContent = "Failed to load components.";
-      return;
-    }
-
-    log("Query success ✅");
-    log("Rows returned: " + data.length);
-
-    if (data.length === 0) {
-      componentsDiv.textContent = "No components in table.";
-      return;
-    }
-
-    componentsDiv.innerHTML = "";
-
-    data.forEach(c => {
-      const div = document.createElement("div");
-      div.className = "card";
-      div.innerHTML = `
-        <strong>${c.name}</strong><br>
-        ${c.description || ""}<br>
-        Status: <span class="${c.status === 'operational' ? 'ok' : 'bad'}">${c.status}</span>
-      `;
-      componentsDiv.appendChild(div);
-    });
-
-  } catch (e) {
-    log("❌ JS CRASH:");
-    log(e.toString());
+  if (error) {
+    log("ERROR:");
+    log(JSON.stringify(error, null, 2));
+  } else {
+    log("SUCCESS:");
+    log(JSON.stringify(data, null, 2));
   }
 }
 
-run();
+test();
 </script>
 
 </body>
