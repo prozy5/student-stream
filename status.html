@@ -5,99 +5,85 @@
 <title>StudentStream Status</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #0b0f1a;
-  color: #eaeaf0;
+body{
+  margin:0;
+  font-family:system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background:#0b0f17;
+  color:#fff;
 }
-
-header {
-  padding: 24px;
-  background: #0f1629;
-  border-bottom: 1px solid #1e2a4a;
+header{
+  padding:20px;
+  text-align:center;
+  background:#111827;
+  border-bottom:1px solid #1f2933;
 }
-
-h1 {
-  margin: 0;
-  font-size: 22px;
+h1{margin:0;font-size:22px;}
+#components{
+  max-width:800px;
+  margin:30px auto;
+  padding:0 15px;
+  display:grid;
+  gap:15px;
 }
-
-.container {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
+.card{
+  background:#111827;
+  border:1px solid #1f2933;
+  border-radius:12px;
+  padding:15px;
 }
+.ok{color:#22c55e;font-weight:bold;}
+.degraded{color:#facc15;font-weight:bold;}
+.down{color:#ef4444;font-weight:bold;}
 
-.component {
-  display: flex;
-  justify-content: space-between;
-  padding: 14px;
-  margin-bottom: 10px;
-  background: #121a33;
-  border-radius: 10px;
-  border: 1px solid #1e2a4a;
+#debug{
+  max-width:800px;
+  margin:20px auto;
+  padding:10px;
+  font-size:12px;
+  opacity:0.5;
+  white-space:pre-wrap;
 }
-
-.status-ok { color: #4ade80; }
-.status-down { color: #f87171; }
-.status-degraded { color: #facc15; }
-
-.incident {
-  background: #1a1220;
-  border: 1px solid #3b1a55;
-  padding: 14px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-.loading {
-  opacity: 0.6;
-}
-
-.error {
-  background: #2a1111;
-  color: #ffb4b4;
-  padding: 12px;
-  border-radius: 8px;
+footer{
+  text-align:center;
+  padding:20px;
+  opacity:.6;
+  font-size:13px;
 }
 </style>
 </head>
-
 <body>
 
 <header>
-  <h1>🚦 StudentStream System Status</h1>
+  <h1>StudentStream System Status</h1>
+  <div>Live infrastructure & service health</div>
 </header>
 
-<div class="container">
-
-<h2>System Components</h2>
-<div id="components" class="loading">Loading components…</div>
-
-<h2>Incidents</h2>
-<div id="incidents" class="loading">Loading incidents…</div>
-
-<div id="errors"></div>
-
+<div id="components">
+  <div class="card">Loading system components…</div>
 </div>
 
+<pre id="debug"></pre>
+
+<footer>
+  StudentStream Cloud Infrastructure • Realtime Monitoring
+</footer>
+
+<!-- IMPORTANT: UMD build -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 <script>
-const SUPABASE_URL = "YOUR_URL";
-const SUPABASE_ANON_KEY = "YOUR_KEY";
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
 
 const debug = document.getElementById("debug");
 const componentsDiv = document.getElementById("components");
 
-function log(msg) {
-  debug.textContent += "\n" + msg;
+function log(msg){
+  debug.textContent += msg + "\n";
 }
 
-async function loadStatus() {
+async function loadStatus(){
   log("Creating client...");
 
   const supabase = supabaseJs.createClient(
@@ -112,9 +98,9 @@ async function loadStatus() {
     .select("*")
     .order("order_index");
 
-  if (error) {
+  if(error){
     log("ERROR: " + JSON.stringify(error));
-    componentsDiv.textContent = "Failed to load.";
+    componentsDiv.innerHTML = "<div class='card'>Failed to load status.</div>";
     return;
   }
 
@@ -122,17 +108,28 @@ async function loadStatus() {
 
   componentsDiv.innerHTML = "";
 
-  data.forEach(c => {
+  data.forEach(c=>{
     const div = document.createElement("div");
     div.className = "card";
+
+    let statusClass = "ok";
+    if(c.status.toLowerCase().includes("degrad")) statusClass="degraded";
+    if(c.status.toLowerCase().includes("down")) statusClass="down";
+
     div.innerHTML = `
       <strong>${c.name}</strong><br>
-      ${c.description}<br>
-      Status: <span class="ok">${c.status}</span>
+      <small>${c.description || ""}</small><br><br>
+      Status: <span class="${statusClass}">${c.status}</span>
     `;
     componentsDiv.appendChild(div);
   });
 }
 
 loadStatus();
+
+/* Auto refresh every 60s */
+setInterval(loadStatus, 60000);
 </script>
+
+</body>
+</html>
