@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SS:I — StudentStream Investigations</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="scanlines"></div>
+
+<section class="hero">
+
+  <img src="ssi-logo.png" class="logo" />
+
+  <h1>STUDENTSTREAM INVESTIGATIONS</h1>
+  <h2>Digital Intelligence & Research Division</h2>
+
+  <div class="terminal">
+    <span id="type"></span><span class="cursor">█</span>
+  </div>
+
+  <div class="buttons">
+    <a href="portal.html" class="btn primary">AGENT PORTAL</a>
+    <a href="#cases" class="btn">VIEW CASES</a>
+  </div>
+
+  <div class="footer-text">
+    U.S. STUDENT INTELLIGENCE NETWORK • AUTHORIZED ACCESS ONLY
+  </div>
+
+</section>
+
+<script>
+const text = [
+  "Initializing secure systems...",
+  "Loading intelligence database...",
+  "Encrypting network traffic...",
+  "SS:I Division online."
+];
+
+let i = 0, j = 0;
+
+function typeLoop() {
+  if (j < text[i].length) {
+    document.getElementById("type").textContent += text[i][j];
+    j++;
+    setTimeout(typeLoop, 50);
+  } else {
+    setTimeout(() => {
+      document.getElementById("type").textContent = "";
+      j = 0;
+      i = (i + 1) % text.length;
+      typeLoop();
+    }, 1400);
+  }
+}
+typeLoop();
+</script>
+
+</body>
+</html>
