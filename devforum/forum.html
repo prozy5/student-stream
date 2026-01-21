@@ -1,198 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>StudentStream DevForum</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="forum.css">
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
-
-body{
-background:#0b1028;
-color:white;
-min-height:100vh;
-}
-
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:16px;
-background:#0f153a;
-border-bottom:1px solid #222;
-font-weight:700;
-}
-
-.header button{
-background:#6a7cff;
-border:none;
-color:white;
-padding:8px 14px;
-border-radius:8px;
-font-weight:600;
-cursor:pointer;
-}
-
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
-}
-
-.category{
-background:#12184a;
-padding:16px;
-border-radius:14px;
-margin-bottom:14px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-cursor:pointer;
-transition:.15s;
-border:1px solid rgba(255,255,255,.06);
-}
-
-.category:hover{
-transform:translateY(-2px);
-background:#171f5f;
-}
-
-.left h3{
-margin-bottom:6px;
-font-size:18px;
-}
-
-.left p{
-color:#aab3ff;
-font-size:13px;
-}
-
-.stats{
-text-align:right;
-font-size:13px;
-color:#9bb3ff;
-}
-
-.stats span{
-display:block;
-font-weight:700;
-color:white;
-font-size:16px;
-}
-
-.footer{
-text-align:center;
-color:#666;
-font-size:12px;
-padding:20px;
-}
-
-/* Mobile */
-
-@media(max-width:600px){
-.category{
-flex-direction:column;
-align-items:flex-start;
-gap:10px;
-}
-
-.stats{
-text-align:left;
-}
-}
-</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
-
 <body>
 
-<div class="header">
-<div>StudentStream DevForum</div>
-<button onclick="newThread()">+ New Thread</button>
+<div class="topbar">
+  <h2>StudentStream DevForum</h2>
+  <a href="new.html" class="new-btn">+ New Thread</a>
 </div>
 
-<div class="container">
-
-<div class="category" onclick="openCategory('updates')">
-  <div class="left">
-    <h3>🚀 Platform Updates</h3>
-    <p>Announcements, releases, roadmap progress</p>
-  </div>
-  <div class="stats">
-    <span>12</span>
-    Threads
-  </div>
-</div>
-
-<div class="category" onclick="openCategory('bugs')">
-  <div class="left">
-    <h3>🐞 Bug Reports</h3>
-    <p>Report problems and issues</p>
-  </div>
-  <div class="stats">
-    <span>8</span>
-    Threads
-  </div>
-</div>
-
-<div class="category" onclick="openCategory('marketplace')">
-  <div class="left">
-    <h3>🛒 Marketplace</h3>
-    <p>Selling, buying, payments, disputes</p>
-  </div>
-  <div class="stats">
-    <span>5</span>
-    Threads
-  </div>
-</div>
-
-<div class="category" onclick="openCategory('messaging')">
-  <div class="left">
-    <h3>💬 Messaging</h3>
-    <p>Chat system updates and issues</p>
-  </div>
-  <div class="stats">
-    <span>4</span>
-    Threads
-  </div>
-</div>
-
-<div class="category" onclick="openCategory('features')">
-  <div class="left">
-    <h3>✨ Feature Requests</h3>
-    <p>Suggest new features</p>
-  </div>
-  <div class="stats">
-    <span>15</span>
-    Threads
-  </div>
-</div>
-
-<div class="category" onclick="openCategory('offtopic')">
-  <div class="left">
-    <h3>🎮 Off Topic</h3>
-    <p>Anything else</p>
-  </div>
-  <div class="stats">
-    <span>6</span>
-    Threads
-  </div>
-</div>
-
-</div>
-
-<div class="footer">
-StudentStream DevForum • Community powered
-</div>
+<div id="status">Loading threads…</div>
+<div id="threads"></div>
 
 <script>
-function openCategory(cat){
-  window.location.href="category.html?cat="+cat;
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "PASTE_YOUR_REAL_ANON_KEY_HERE";
+
+const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const threadsDiv = document.getElementById("threads");
+const statusDiv = document.getElementById("status");
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.innerText = text;
+  return div.innerHTML;
 }
 
-function newThread(){
-  window.location.href="new-thread.html";
+async function loadThreads() {
+  statusDiv.textContent = "Loading threads…";
+
+  const { data, error } = await supabase
+    .from("forum_posts")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    statusDiv.textContent = "Failed to load threads.";
+    console.error(error);
+    return;
+  }
+
+  statusDiv.textContent = "";
+
+  threadsDiv.innerHTML = "";
+
+  if (data.length === 0) {
+    threadsDiv.innerHTML = "<p>No threads yet.</p>";
+    return;
+  }
+
+  data.forEach(post => renderThread(post));
 }
+
+function renderThread(post) {
+  const a = document.createElement("a");
+  a.href = `thread.html?id=${post.id}`;
+  a.className = "thread-link";
+
+  a.innerHTML = `
+    <div class="thread-card">
+      <div class="thread-title">${escapeHtml(post.title)}</div>
+      <div class="thread-meta">
+        ${escapeHtml(post.username)} • ${new Date(post.created_at).toLocaleString()} • ${post.category}
+      </div>
+      <div class="thread-preview">
+        ${escapeHtml(post.content.substring(0, 120))}
+      </div>
+    </div>
+  `;
+
+  threadsDiv.appendChild(a);
+}
+
+function setupRealtime() {
+  supabase
+    .channel("forum-realtime")
+    .on("postgres_changes",
+      { event: "INSERT", schema: "public", table: "forum_posts" },
+      payload => {
+        renderThread(payload.new);
+      }
+    )
+    .subscribe();
+}
+
+loadThreads();
+setupRealtime();
 </script>
 
 </body>
