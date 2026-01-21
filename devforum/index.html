@@ -1,50 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>StudentStream DevForum</title>
-  <link rel="stylesheet" href="forum.css">
+<title>StudentStream DevForum</title>
+<link rel="stylesheet" href="forum.css">
 </head>
 <body>
 
-<header class="topbar">
-  <div class="logo">StudentStream DevForum</div>
-  <button class="new-thread">+ New Thread</button>
+<header>
+  <h2>StudentStream DevForum</h2>
+  <a href="new.html">+ New Thread</a>
 </header>
 
-<div class="forum-layout">
+<div class="container" id="threads"></div>
 
-  <aside class="categories">
-    <h3>Categories</h3>
-    <ul>
-      <li class="active">Announcements</li>
-      <li>Development</li>
-      <li>Bug Reports</li>
-      <li>Ideas</li>
-      <li>Off Topic</li>
-    </ul>
-  </aside>
+<script type="module">
+import { supabase, OWNER_ID, getUser } from "./devforum.js";
 
-  <main class="threads">
+const threadsDiv = document.getElementById("threads");
 
-    <div class="thread-row pinned">
-      <div class="title">
-        📌 Welcome to StudentStream DevForum
-        <span class="badge owner">FOUNDER</span>
-      </div>
-      <div class="meta">12 replies • Last: 5m ago</div>
-    </div>
+async function loadThreads() {
+  const { data } = await supabase
+    .from("forum_threads")
+    .select("*")
+    .order("created_at", { ascending:false });
 
-    <div class="thread-row">
-      <div class="title">
-        Supabase realtime issues
-        <span class="badge mod">MOD</span>
-      </div>
-      <div class="meta">3 replies • Last: 1h ago</div>
-    </div>
+  threadsDiv.innerHTML = "";
 
-  </main>
+  data.forEach(t=>{
+    const div = document.createElement("div");
+    div.className="thread";
+    div.onclick=()=>location=`thread.html?id=${t.id}`;
 
-</div>
+    let badge = t.author_id===OWNER_ID ? `<span class="badge">FOUNDER</span>` : "";
 
+    div.innerHTML = `
+      <b>${t.title}</b> ${badge}<br>
+      <small>by ${t.author_name}</small>
+    `;
+    threadsDiv.appendChild(div);
+  });
+}
+
+loadThreads();
+
+supabase.channel("threads")
+  .on("postgres_changes",{event:"INSERT",schema:"public",table:"forum_threads"},loadThreads)
+  .subscribe();
+
+</script>
 </body>
 </html>
