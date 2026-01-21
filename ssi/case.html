@@ -1,0 +1,46 @@
+<div id="case"></div>
+<div id="likes"></div>
+<button onclick="likeCase()">Like</button>
+
+<h3>Comments</h3>
+<div id="comments"></div>
+
+<textarea id="commentText"></textarea>
+<button onclick="postComment()">Send</button>
+
+<script>
+const supabase = supabase.createClient("URL","ANON_KEY");
+const id = new URLSearchParams(location.search).get("id");
+
+async function loadCase(){
+ const { data } = await supabase.from("cases").select("*").eq("id",id).single();
+ document.getElementById("case").innerHTML=`
+ <h2>${data.title}</h2>
+ <p>${data.description}</p>
+ <pre>${data.content}</pre>`;
+}
+loadCase();
+
+async function loadLikes(){
+ const { data } = await supabase.from("likes").select("*").eq("case_id",id);
+ document.getElementById("likes").innerText = data.length+" likes";
+}
+loadLikes();
+
+async function likeCase(){
+ await supabase.from("likes").insert({case_id:id});
+ loadLikes();
+}
+
+async function loadComments(){
+ const { data } = await supabase.from("comments").select("*").eq("case_id",id);
+ document.getElementById("comments").innerHTML=data.map(c=>`<p>${c.content}</p>`).join("");
+}
+loadComments();
+
+async function postComment(){
+ const txt=document.getElementById("commentText").value;
+ await supabase.from("comments").insert({case_id:id,content:txt});
+ loadComments();
+}
+</script>
