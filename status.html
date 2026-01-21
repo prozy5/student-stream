@@ -1,61 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Status Test</title>
-  <meta charset="utf-8">
+<meta charset="utf-8">
+<title>StudentStream Status</title>
+
+<style>
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #0b1220;
+  color: #e5e7eb;
+  margin: 0;
+  padding: 30px;
+}
+
+h1 { margin-bottom: 5px; }
+small { color: #9ca3af; }
+
+.card {
+  background: #111827;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+  border: 1px solid #1f2933;
+}
+
+.component {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #1f2933;
+}
+
+.component:last-child { border-bottom: none; }
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.operational { background: #22c55e; }
+.degraded { background: #facc15; }
+.outage { background: #ef4444; }
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.ok { background: #16a34a; }
+.warn { background: #ca8a04; }
+.down { background: #dc2626; }
+
+.incident {
+  border-left: 3px solid #ef4444;
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+</style>
 </head>
 <body>
-<h1>Status Page Test</h1>
-<pre id="out">Starting...</pre>
+
+<h1>StudentStream Status</h1>
+<small id="overall">Loading system status…</small>
+
+<div class="card">
+  <h3>System Components</h3>
+  <div id="components">Loading…</div>
+</div>
+
+<div class="card">
+  <h3>Incidents</h3>
+  <div id="incidents">No incidents</div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-(function () {
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
 
-  const out = document.getElementById("out");
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  function log(msg) {
-    out.textContent += "\n" + msg;
-  }
+function statusClass(s) {
+  if (s === "operational") return "operational";
+  if (s === "degraded") return "degraded";
+  return "outage";
+}
 
-  window.onerror = function(msg, url, line, col, error) {
-    out.textContent = "JS ERROR:\n" + msg + "\nLine: " + line;
-  };
+function overallStatus(components) {
+  if (components.some(c => c.status === "outage")) return ["Major outage", "down"];
+  if (components.some(c => c.status === "degraded")) return ["Degraded performance", "warn"];
+  return ["All systems operational", "ok"];
+}
 
-  log("Script loaded");
+async function loadComponents() {
+  const { data } = await supabase
+    .from("status_components")
+    .select("*")
+    .order("order_index");
 
-  const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
+  const container = document.getElementById("components");
+  container.innerHTML = "";
 
-  if (!window.supabase) {
-    log("Supabase library FAILED to load");
+  data.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "component";
+    div.innerHTML = `
+      <div>
+        <span class="status-dot ${statusClass(c.status)}"></span>
+        <strong>${c.name}</strong><br>
+        <small>${c.description || ""}</small>
+      </div>
+      <div>${c.status}</div>
+    `;
+    container.appendChild(div);
+  });
+
+  const [text, badge] = overallStatus(data);
+  document.getElementById("overall").innerHTML =
+    `<span class="badge ${badge}">${text}</span>`;
+}
+
+async function loadIncidents() {
+  const { data } = await supabase
+    .from("status_incidents")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  const container = document.getElementById("incidents");
+
+  if (!data || data.length === 0) {
+    container.textContent = "No active incidents 🎉";
     return;
   }
 
-  log("Supabase library OK");
+  container.innerHTML = "";
+  data.forEach(i => {
+    const div = document.createElement("div");
+    div.className = "incident";
+    div.innerHTML = `<strong>${i.title}</strong><br><small>${i.status}</small>`;
+    container.appendChild(div);
+  });
+}
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+function enableRealtime() {
+  supabase
+    .channel("status-updates")
+    .on("postgres_changes", { event: "*", schema: "public", table: "status_components" }, loadComponents)
+    .on("postgres_changes", { event: "*", schema: "public", table: "status_incidents" }, loadIncidents)
+    .subscribe();
+}
 
-  async function load() {
-    log("Querying database...");
-
-    const result = await supabase
-      .from("status_components")
-      .select("*");
-
-    if (result.error) {
-      log("SUPABASE ERROR:");
-      log(JSON.stringify(result.error, null, 2));
-    } else {
-      log("DATA:");
-      log(JSON.stringify(result.data, null, 2));
-    }
-  }
-
-  load();
-
-})();
+loadComponents();
+loadIncidents();
+enableRealtime();
 </script>
+
 </body>
 </html>
