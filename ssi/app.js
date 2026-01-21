@@ -1,1 +1,1 @@
-console.log("SS:I online");
+console.log("SS:I system online.");
