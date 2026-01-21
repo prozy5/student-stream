@@ -8,79 +8,30 @@
 <body>
 
 <div class="topbar">
-  <div class="logo">StudentStream DevForum</div>
+ <div class="logo">StudentStream DevForum</div>
 </div>
 
 <div class="new-thread-container">
-  <h2>Create New Thread</h2>
+ <h2>Create New Thread</h2>
 
-  <input id="title" placeholder="Thread title">
+ <input id="title" placeholder="Thread title">
 
-  <select id="category">
-    <option value="general">General</option>
-    <option value="announcements">Announcements</option>
-    <option value="support">Support</option>
-    <option value="development">Development</option>
-  </select>
+ <select id="category">
+ <option value="general">General</option>
+ <option value="announcements">Announcements</option>
+ <option value="support">Support</option>
+ <option value="development">Development</option>
+ </select>
 
-  <textarea id="content" rows="8" placeholder="Write your post..."></textarea>
+ <textarea id="content" rows="8" placeholder="Write your post..."></textarea>
 
-  <button class="submit-btn" onclick="createThread()">Post Thread</button>
+ <button class="submit-btn" id="postBtn">Post Thread</button>
 
-  <div id="status" style="margin-top:10px;color:#aaa;"></div>
+ <div id="status" class="status-text"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script>
-/* ===== CONFIG ===== */
-const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "PASTE_YOUR_WORKING_ANON_KEY_HERE";
-
-/* ===== CLIENT ===== */
-const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-/* ===== USER (TEMP) ===== */
-const CURRENT_USER_ID = "0801d47e-6bc7-4916-bf0a-e2de667d21ea";
-const CURRENT_USERNAME = "StudentStream";
-
-/* ===== POST THREAD ===== */
-async function createThread() {
-  const title = document.getElementById("title").value.trim();
-  const content = document.getElementById("content").value.trim();
-  const category = document.getElementById("category").value;
-  const status = document.getElementById("status");
-
-  if (!title || !content) {
-    status.textContent = "Fill in all fields.";
-    return;
-  }
-
-  status.textContent = "Posting...";
-
-  const { error } = await supabase
-    .from("forum_posts")
-    .insert([{
-      title,
-      content,
-      category,
-      user_id: CURRENT_USER_ID,
-      username: CURRENT_USERNAME,
-      created_at: new Date().toISOString()
-    }]);
-
-  if (error) {
-    console.error(error);
-    status.textContent = "Failed to post: " + error.message;
-    return;
-  }
-
-  status.textContent = "Posted! Redirecting...";
-
-  setTimeout(() => {
-    window.location.href = "index.html";
-  }, 800);
-}
-</script>
+<script src="new.js"></script>
 
 </body>
 </html>
