@@ -1,135 +1,60 @@
-* {
-  box-sizing: border-box;
-  font-family: system-ui, sans-serif;
+const loader = document.getElementById("loader");
+const site = document.getElementById("site");
+const logo = document.getElementById("loader-logo");
+const text = document.getElementById("loader-text");
+const authModal = document.getElementById("authModal");
+const agentStatus = document.getElementById("agentStatus");
+
+// LOADING SEQUENCE
+window.addEventListener("load", () => {
+
+  setTimeout(() => {
+    logo.classList.add("show");
+    text.textContent = "Authenticating identity…";
+  }, 600);
+
+  setTimeout(() => {
+    text.textContent = "Accessing investigation database…";
+  }, 1400);
+
+  setTimeout(() => {
+    text.textContent = "Access granted.";
+  }, 2200);
+
+  setTimeout(() => {
+    loader.style.display = "none";
+    site.classList.remove("hidden");
+    checkLogin();
+  }, 3000);
+
+});
+
+// LOGIN SYSTEM
+function login() {
+  const user = document.getElementById("username").value || "Guest Agent";
+  localStorage.setItem("ssi_agent", user);
+  closeAuth();
+  updateAgent();
 }
 
-body {
-  margin: 0;
-  background: #070b12;
-  color: #cfd8ff;
+function closeAuth() {
+  authModal.classList.add("hidden");
 }
 
-/* LOADER */
-#loader {
-  position: fixed;
-  inset: 0;
-  background: #05080f;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
+function checkLogin() {
+  const agent = localStorage.getItem("ssi_agent");
+  if (!agent) {
+    authModal.classList.remove("hidden");
+  } else {
+    updateAgent();
+  }
 }
 
-.loader-box {
-  text-align: center;
-}
-
-#loader-logo {
-  width: 80px;
-  opacity: 0;
-  transform: scale(0.5);
-  transition: all 0.8s ease;
-}
-
-#loader-logo.show {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.spinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid #2a3cff;
-  border-top-color: transparent;
-  border-radius: 50%;
-  margin: 15px auto;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* MODAL */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-.modal-box {
-  background: #0c1322;
-  padding: 25px;
-  border-radius: 10px;
-  width: 300px;
-  text-align: center;
-}
-
-.modal-box input {
-  width: 100%;
-  margin: 8px 0;
-  padding: 10px;
-  background: #111a33;
-  border: none;
-  color: white;
-}
-
-.modal-box button {
-  width: 100%;
-  padding: 10px;
-  background: #2a3cff;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-.link {
-  color: #7aa2ff;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-/* MAIN SITE */
-.hidden {
-  display: none;
-}
-
-header {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.main-logo {
-  width: 90px;
-}
-
-.tagline {
-  color: #8fa3ff;
-}
-
-section {
-  max-width: 700px;
-  margin: auto;
-  padding: 20px;
-}
-
-.case {
-  background: #0f172d;
-  padding: 12px;
-  margin: 8px 0;
-  border-left: 4px solid #2a3cff;
-}
-
-.case.locked {
-  opacity: 0.4;
-}
-
-footer {
-  text-align: center;
-  padding: 30px;
-  color: #6f7ccf;
+function updateAgent() {
+  const agent = localStorage.getItem("ssi_agent");
+  if (agent) {
+    agentStatus.textContent = `Logged in as Agent: ${agent}`;
+  } else {
+    agentStatus.textContent = "Operating as Guest";
+  }
 }
