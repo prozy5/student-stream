@@ -1,37 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>New Thread • StudentStream DevForum</title>
-<link rel="stylesheet" href="forum.css">
+<title>New Thread</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
-<div class="topbar">
- <div class="logo">StudentStream DevForum</div>
-</div>
+<h2>New Thread</h2>
 
-<div class="new-thread-container">
- <h2>Create New Thread</h2>
+<input id="title" placeholder="Title"><br><br>
+<input id="username" placeholder="Your name"><br><br>
+<textarea id="content" placeholder="Content"></textarea><br><br>
 
- <input id="title" placeholder="Thread title">
+<button onclick="post()">Post</button>
 
- <select id="category">
- <option value="general">General</option>
- <option value="announcements">Announcements</option>
- <option value="support">Support</option>
- <option value="development">Development</option>
- </select>
+<script>
+const supabase = supabaseJs.createClient(
+  "https://iabzmoxzbqzcqgypxctr.supabase.co",
+  "PASTE_YOUR_REAL_ANON_KEY_HERE"
+);
 
- <textarea id="content" rows="8" placeholder="Write your post..."></textarea>
+async function post() {
+  const title = title.value;
+  const content = document.getElementById("content").value;
+  const username = document.getElementById("username").value;
 
- <button class="submit-btn" id="postBtn">Post Thread</button>
+  const { error } = await supabase.from("forum_posts").insert([
+    { title, content, username }
+  ]);
 
- <div id="status" class="status-text"></div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="new.js"></script>
+  if (error) {
+    alert("Failed: " + error.message);
+  } else {
+    window.location.href = "index.html";
+  }
+}
+</script>
 
 </body>
 </html>
