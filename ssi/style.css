@@ -1,20 +1,56 @@
 body {
   margin: 0;
   font-family: system-ui, Arial, sans-serif;
-  background: #0b0f14;
-  color: #e6e6e6;
-  text-align: center;
+  background: #0a0d12;
+  color: #e5e7eb;
 }
 
-header {
+.hero {
+  text-align: center;
+  padding: 50px 20px;
+  border-bottom: 1px solid #1f2933;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+}
+
+.logo {
+  width: 110px;
+  margin-bottom: 15px;
+  filter: drop-shadow(0 0 12px rgba(0, 200, 255, 0.35));
+}
+
+.tagline {
+  color: #9ca3af;
+  margin-top: 5px;
+}
+
+.section {
   padding: 40px 20px;
-  border-bottom: 1px solid #222;
+  max-width: 900px;
+  margin: auto;
+}
+
+.section h2 {
+  border-left: 4px solid #22d3ee;
+  padding-left: 10px;
+  margin-bottom: 15px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
 }
 
 .card {
-  background: #111827;
-  margin: 20px;
-  padding: 20px;
-  border-radius: 12px;
+  background: #020617;
   border: 1px solid #1f2933;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+footer {
+  text-align: center;
+  padding: 30px;
+  color: #6b7280;
+  font-size: 14px;
 }
