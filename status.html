@@ -6,7 +6,9 @@
 <body>
 <h1>Status Page Test</h1>
 <pre id="out">Loading...</pre>
-
+window.onerror = function(msg, url, line, col, error) {
+  document.body.innerHTML = "<pre style='color:red'>" + msg + "\n" + error + "</pre>";
+};
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
