@@ -1,61 +1,47 @@
-const supabase = supabase.createClient(
-  "YOUR_URL",
-  "YOUR_PUBLIC_KEY"
-);
+const modal = document.getElementById('threadModal');
+const threadsDiv = document.getElementById('threads');
+const emptyState = document.getElementById('emptyState');
 
-const threadList = document.getElementById("threadList");
-const modal = document.getElementById("modal");
+document.getElementById('newThreadBtn').onclick = openModal;
 
-document.getElementById("newThreadBtn").onclick = ()=>modal.style.display="flex";
-window.onclick = e=>{ if(e.target===modal) modal.style.display="none"; };
-
-async function loadThreads(){
-  const { data } = await supabase
-    .from("forum_posts")
-    .select("id,title,category,created_at,profiles(username,role)")
-    .order("created_at",{ascending:false});
-
-  threadList.innerHTML = "";
-
-  data.forEach(t=>{
-    const role = t.profiles?.role || "user";
-
-    threadList.innerHTML += `
-      <div class="thread">
-        <div>
-          <h4>${t.title}</h4>
-          <div class="meta">
-            ${t.profiles?.username || "anon"}
-            <span class="badge ${role}">${role}</span>
-            • ${new Date(t.created_at).toLocaleString()}
-          </div>
-        </div>
-        <div class="meta">💬 0</div>
-      </div>
-    `;
-  });
+function openModal() {
+  modal.style.display = 'flex';
 }
 
-async function createThread(){
-  const title = titleInput.value;
-  const body = bodyInput.value;
-  const category = categoryInput.value;
+function closeModal() {
+  modal.style.display = 'none';
+}
 
-  const { data:{user} } = await supabase.auth.getUser();
+function createThread() {
+  const title = document.getElementById('titleInput').value;
+  const content = document.getElementById('contentInput').value;
+  const category = document.getElementById('categoryInput').value;
 
-  await supabase.from("forum_posts").insert({
+  if (!title || !content) return alert("Fill everything");
+
+  addThread({
     title,
-    content: body,
+    content,
     category,
-    user_id: user.id
+    user: "You 👑",
+    replies: 0
   });
 
-  modal.style.display="none";
-  loadThreads();
+  closeModal();
 }
 
-supabase.channel("forum")
-  .on("postgres_changes",{event:"INSERT",schema:"public",table:"forum_posts"},loadThreads)
-  .subscribe();
+function addThread(t) {
+  emptyState.style.display = "none";
 
-loadThreads();
+  const card = document.createElement('div');
+  card.className = "thread-card";
+
+  card.innerHTML = `
+    <h3><span class="badge">${t.category}</span> ${t.title}</h3>
+    <div class="meta">${t.user} • just now • ${t.replies} replies</div>
+    <p>${t.content.substring(0,120)}...</p>
+    <div>👑 Owner</div>
+  `;
+
+  threadsDiv.prepend(card);
+}
