@@ -139,3 +139,4 @@ async function uploadVideo() {
 // ==========================
 
 document.addEventListener("DOMContentLoaded", loadVideos);
+console.log("SS:I system loaded");
