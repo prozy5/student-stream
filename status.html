@@ -1,16 +1,61 @@
 <!DOCTYPE html>
 <html>
-<body>
-<h1>Supabase Load Test</h1>
-<div id="out">Testing...</div>
-
+<head>
+<title>StudentStream Status</title>
+<meta charset="utf-8" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body { font-family: Arial; padding: 20px; }
+.item { margin: 10px 0; padding: 10px; border-radius: 6px; background: #f3f3f3; }
+.operational { color: green; }
+.degraded { color: orange; }
+.down { color: red; }
+</style>
+</head>
+<body>
+
+<h1>StudentStream System Status</h1>
+<div id="status">Loading...</div>
 
 <script>
-setTimeout(() => {
-  document.getElementById("out").innerText =
-    window.supabase ? "Supabase loaded OK ✅" : "Supabase BLOCKED ❌";
-}, 1000);
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function loadStatus() {
+const { data, error } = await supabase
+.from('status_components')
+.select('*')
+.order('order_index');
+
+const el = document.getElementById("status");
+
+if (error) {
+el.innerHTML = "<pre style='color:red'>" + JSON.stringify(error, null, 2) + "</pre>";
+return;
+}
+
+if (!data || data.length === 0) {
+el.innerHTML = "No status components found.";
+return;
+}
+
+el.innerHTML = "";
+
+data.forEach(item => {
+el.innerHTML += `
+<div class="item">
+<strong>${item.name}</strong><br>
+${item.description}<br>
+Status: <span class="${item.status}">${item.status}</span>
+</div>
+`;
+});
+}
+
+loadStatus();
 </script>
+
 </body>
 </html>
