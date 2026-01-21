@@ -1,17 +1,62 @@
 <!DOCTYPE html>
 <html>
+<head>
+<title>Status Test</title>
+<style>
+body{font-family:Arial;background:#0b1028;color:#fff;padding:20px}
+.card{background:#151b3d;padding:15px;margin:10px 0;border-radius:10px}
+.ok{color:#00ff9c}
+</style>
+</head>
 <body>
-<pre id="out">Start</pre>
 
-<script>
-document.getElementById("out").textContent += "\nJS is working";
-</script>
+<h1>StudentStream Status Test</h1>
+<pre id="debug">Starting...</pre>
+<div id="components"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
 <script>
-document.getElementById("out").textContent += "\nSupabase loaded: " + !!window.supabase;
-</script>
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ipn8wnT_TIvaT6r44j8YBw_t5oMhOPC";
 
+const debug = document.getElementById("debug");
+const componentsDiv = document.getElementById("components");
+
+function log(msg){debug.textContent += "\n" + msg;}
+
+async function loadStatus(){
+ log("Creating client...");
+ const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+ log("Querying table...");
+ const { data, error } = await supabase
+ .from("status_components")
+ .select("*")
+ .order("order_index");
+
+ if(error){
+ log("ERROR: " + JSON.stringify(error));
+ return;
+ }
+
+ log("Rows loaded: " + data.length);
+
+ componentsDiv.innerHTML = "";
+
+ if(data.length === 0){
+ componentsDiv.innerHTML = "<p>No components found.</p>";
+ return;
+ }
+
+ data.forEach(c=>{
+ const div=document.createElement("div");
+ div.className="card";
+ div.innerHTML=`<strong>${c.name}</strong><br>${c.description}<br>Status: <span class="ok">${c.status}</span>`;
+ componentsDiv.appendChild(div);
+ });
+}
+
+loadStatus();
+</script>
 </body>
 </html>
