@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><link rel="stylesheet" href="style.css"></head>
+<body>
+
+<div class="container">
+<h2>Create Case</h2>
+
+<input id="num" placeholder="Case Number">
+<input id="title" placeholder="Title">
+<select id="status">
+<option>open</option>
+<option>closed</option>
+</select>
+<button onclick="create()">Create</button>
+</div>
+
+<script src="supabase.js"></script>
+<script>
+async function create(){
+ await supabase.from("cases").insert({
+  case_number:num.value,
+  title:title.value,
+  status:status.value
+ });
+ location="agent-console.html";
+}
+</script>
+</body>
+</html>
