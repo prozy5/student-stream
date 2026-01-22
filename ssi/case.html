@@ -1,149 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>SS:I – Case Database</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SSI Case File</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
-  --bg:#0b0f14;
-  --panel:#121923;
-  --border:#1f2a38;
-  --text:#e6ecf2;
-  --muted:#8aa0b6;
-  --accent:#4aa3ff;
+body{
+  margin:0;
+  font-family:system-ui,Segoe UI,Roboto;
+  background:#05080f;
+  color:#cfe3ff;
 }
-*{box-sizing:border-box;font-family:system-ui,Segoe UI,Arial}
-body{margin:0;background:var(--bg);color:var(--text)}
-header{padding:20px;border-bottom:1px solid var(--border);font-weight:700;letter-spacing:2px}
-.container{display:flex;height:calc(100vh - 70px)}
-.sidebar{width:350px;border-right:1px solid var(--border);overflow:auto}
-.case-item{padding:15px;border-bottom:1px solid var(--border);cursor:pointer}
-.case-item:hover{background:#16202c}
-.case-item small{color:var(--muted)}
-.main{flex:1;padding:25px;overflow:auto}
-.panel{background:var(--panel);border:1px solid var(--border);padding:20px;border-radius:6px;margin-bottom:20px}
-h2,h3{margin-top:0}
-input,textarea,button{
-  width:100%;padding:10px;background:#0e1520;color:var(--text);
-  border:1px solid var(--border);border-radius:4px
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
 }
-button{background:var(--accent);border:none;color:#000;font-weight:700;cursor:pointer}
-.timeline-item{border-left:3px solid var(--accent);padding-left:10px;margin-bottom:10px}
-.hidden{display:none}
+h1,h2{color:#7fb4ff}
+.card{
+  background:#0b1322;
+  border:1px solid #162447;
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:20px;
+}
+textarea,select,input{
+  width:100%;
+  padding:10px;
+  background:#050b18;
+  border:1px solid #1f3a6b;
+  color:#cfe3ff;
+  border-radius:8px;
+}
+button{
+  margin-top:10px;
+  padding:10px 16px;
+  background:#1f4fd8;
+  border:none;
+  border-radius:8px;
+  color:white;
+  cursor:pointer;
+}
+.timeline{
+  border-left:2px solid #1f4fd8;
+  padding-left:10px;
+}
+.event{
+  margin-bottom:12px;
+  font-size:14px;
+}
+small{color:#7a9bd8}
+.topbar{
+  margin-bottom:20px;
+}
+a{color:#7fb4ff;text-decoration:none}
+.loading{
+  opacity:.6;
+}
 </style>
 </head>
 <body>
 
-<header>STUDENTSTREAM INVESTIGATIONS – CASE DATABASE</header>
-
 <div class="container">
-  <div class="sidebar" id="caseList"></div>
 
-  <div class="main">
-    <div id="noCase" class="panel">
-      <h2>Select a case file</h2>
-      <p>Choose a case from the database to view details.</p>
-    </div>
+<div class="topbar">
+  <a href="cases.html">← Back to cases</a>
+</div>
 
-    <div id="caseView" class="hidden">
+<h1 id="caseTitle">Loading...</h1>
+<p id="caseDesc"></p>
 
-      <div class="panel">
-        <h2 id="caseTitle"></h2>
-        <p id="caseDesc"></p>
-        <small id="caseMeta"></small>
-      </div>
+<div class="card">
+  <h2>Case Notes</h2>
+  <textarea id="notesInput" rows="5"></textarea>
+  <button onclick="saveNotes()">Save Notes</button>
+</div>
 
-      <div class="panel">
-        <h3>Timeline / Updates</h3>
-        <div id="timeline"></div>
-      </div>
+<div class="card">
+  <h2>Status</h2>
+  <select id="statusSelect">
+    <option>Open</option>
+    <option>Investigating</option>
+    <option>Closed</option>
+  </select>
+  <button onclick="updateStatus()">Update Status</button>
+</div>
 
-      <div class="panel">
-        <h3>Add Update</h3>
-        <textarea id="updateText" placeholder="Enter investigation update..."></textarea>
-        <br><br>
-        <button onclick="postUpdate()">Submit Update</button>
-        <p id="statusMsg"></p>
-      </div>
+<div class="card">
+  <h2>Add Update</h2>
+  <textarea id="commentInput" rows="3"></textarea>
+  <button onclick="addComment()">Submit</button>
+</div>
 
-    </div>
-  </div>
+<div class="card">
+  <h2>Timeline</h2>
+  <div id="timeline" class="timeline"></div>
+</div>
+
 </div>
 
 <script>
-const supabase = window.supabase.createClient(
-  "https://iabzmoxzbqzcqgypxctr.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
-);
+const supabaseUrl = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-let currentCaseId = null;
+const params = new URLSearchParams(window.location.search);
+const caseId = params.get("id");
 
-async function loadCases(){
-  const { data } = await supabase.from("cases").select("*").order("created_at",{ascending:false});
-  const list = document.getElementById("caseList");
-  list.innerHTML = "";
+async function loadCase(){
+  const { data, error } = await supabase
+    .from("cases")
+    .select("*")
+    .eq("id", caseId)
+    .single();
 
-  data.forEach(c=>{
-    const div = document.createElement("div");
-    div.className="case-item";
-    div.innerHTML = `<strong>${c.title}</strong><br><small>${c.status || "OPEN"}</small>`;
-    div.onclick=()=>openCase(c);
-    list.appendChild(div);
-  });
+  if(error){
+    alert("Failed to load case");
+    console.error(error);
+    return;
+  }
+
+  document.getElementById("caseTitle").textContent = data.title;
+  document.getElementById("caseDesc").textContent = data.description || "";
+  document.getElementById("statusSelect").value = data.status || "Open";
+
+  loadNotes();
+  loadTimeline();
 }
 
-async function openCase(c){
-  currentCaseId = c.id;
-  document.getElementById("noCase").classList.add("hidden");
-  document.getElementById("caseView").classList.remove("hidden");
+async function loadNotes(){
+  const { data } = await supabase
+    .from("case_notes")
+    .select("*")
+    .eq("case_id", caseId)
+    .single();
 
-  document.getElementById("caseTitle").textContent = c.title;
-  document.getElementById("caseDesc").textContent = c.description;
-  document.getElementById("caseMeta").textContent =
-    `Status: ${c.status || "OPEN"} | Created: ${new Date(c.created_at).toLocaleString()}`;
+  if(data){
+    document.getElementById("notesInput").value = data.content;
+  }
+}
 
-  loadTimeline();
+async function saveNotes(){
+  const content = document.getElementById("notesInput").value;
+
+  const { error } = await supabase
+    .from("case_notes")
+    .upsert({ case_id: caseId, content });
+
+  if(error){
+    alert("Failed to save notes");
+    console.error(error);
+  } else {
+    alert("Notes saved");
+  }
+}
+
+async function updateStatus(){
+  const status = document.getElementById("statusSelect").value;
+
+  const { error } = await supabase
+    .from("cases")
+    .update({ status })
+    .eq("id", caseId);
+
+  if(error){
+    alert("Failed to update status");
+  } else {
+    alert("Status updated");
+  }
 }
 
 async function loadTimeline(){
   const { data } = await supabase
-    .from("case_updates")
+    .from("case_comments")
     .select("*")
-    .eq("case_id", currentCaseId)
-    .order("created_at",{ascending:false});
+    .eq("case_id", caseId)
+    .order("created_at", { ascending:false });
 
-  const box = document.getElementById("timeline");
-  box.innerHTML="";
+  const el = document.getElementById("timeline");
+  el.innerHTML = "";
 
-  data.forEach(u=>{
+  data?.forEach(c=>{
     const div = document.createElement("div");
-    div.className="timeline-item";
-    div.innerHTML = `<strong>${new Date(u.created_at).toLocaleString()}</strong><br>${u.content}`;
-    box.appendChild(div);
+    div.className="event";
+    div.innerHTML = `
+      <strong>Update</strong><br>
+      ${c.content}<br>
+      <small>${new Date(c.created_at).toLocaleString()}</small>
+    `;
+    el.appendChild(div);
   });
 }
 
-async function postUpdate(){
-  const txt = document.getElementById("updateText").value.trim();
-  if(!txt) return;
+async function addComment(){
+  const content = document.getElementById("commentInput").value;
+  if(!content.trim()) return;
 
-  const { error } = await supabase.from("case_updates").insert({
-    case_id: currentCaseId,
-    content: txt
-  });
+  const { error } = await supabase
+    .from("case_comments")
+    .insert({ case_id: caseId, content });
 
   if(error){
-    document.getElementById("statusMsg").textContent = error.message;
+    alert("Failed to add update");
+    console.error(error);
   } else {
-    document.getElementById("statusMsg").textContent = "Update posted.";
-    document.getElementById("updateText").value="";
+    document.getElementById("commentInput").value="";
     loadTimeline();
   }
 }
 
-loadCases();
+loadCase();
 </script>
 
 </body>
