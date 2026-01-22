@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><link rel="stylesheet" href="style.css"></head>
+<body>
+
+<header>
+Agent Console
+<button onclick="logout()" style="float:right">Logout</button>
+</header>
+
+<div class="container">
+<a href="new-case.html">+ New Case</a>
+<div id="cases"></div>
+</div>
+
+<script src="supabase.js"></script>
+<script>
+async function protect(){
+ const {data}=await supabase.auth.getSession();
+ if(!data.session) location="agent-login.html";
+}
+protect();
+
+async function load(){
+ const {data}=await supabase.from("cases").select("*").order("created_at",{ascending:false});
+ const box=document.getElementById("cases");
+ box.innerHTML="";
+ data.forEach(c=>{
+   box.innerHTML+=`
+   <div class="card">
+     ${c.case_number} - ${c.title}
+     <a href="case.html?id=${c.id}">Open</a>
+   </div>`;
+ });
+}
+load();
+
+async function logout(){
+ await supabase.auth.signOut();
+ location="agent-login.html";
+}
+</script>
+</body>
+</html>
