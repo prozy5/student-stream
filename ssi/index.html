@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SS:I – StudentStream Investigations</title>
+<title>StudentStream Investigations</title>
 <link rel="stylesheet" href="css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 
@@ -12,27 +13,39 @@
 </header>
 
 <div class="container">
-  <input id="search" placeholder="Search intelligence..." oninput="reload()">
+
+  <div class="searchbar">
+    <input id="search" placeholder="Search intelligence..." oninput="reload()">
+  </div>
 
   <div class="section">
     <h2>Case Files</h2>
     <div id="cases" class="grid"></div>
-    <button onclick="prevPage()">Prev</button>
-    <button onclick="nextPage()">Next</button>
+
+    <div class="pagination">
+      <button onclick="prevPage()">Prev</button>
+      <button onclick="nextPage()">Next</button>
+    </div>
   </div>
 
   <div class="section">
     <h2>Video Reports</h2>
     <div id="videos" class="grid"></div>
   </div>
+
 </div>
+
+<footer>
+© 2026 StudentStream Investigations – Digital Intelligence Division
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL="https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
+const SUPABASE_KEY="YOUR_ANON_KEY_HERE";
 const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 </script>
 <script src="js/index.js"></script>
+
 </body>
 </html>
