@@ -1,54 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SS:I Case File</title>
+<meta charset="UTF-8">
+<title>Case File</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-<h2 id="title"></h2>
-<p id="desc"></p>
-
-<h3>Comments</h3>
-<div id="comments"></div>
-
-<textarea id="commentText"></textarea>
-<button onclick="addComment()">Add Comment</button>
+  <h1 id="title">Loading...</h1>
+  <p id="description"></p>
+  <a href="index.html">← Back</a>
 </div>
 
-<script src="supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
 
-const id=new URLSearchParams(location.search).get("id");
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
 
 async function loadCase(){
- const {data}=await supabase.from("cases").select("*").eq("id",id).single();
- title.innerText=data.title;
- desc.innerText=data.description;
-}
+  const { data } = await supabase
+    .from('cases')
+    .select('*')
+    .eq('id', id)
+    .single();
 
-async function loadComments(){
- const {data}=await supabase.from("comments").select("*").eq("video_id",id);
- const el=document.getElementById("comments");
- el.innerHTML="";
- data.forEach(c=>{
-  el.innerHTML+=`<div class="card">${c.content}</div>`;
- });
-}
-
-async function addComment(){
- await supabase.from("comments").insert({
-  video_id:id,
-  content:commentText.value
- });
- commentText.value="";
- loadComments();
+  document.getElementById("title").innerText = data.title;
+  document.getElementById("description").innerText = data.description;
 }
 
 loadCase();
-loadComments();
-
 </script>
+
 </body>
 </html>
