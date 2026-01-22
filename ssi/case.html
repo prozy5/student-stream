@@ -1,27 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="css/style.css">
+<title>SS:I Case File</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-  <div id="caseBox"></div>
+<h2 id="title"></h2>
+<p id="desc"></p>
 
-  <h3>Comments</h3>
-  <div id="comments"></div>
+<h3>Comments</h3>
+<div id="comments"></div>
 
-  <textarea id="commentText"></textarea>
-  <button onclick="postComment()">Send</button>
-  <button onclick="like()">Like</button>
+<textarea id="commentText"></textarea>
+<button onclick="addComment()">Add Comment</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
 <script>
-const SUPABASE_URL="https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const id=new URLSearchParams(location.search).get("id");
+
+async function loadCase(){
+ const {data}=await supabase.from("cases").select("*").eq("id",id).single();
+ title.innerText=data.title;
+ desc.innerText=data.description;
+}
+
+async function loadComments(){
+ const {data}=await supabase.from("comments").select("*").eq("video_id",id);
+ const el=document.getElementById("comments");
+ el.innerHTML="";
+ data.forEach(c=>{
+  el.innerHTML+=`<div class="card">${c.content}</div>`;
+ });
+}
+
+async function addComment(){
+ await supabase.from("comments").insert({
+  video_id:id,
+  content:commentText.value
+ });
+ commentText.value="";
+ loadComments();
+}
+
+loadCase();
+loadComments();
+
 </script>
-<script src="js/case.js"></script>
 </body>
 </html>
