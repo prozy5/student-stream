@@ -6,17 +6,26 @@
 </head>
 <body>
 
-<div class="layout">
-  <div class="sidebar">
-    <h2>StudentStream FBI</h2>
-    <a href="index.html">Case Files</a>
-    <a href="agent.html">Agent Console</a>
+<div class="app">
+
+  <div class="header">
+    <h1>StudentStream Investigations</h1>
+    <p>Documenting the unexplained. Researching the ignored.</p>
+
+    <div class="nav">
+      <a href="index.html">Case Files</a>
+      <a href="agent.html">Agent Console</a>
+    </div>
   </div>
 
-  <div class="main">
-    <h1>Active Case Files</h1>
-    <div id="cases"></div>
+  <div class="section-title">Active Case Files</div>
+
+  <div id="cases" class="case-grid"></div>
+
+  <div class="footer">
+    © 2026 StudentStream Investigations · Classified Systems Division
   </div>
+
 </div>
 
 <script type="module">
@@ -25,13 +34,14 @@ import { getCases } from "./supabase.js";
 const casesDiv = document.getElementById("cases");
 
 const cases = await getCases();
+
 cases.forEach(c => {
   const el = document.createElement("div");
   el.className = "case-card";
   el.innerHTML = `
-    <b>${c.title}</b><br>
-    Status: ${c.status}<br>
-    <a href="case.html?id=${c.id}">Open Case</a>
+    <div class="case-title">${c.title}</div>
+    <div class="case-status">Status: ${c.status}</div>
+    <a href="case.html?id=${c.id}">Open Case File →</a>
   `;
   casesDiv.appendChild(el);
 });
