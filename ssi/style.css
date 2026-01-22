@@ -1,57 +1,115 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  background: #0b1220;
+  font-family: "Inter", system-ui, sans-serif;
+  background: radial-gradient(circle at top, #0f172a, #020617 70%);
   color: #e5e7eb;
-  font-family: system-ui;
 }
 
-.layout {
-  display: flex;
-  height: 100vh;
+/* Layout */
+.app {
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
 }
 
-.sidebar {
-  width: 240px;
-  background: #020617;
-  padding: 20px;
-  border-right: 1px solid #1e293b;
+/* Header */
+.header {
+  margin-bottom: 30px;
 }
 
-.sidebar h2 {
-  margin-top: 0;
-  font-size: 18px;
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: 1px;
 }
 
-.sidebar a {
-  display: block;
-  margin: 12px 0;
-  color: #93c5fd;
+.header p {
+  margin-top: 6px;
+  color: #94a3b8;
+}
+
+/* Top nav */
+.nav {
+  margin-top: 12px;
+}
+
+.nav a {
+  color: #60a5fa;
   text-decoration: none;
+  margin-right: 16px;
+  font-size: 14px;
 }
 
-.main {
-  flex: 1;
-  padding: 25px;
-  overflow-y: auto;
+/* Section title */
+.section-title {
+  margin: 30px 0 15px;
+  font-size: 18px;
+  color: #cbd5f5;
+  letter-spacing: 0.5px;
+}
+
+/* Case cards */
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
 }
 
 .case-card {
-  background: #020617;
+  background: linear-gradient(160deg, #020617, #0b1220);
   border: 1px solid #1e293b;
-  padding: 15px;
-  margin-bottom: 12px;
-  border-radius: 8px;
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 25px rgba(0,0,0,.4);
 }
 
-button, input {
-  padding: 8px;
-  border-radius: 5px;
-  border: none;
+.case-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(96,165,250,0.08), transparent);
+  opacity: 0;
+  transition: 0.3s;
 }
 
-.comment {
-  background: #020617;
-  padding: 10px;
-  margin-top: 10px;
-  border-left: 3px solid #2563eb;
+.case-card:hover::before {
+  opacity: 1;
+}
+
+.case-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.case-status {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.case-card a {
+  color: #60a5fa;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+/* Footer */
+.footer {
+  margin-top: 50px;
+  color: #64748b;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Mobile tweaks */
+@media (max-width: 600px) {
+  .header h1 {
+    font-size: 22px;
+  }
 }
