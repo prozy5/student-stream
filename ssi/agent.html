@@ -1,63 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <title>SS:I Agent Console</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <h1>SS:I Agent Console</h1>
 
-<section>
-<h2>Create New Case</h2>
-<input id="title" placeholder="Case Title"><br>
-<textarea id="desc" placeholder="Description"></textarea><br>
-<button onclick="createCase()">Create Case</button>
-</section>
+<h2>Create Case</h2>
+<input id="title" placeholder="Title">
+<textarea id="desc" placeholder="Description"></textarea>
+<button onclick="createCase()">Create</button>
 
-<section>
 <h2>Upload Evidence</h2>
-<input id="caseId" placeholder="Case UUID"><br>
-<input type="file" id="file"><br>
-<button onclick="uploadFile()">Upload</button>
-</section>
-
-<div id="status"></div>
+<input id="caseId" placeholder="Case UUID">
+<input type="file" id="file">
+<button onclick="upload()">Upload</button>
 
 <script type="module">
-import { supabase } from './supabase.js';
+import { supabase } from "./supabase.js";
 
-window.createCase = async function() {
-  const title = document.getElementById('title').value;
-  const desc = document.getElementById('desc').value;
+const session = await supabase.auth.getSession();
+if (!session.data.session) location.href = "login.html";
 
-  const { data } = await supabase.from('cases').insert({
-    title,
-    description: desc,
-    status: 'OPEN'
+async function createCase() {
+  const { data, error } = await supabase.from("cases").insert({
+    title: title.value,
+    description: desc.value
   }).select().single();
 
-  document.getElementById('status').innerText = "Case created: " + data.id;
+  if(error) return alert(error.message);
+  alert("Case created: " + data.id);
 }
 
-window.uploadFile = async function() {
-  const caseId = document.getElementById('caseId').value;
-  const file = document.getElementById('file').files[0];
+async function upload() {
+  const fileObj = file.files[0];
+  const caseUUID = caseId.value;
 
-  const path = `${caseId}/${file.name}`;
+  const { error } = await supabase.storage
+    .from("case-files")
+    .upload(`${caseUUID}/${fileObj.name}`, fileObj);
 
-  await supabase.storage.from('case-files').upload(path, file);
-
-  await supabase.from('case_files').insert({
-    case_id: caseId,
-    file_name: file.name,
-    file_path: path,
-    file_type: file.type,
-    uploaded_by: 'Agent'
-  });
-
-  document.getElementById('status').innerText = "File uploaded.";
+  if(error) alert(error.message);
+  else alert("Uploaded");
 }
 </script>
 </body>
