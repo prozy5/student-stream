@@ -1,0 +1,29 @@
+body {
+  background:#0f1115;
+  color:white;
+  font-family:system-ui;
+  padding:20px;
+}
+
+.creator, .post {
+  background:#1b1f2a;
+  padding:12px;
+  margin:10px 0;
+  border-radius:8px;
+}
+
+a { color:#4da3ff }
+
+input, textarea {
+  width:100%;
+  margin:6px 0;
+  padding:8px;
+}
+
+button {
+  padding:8px 12px;
+  background:#4f6cff;
+  border:none;
+  color:white;
+  border-radius:6px;
+}
