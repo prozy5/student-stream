@@ -42,7 +42,7 @@ body{
 .container{
   max-width:900px;
   margin:auto;
-  padding:30px 20px 60px;
+  padding:26px 18px 60px;
 }
 
 /* ===== HEADER ===== */
@@ -50,11 +50,11 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:40px;
+  margin-bottom:38px;
   padding:18px 20px;
   background:linear-gradient(180deg,#0c1a2f,#070f1b);
   border:1px solid #13284d;
-  border-radius:14px;
+  border-radius:16px;
 }
 
 .ss-left{
@@ -66,20 +66,20 @@ body{
 .ss-logo{
   width:44px;
   height:44px;
-  border-radius:10px;
+  border-radius:12px;
   background:linear-gradient(135deg,#1f6fff,#3fa9ff);
   display:flex;
   align-items:center;
   justify-content:center;
   font-weight:800;
-  color:#021022;
+  color:#041225;
   letter-spacing:1px;
 }
 
 .ss-title{
-  font-size:18px;
+  font-size:17px;
   font-weight:700;
-  letter-spacing:.4px;
+  letter-spacing:.3px;
 }
 
 .ss-subtitle{
@@ -92,9 +92,9 @@ body{
   display:flex;
   align-items:center;
   gap:8px;
-  font-size:12px;
+  font-size:11px;
   color:#9fd3ff;
-  letter-spacing:1px;
+  letter-spacing:1.2px;
 }
 
 .sys-dot{
@@ -106,26 +106,38 @@ body{
 }
 
 /* ===== CONTENT ===== */
-.section{margin-top:50px}
-.subtitle{color:var(--muted)}
+.section{margin-top:44px}
+.subtitle{color:var(--muted); line-height:1.5}
 
 .case{
   background:linear-gradient(135deg,#0d1f38,#08111f);
-  padding:18px;
-  border-radius:10px;
+  padding:16px 18px;
+  border-radius:12px;
   margin-bottom:12px;
   border:1px solid #13284d;
   cursor:pointer;
-  transition:.15s;
+  transition:.15s ease;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
 }
-.case:hover{transform:scale(1.01)}
+.case:hover{
+  transform:translateY(-1px);
+  border-color:#1d3c6d;
+}
+
+.case strong{
+  font-size:.95rem;
+  font-weight:600;
+}
 
 .badge{
-  float:right;
   padding:4px 10px;
   border-radius:20px;
-  font-size:.75rem;
+  font-size:.7rem;
   text-transform:uppercase;
+  white-space:nowrap;
 }
 
 .open{background:rgba(59,255,122,.15);color:var(--open)}
@@ -135,8 +147,9 @@ body{
 footer{
   margin-top:80px;
   color:var(--muted);
-  font-size:.85rem;
+  font-size:.8rem;
   text-align:center;
+  opacity:.8;
 }
 </style>
 </head>
@@ -163,7 +176,7 @@ ACCESS GRANTED.
 
   <div class="ss-right">
     <div class="sys-dot"></div>
-    <div>SYSTEM ONLINE</div>
+    SYSTEM ONLINE
   </div>
 </header>
 
@@ -195,7 +208,7 @@ const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Boot
+// Boot effect
 setTimeout(()=>{
   document.getElementById("boot").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
@@ -240,8 +253,8 @@ async function loadVideos(){
   data.forEach(v=>{
     box.innerHTML+=`
       <div class="case">
-        <strong>${v.title}</strong><br>
-        <a href="${v.youtube_url}" target="_blank" style="color:var(--accent)">Watch report</a>
+        <strong>${v.title}</strong>
+        <span class="badge open">VIDEO</span>
       </div>
     `;
   });
