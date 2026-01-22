@@ -3,40 +3,72 @@
 <head>
 <meta charset="UTF-8">
 <title>Case File</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
-  <h1 id="title">Loading...</h1>
-  <p id="description"></p>
-  <a href="index.html">← Back</a>
-</div>
+<h1 id="title"></h1>
+<p id="description"></p>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
+<h2>Evidence Files</h2>
+<ul id="files"></ul>
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<h2>Agent Comments</h2>
+<div id="comments"></div>
 
-const params = new URLSearchParams(window.location.search);
-const id = params.get("id");
+<textarea id="commentText" placeholder="Add comment..."></textarea>
+<button onclick="postComment()">Submit</button>
 
-async function loadCase(){
-  const { data } = await supabase
-    .from('cases')
-    .select('*')
-    .eq('id', id)
-    .single();
+<script type="module">
+import { supabase } from './supabase.js';
 
-  document.getElementById("title").innerText = data.title;
-  document.getElementById("description").innerText = data.description;
+const params = new URLSearchParams(location.search);
+const caseId = params.get('id');
+
+async function loadCase() {
+  const { data } = await supabase.from('cases').select('*').eq('id', caseId).single();
+  document.getElementById('title').textContent = data.title;
+  document.getElementById('description').textContent = data.description;
+}
+
+async function loadFiles() {
+  const { data } = await supabase.from('case_files').select('*').eq('case_id', caseId);
+
+  const ul = document.getElementById('files');
+  ul.innerHTML = '';
+
+  for (let f of data) {
+    const { data: url } = supabase.storage.from('case-files').getPublicUrl(f.file_path);
+    const li = document.createElement('li');
+    li.innerHTML = `<a href="${url.publicUrl}" target="_blank">${f.file_name}</a>`;
+    ul.appendChild(li);
+  }
+}
+
+async function loadComments() {
+  const { data } = await supabase.from('case_comments').select('*').eq('case_id', caseId).order('created_at');
+
+  const div = document.getElementById('comments');
+  div.innerHTML = '';
+  data.forEach(c => {
+    div.innerHTML += `<p><b>${c.author}</b>: ${c.comment}</p>`;
+  });
+}
+
+window.postComment = async function () {
+  const text = document.getElementById('commentText').value;
+  await supabase.from('case_comments').insert({
+    case_id: caseId,
+    author: "Agent",
+    comment: text
+  });
+  document.getElementById('commentText').value = '';
+  loadComments();
 }
 
 loadCase();
+loadFiles();
+loadComments();
 </script>
-
 </body>
 </html>
