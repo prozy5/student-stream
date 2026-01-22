@@ -1,219 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SSI Case File</title>
-
+<meta charset="UTF-8">
+<title>Case File</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-body{
-  margin:0;
-  font-family:system-ui,Segoe UI,Roboto;
-  background:#05080f;
-  color:#cfe3ff;
-}
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:20px;
-}
-h1,h2{color:#7fb4ff}
-.card{
-  background:#0b1322;
-  border:1px solid #162447;
-  border-radius:12px;
-  padding:16px;
-  margin-bottom:20px;
-}
-textarea,select,input{
-  width:100%;
-  padding:10px;
-  background:#050b18;
-  border:1px solid #1f3a6b;
-  color:#cfe3ff;
-  border-radius:8px;
-}
-button{
-  margin-top:10px;
-  padding:10px 16px;
-  background:#1f4fd8;
-  border:none;
-  border-radius:8px;
-  color:white;
-  cursor:pointer;
-}
-.timeline{
-  border-left:2px solid #1f4fd8;
-  padding-left:10px;
-}
-.event{
-  margin-bottom:12px;
-  font-size:14px;
-}
-small{color:#7a9bd8}
-.topbar{
-  margin-bottom:20px;
-}
-a{color:#7fb4ff;text-decoration:none}
-.loading{
-  opacity:.6;
-}
+body{background:#050b14;color:#e8f0ff;font-family:system-ui;padding:20px}
+.panel{max-width:800px;margin:auto;background:#0b1624;padding:20px;border-radius:10px}
+.update{border-left:3px solid #3fa9ff;padding-left:10px;margin:15px 0;color:#cfe2ff}
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="panel">
+<h1 id="title"></h1>
+<p id="desc"></p>
+<h3>Status: <span id="status"></span></h3>
 
-<div class="topbar">
-  <a href="cases.html">← Back to cases</a>
-</div>
-
-<h1 id="caseTitle">Loading...</h1>
-<p id="caseDesc"></p>
-
-<div class="card">
-  <h2>Case Notes</h2>
-  <textarea id="notesInput" rows="5"></textarea>
-  <button onclick="saveNotes()">Save Notes</button>
-</div>
-
-<div class="card">
-  <h2>Status</h2>
-  <select id="statusSelect">
-    <option>Open</option>
-    <option>Investigating</option>
-    <option>Closed</option>
-  </select>
-  <button onclick="updateStatus()">Update Status</button>
-</div>
-
-<div class="card">
-  <h2>Add Update</h2>
-  <textarea id="commentInput" rows="3"></textarea>
-  <button onclick="addComment()">Submit</button>
-</div>
-
-<div class="card">
-  <h2>Timeline</h2>
-  <div id="timeline" class="timeline"></div>
-</div>
-
+<h2>Timeline</h2>
+<div id="updates"></div>
 </div>
 
 <script>
-const supabaseUrl = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const urlParams = new URLSearchParams(location.search);
+const id = urlParams.get("id");
 
-const params = new URLSearchParams(window.location.search);
-const caseId = params.get("id");
+const db = supabase.createClient("YOUR_URL","YOUR_PUBLIC_KEY");
 
-async function loadCase(){
-  const { data, error } = await supabase
-    .from("cases")
-    .select("*")
-    .eq("id", caseId)
-    .single();
+async function load(){
+  const {data:caseData} = await db.from("cases").select().eq("id",id).single();
+  document.getElementById("title").innerText = caseData.title;
+  document.getElementById("desc").innerText = caseData.description;
+  document.getElementById("status").innerText = caseData.status.toUpperCase();
 
-  if(error){
-    alert("Failed to load case");
-    console.error(error);
-    return;
-  }
-
-  document.getElementById("caseTitle").textContent = data.title;
-  document.getElementById("caseDesc").textContent = data.description || "";
-  document.getElementById("statusSelect").value = data.status || "Open";
-
-  loadNotes();
-  loadTimeline();
-}
-
-async function loadNotes(){
-  const { data } = await supabase
-    .from("case_notes")
-    .select("*")
-    .eq("case_id", caseId)
-    .single();
-
-  if(data){
-    document.getElementById("notesInput").value = data.content;
-  }
-}
-
-async function saveNotes(){
-  const content = document.getElementById("notesInput").value;
-
-  const { error } = await supabase
-    .from("case_notes")
-    .upsert({ case_id: caseId, content });
-
-  if(error){
-    alert("Failed to save notes");
-    console.error(error);
-  } else {
-    alert("Notes saved");
-  }
-}
-
-async function updateStatus(){
-  const status = document.getElementById("statusSelect").value;
-
-  const { error } = await supabase
-    .from("cases")
-    .update({ status })
-    .eq("id", caseId);
-
-  if(error){
-    alert("Failed to update status");
-  } else {
-    alert("Status updated");
-  }
-}
-
-async function loadTimeline(){
-  const { data } = await supabase
-    .from("case_comments")
-    .select("*")
-    .eq("case_id", caseId)
-    .order("created_at", { ascending:false });
-
-  const el = document.getElementById("timeline");
-  el.innerHTML = "";
-
-  data?.forEach(c=>{
-    const div = document.createElement("div");
-    div.className="event";
-    div.innerHTML = `
-      <strong>Update</strong><br>
-      ${c.content}<br>
-      <small>${new Date(c.created_at).toLocaleString()}</small>
-    `;
-    el.appendChild(div);
+  const {data:updates} = await db.from("case_updates").select().eq("case_id",id).order("created_at");
+  const box=document.getElementById("updates");
+  updates.forEach(u=>{
+    box.innerHTML+=`<div class="update">${u.content}</div>`;
   });
 }
-
-async function addComment(){
-  const content = document.getElementById("commentInput").value;
-  if(!content.trim()) return;
-
-  const { error } = await supabase
-    .from("case_comments")
-    .insert({ case_id: caseId, content });
-
-  if(error){
-    alert("Failed to add update");
-    console.error(error);
-  } else {
-    document.getElementById("commentInput").value="";
-    loadTimeline();
-  }
-}
-
-loadCase();
+load();
 </script>
-
 </body>
 </html>
