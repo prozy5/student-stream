@@ -1,53 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>StudentStream Investigations</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
+:root{
+  --bg:#070b12;
+  --panel:#0e1624;
+  --card:#121c2e;
+  --accent:#4da3ff;
+  --text:#e6edf7;
+  --muted:#8aa0bd;
+}
+
+*{box-sizing:border-box}
 body{
   margin:0;
-  background:#05070d;
-  color:#dbe7ff;
   font-family:system-ui,Segoe UI,Roboto;
+  background:radial-gradient(circle at top,#0b1323,#05080f 70%);
+  color:var(--text);
 }
+
 header{
   padding:20px;
-  border-bottom:1px solid #1e293b;
-  background:#020617;
+  border-bottom:1px solid #1c2940;
+  background:linear-gradient(180deg,#0d1626,#08101c);
 }
-h1{margin:0}
-.search{
-  padding:20px;
+
+h1{margin:0;font-size:1.4rem}
+.sub{color:var(--muted);font-size:.9rem}
+
+.stats{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-top:12px;
 }
-input{
-  width:100%;
-  padding:12px;
-  background:#020617;
-  border:1px solid #334155;
-  color:white;
+.stat{
+  background:var(--panel);
+  padding:10px 14px;
   border-radius:8px;
+  font-size:.85rem;
 }
-.case{
-  background:#0b1222;
-  border:1px solid #1e293b;
-  margin:20px;
-  padding:16px;
-  border-radius:12px;
-}
-.status{
-  font-size:12px;
-  color:#7aa2ff;
-}
-a{
-  color:#8ab4ff;
-  text-decoration:none;
-}
-.footer{
-  text-align:center;
+
+.container{
   padding:20px;
-  color:#64748b;
-  font-size:13px;
+  max-width:1100px;
+  margin:auto;
+}
+
+.searchbar{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+input{
+  flex:1;
+  padding:10px;
+  background:#0b1422;
+  border:1px solid #1c2940;
+  border-radius:6px;
+  color:white;
+}
+
+.section-title{
+  margin:30px 0 10px;
+  font-size:1.1rem;
+  color:#9fc4ff;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:16px;
+}
+
+.case{
+  background:linear-gradient(180deg,#111c30,#0b1323);
+  border:1px solid #1c2940;
+  border-radius:12px;
+  padding:14px;
+  transition:.15s;
+  cursor:pointer;
+}
+.case:hover{transform:translateY(-2px);border-color:#3a67b8}
+
+.case h3{
+  margin:0 0 6px;
+  font-size:1rem;
+}
+
+.badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:6px;
+}
+
+.badge{
+  padding:3px 7px;
+  border-radius:999px;
+  font-size:.7rem;
+  background:#1b2c49;
+}
+
+.status-open{background:#1e7cff}
+.status-active{background:#2ecc71}
+.status-cold{background:#95a5a6}
+.status-closed{background:#555}
+
+.risk-low{background:#2ecc71}
+.risk-moderate{background:#f1c40f;color:black}
+.risk-high{background:#e67e22}
+.risk-critical{background:#e74c3c}
+
+.priority{border:1px solid #ff5c5c;box-shadow:0 0 12px #ff5c5c33}
+
+.meta{
+  font-size:.75rem;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+footer{
+  text-align:center;
+  color:#5f7599;
+  font-size:.75rem;
+  padding:30px 10px;
 }
 </style>
 </head>
@@ -55,55 +139,120 @@ a{
 
 <header>
   <h1>StudentStream Investigations</h1>
-  <div style="color:#7aa2ff">Independent Digital Investigation Division</div>
+  <div class="sub">Independent Digital Investigation Division</div>
+
+  <div class="stats" id="stats">
+    <div class="stat">Cases: --</div>
+    <div class="stat">Active: --</div>
+    <div class="stat">Closed: --</div>
+    <div class="stat">Critical: --</div>
+  </div>
 </header>
 
-<div class="search">
-  <input id="search" placeholder="Search cases...">
+<div class="container">
+
+  <div class="searchbar">
+    <input id="search" placeholder="Search cases..." />
+  </div>
+
+  <div class="section-title">🚨 Priority Investigations</div>
+  <div class="grid" id="priorityCases"></div>
+
+  <div class="section-title">📁 All Case Files</div>
+  <div class="grid" id="allCases"></div>
+
 </div>
 
-<div id="cases"></div>
+<footer>
+SSI © 2026 — Public Investigation Archive
+</footer>
 
-<div class="footer">
-  SS:I © 2026 — Public Investigation Archive
-</div>
+<script>
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
 
-<script type="module">
-import { supabase } from "./supabase.js";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const casesDiv = document.getElementById("cases");
-const search = document.getElementById("search");
+let allCasesData = [];
+
+function badge(text, cls){
+  return `<span class="badge ${cls||""}">${text}</span>`;
+}
+
+function caseCard(c){
+  const statusClass = "status-"+c.status?.toLowerCase();
+  const riskClass = "risk-"+c.risk?.toLowerCase();
+
+  return `
+  <div class="case ${c.priority?"priority":""}" onclick="openCase('${c.id}')">
+    <h3>${c.title}</h3>
+
+    <div class="badges">
+      ${badge(c.status,statusClass)}
+      ${badge(c.category)}
+      ${badge(c.risk,riskClass)}
+    </div>
+
+    <div class="meta">
+      Updated ${new Date(c.updated_at).toLocaleString()}
+    </div>
+  </div>
+  `;
+}
+
+function render(){
+  const search = document.getElementById("search").value.toLowerCase();
+
+  const filtered = allCasesData.filter(c =>
+    c.title.toLowerCase().includes(search) ||
+    c.description?.toLowerCase().includes(search)
+  );
+
+  const priority = filtered.filter(c=>c.priority);
+  const normal = filtered;
+
+  document.getElementById("priorityCases").innerHTML =
+    priority.map(caseCard).join("") || "<div class='meta'>No priority cases</div>";
+
+  document.getElementById("allCases").innerHTML =
+    normal.map(caseCard).join("");
+}
+
+function updateStats(){
+  const total = allCasesData.length;
+  const active = allCasesData.filter(c=>c.status==="Active").length;
+  const closed = allCasesData.filter(c=>c.status==="Closed").length;
+  const critical = allCasesData.filter(c=>c.risk==="Critical").length;
+
+  document.getElementById("stats").innerHTML = `
+    <div class="stat">Cases: ${total}</div>
+    <div class="stat">Active: ${active}</div>
+    <div class="stat">Closed: ${closed}</div>
+    <div class="stat">Critical: ${critical}</div>
+  `;
+}
 
 async function loadCases(){
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("cases")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("updated_at",{ascending:false});
 
-  render(data);
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  allCasesData = data;
+  updateStats();
+  render();
 }
 
-function render(list){
-  casesDiv.innerHTML = "";
-  list.forEach(c=>{
-    casesDiv.innerHTML += `
-      <div class="case">
-        <h3>${c.title}</h3>
-        <div class="status">Status: ${c.status}</div>
-        <p>${c.summary || ""}</p>
-        <a href="case.html?id=${c.id}">Open Case File →</a>
-      </div>
-    `;
-  });
+function openCase(id){
+  window.location.href = `case.html?id=${id}`;
 }
 
-search.oninput = async () => {
-  const { data } = await supabase
-    .from("cases")
-    .select("*")
-    .ilike("title", `%${search.value}%`);
-  render(data);
-};
+document.getElementById("search").addEventListener("input",render);
 
 loadCases();
 </script>
