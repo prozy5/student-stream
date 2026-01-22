@@ -2,136 +2,202 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SSI Case File</title>
+<title>Case File</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body{
-  margin:0;
-  background:#05070c;
-  color:#9ecbff;
-  font-family:system-ui,Segoe UI,Roboto,Arial;
+body{margin:0;font-family:system-ui;background:#050b14;color:#cfe3ff}
+.container{max-width:900px;margin:auto;padding:20px}
+h1,h2{color:#7fb6ff}
+input,textarea,select,button{
+width:100%;padding:10px;margin-top:8px;
+background:#0b1625;color:#fff;border:1px solid #1c2f4a;border-radius:6px
 }
-a{color:#7db4ff;text-decoration:none}
-.header{
-  padding:18px 22px;
-  border-bottom:1px solid #1b2b3c;
-}
-.section{
-  padding:20px 22px;
-  border-bottom:1px solid #122;
-}
-h2,h3{margin:0 0 12px 0;font-weight:600}
-textarea,input{
-  width:100%;
-  background:#0c1118;
-  color:#9ecbff;
-  border:1px solid #23384d;
-  padding:8px;
-  border-radius:6px;
-}
-button{
-  margin-top:8px;
-  background:#132235;
-  color:#9ecbff;
-  border:1px solid #2b4a6b;
-  padding:8px 14px;
-  border-radius:6px;
-  cursor:pointer;
-}
-button:hover{background:#1a2f49}
-.comment{
-  padding:8px 0;
-  border-bottom:1px solid #1a2633;
-  font-size:14px;
-}
-.case-id{
-  font-size:13px;
-  color:#6ea3e0;
-  margin-top:4px;
-}
+button{cursor:pointer;background:#12325f}
+.card{background:#08111d;padding:15px;border-radius:10px;margin-bottom:20px;border:1px solid #12233d}
+.comment{padding:8px;border-bottom:1px solid #132844;font-size:14px}
+.badge{display:inline-block;padding:4px 8px;border-radius:6px;background:#143a6b;font-size:12px}
+.timeline-item{font-size:13px;border-left:2px solid #2c5fa3;padding-left:10px;margin:6px 0}
 </style>
 </head>
+
 <body>
+<div class="container">
 
-<div class="header">
-  <a href="cases.html">← Back to cases</a>
-  <div class="case-id" id="caseId"></div>
-  <h2 id="title">Loading…</h2>
+<a href="cases.html" style="color:#6aa6ff">← Back to cases</a>
+
+<h1 id="caseTitle">Loading...</h1>
+<div class="badge" id="caseStatus"></div>
+
+<div class="card">
+<h2>Case Notes</h2>
+<textarea id="notes" rows="6"></textarea>
+<button onclick="saveNotes()">Save Notes</button>
 </div>
 
-<div class="section">
-  <h3>Case Notes</h3>
-  <textarea id="notes" rows="6" placeholder="Enter investigation notes..."></textarea>
-  <button id="saveNotes">Save Notes</button>
+<div class="card">
+<h2>Status</h2>
+<select id="statusSelect">
+<option>Open</option>
+<option>Active</option>
+<option>Closed</option>
+</select>
+<button onclick="updateStatus()">Update Status</button>
 </div>
 
-<div class="section">
-  <h3>Comments / Updates</h3>
-  <div id="comments"></div>
-  <input id="commentInput" placeholder="Add update...">
-  <button id="sendComment">Submit</button>
+<div class="card">
+<h2>Add Update</h2>
+<textarea id="commentInput" rows="3"></textarea>
+<button onclick="addComment()">Submit</button>
+
+<div id="commentsList"></div>
 </div>
 
-<script type="module">
-import { supabase } from "./supabase.js";
+<div class="card">
+<h2>Upload Evidence</h2>
+<input type="file" id="evidenceFile">
+<button onclick="uploadEvidence()">Upload</button>
+<div id="evidenceList"></div>
+</div>
 
-const params = new URLSearchParams(window.location.search);
-const caseId = params.get("id");
+<div class="card">
+<h2>Timeline</h2>
+<div id="timelineList"></div>
+</div>
 
-document.getElementById("caseId").innerText =
-  "CASE-" + String(caseId).padStart(3,"0");
+</div>
 
-async function loadCase(){
-  const { data, error } = await supabase
-    .from("cases")
-    .select("*")
-    .eq("id", caseId)
-    .single();
+<script>
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
 
-  if(error){
-    document.getElementById("title").innerText = "Case not found";
-    return;
-  }
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  document.getElementById("title").innerText = data.title;
-  document.getElementById("notes").value = data.notes || "";
+const caseId = new URLSearchParams(window.location.search).get("id");
+
+async function loadCase() {
+const { data } = await supabase.from("cases").select("*").eq("id", caseId).single();
+
+document.getElementById("caseTitle").textContent = data.title;
+document.getElementById("notes").value = data.notes || "";
+document.getElementById("caseStatus").textContent = data.status;
+document.getElementById("statusSelect").value = data.status;
+
+loadComments();
+loadTimeline();
+loadEvidence();
 }
 
-async function loadComments(){
-  const { data } = await supabase
-    .from("case_comments")
-    .select("*")
-    .eq("case_id", caseId)
-    .order("id");
+async function saveNotes() {
+const notes = document.getElementById("notes").value;
 
-  document.getElementById("comments").innerHTML =
-    data.map(c => `<div class="comment">${c.content}</div>`).join("");
+await supabase.from("cases").update({ notes }).eq("id", caseId);
+addTimeline("Updated case notes");
+alert("Notes saved");
 }
 
-document.getElementById("saveNotes").onclick = async () => {
-  const notes = document.getElementById("notes").value;
+async function updateStatus() {
+const status = document.getElementById("statusSelect").value;
 
-  await supabase
-    .from("cases")
-    .update({ notes })
-    .eq("id", caseId);
-};
+await supabase.from("cases").update({ status }).eq("id", caseId);
+document.getElementById("caseStatus").textContent = status;
 
-document.getElementById("sendComment").onclick = async () => {
-  const content = document.getElementById("commentInput").value.trim();
-  if(!content) return;
+addTimeline("Status changed to " + status);
+}
 
-  await supabase
-    .from("case_comments")
-    .insert({ case_id: caseId, content });
+async function addComment() {
+const content = document.getElementById("commentInput").value.trim();
+if(!content) return;
 
-  document.getElementById("commentInput").value = "";
-  loadComments();
-};
+await supabase.from("case_comments").insert({
+case_id: caseId,
+content
+});
+
+document.getElementById("commentInput").value = "";
+loadComments();
+addTimeline("Added update");
+}
+
+async function loadComments() {
+const { data } = await supabase
+.from("case_comments")
+.select("*")
+.eq("case_id", caseId)
+.order("created_at", { ascending: false });
+
+const box = document.getElementById("commentsList");
+box.innerHTML = "";
+
+data.forEach(c=>{
+const div=document.createElement("div");
+div.className="comment";
+div.textContent=new Date(c.created_at).toLocaleString()+" — "+c.content;
+box.appendChild(div);
+});
+}
+
+async function addTimeline(event) {
+await supabase.from("case_timeline").insert({
+case_id: caseId,
+event
+});
+loadTimeline();
+}
+
+async function loadTimeline() {
+const { data } = await supabase
+.from("case_timeline")
+.select("*")
+.eq("case_id", caseId)
+.order("created_at");
+
+const box = document.getElementById("timelineList");
+box.innerHTML="";
+data.forEach(t=>{
+const d=document.createElement("div");
+d.className="timeline-item";
+d.textContent=new Date(t.created_at).toLocaleString()+" — "+t.event;
+box.appendChild(d);
+});
+}
+
+async function uploadEvidence() {
+const file=document.getElementById("evidenceFile").files[0];
+if(!file) return;
+
+const path = caseId+"/"+Date.now()+"-"+file.name;
+
+await supabase.storage.from("case-evidence").upload(path,file);
+
+addTimeline("Uploaded evidence: "+file.name);
+loadEvidence();
+alert("Uploaded");
+}
+
+async function loadEvidence() {
+const { data } = await supabase.storage.from("case-evidence").list(caseId);
+
+const box=document.getElementById("evidenceList");
+box.innerHTML="";
+
+data.forEach(f=>{
+const div=document.createElement("div");
+div.textContent="📁 "+f.name;
+box.appendChild(div);
+});
+}
 
 loadCase();
-loadComments();
-</script>
 
+/* REALTIME COMMENTS */
+supabase.channel('comments')
+.on('postgres_changes',{event:'INSERT',schema:'public',table:'case_comments'},payload=>{
+if(payload.new.case_id===caseId) loadComments();
+})
+.subscribe();
+
+</script>
 </body>
 </html>
