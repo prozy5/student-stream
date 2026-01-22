@@ -1,51 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>StudentStream Investigations</title>
-<link rel="stylesheet" href="css/style.css">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SS:I – StudentStream Investigations</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <img src="assets/ssi-logo.png">
-  <h2>StudentStream Investigations</h2>
-</header>
-
 <div class="container">
 
-  <div class="searchbar">
-    <input id="search" placeholder="Search intelligence..." oninput="reload()">
-  </div>
+<div class="top">
+<img src="ssi-logo.png" class="logo">
+<h1>StudentStream Investigations</h1>
+<p>Documenting the unexplained. Researching the ignored.</p>
+</div>
 
-  <div class="section">
-    <h2>Case Files</h2>
-    <div id="cases" class="grid"></div>
+<h2>Case Files</h2>
+<div id="cases"></div>
 
-    <div class="pagination">
-      <button onclick="prevPage()">Prev</button>
-      <button onclick="nextPage()">Next</button>
-    </div>
-  </div>
+<h2>Video Reports</h2>
+<div id="videos"></div>
 
-  <div class="section">
-    <h2>Video Reports</h2>
-    <div id="videos" class="grid"></div>
-  </div>
+<div class="footer">© 2026 StudentStream Investigations</div>
 
 </div>
 
-<footer>
-© 2026 StudentStream Investigations – Digital Intelligence Division
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
 <script>
-const SUPABASE_URL="https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY="YOUR_ANON_KEY_HERE";
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-</script>
-<script src="js/index.js"></script>
 
+async function loadCases(){
+ const {data}=await supabase.from("cases").select("*").order("created_at",{ascending:false});
+ const el=document.getElementById("cases");
+ el.innerHTML="";
+ data.forEach(c=>{
+  el.innerHTML+=`
+  <div class="card" onclick="openCase('${c.id}')">
+   ${c.classified?"🔒 CLASSIFIED":c.title}
+  </div>`;
+ });
+}
+
+async function loadVideos(){
+ const {data}=await supabase.from("videos").select("*").order("created_at",{ascending:false});
+ const el=document.getElementById("videos");
+ el.innerHTML="";
+ data.forEach(v=>{
+  el.innerHTML+=`<div class="card">${v.title}</div>`;
+ });
+}
+
+function openCase(id){
+ location.href="case.html?id="+id;
+}
+
+loadCases();
+loadVideos();
+
+</script>
 </body>
 </html>
