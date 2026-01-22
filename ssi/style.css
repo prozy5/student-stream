@@ -1,25 +1,99 @@
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 body {
-  background: radial-gradient(circle at top, #0b1a2a, #020409);
-  color: #dfefff;
-  font-family: system-ui;
+  margin: 0;
+  background: radial-gradient(circle at top, #0d1b2a, #02040a);
+  color: #e6edf3;
+}
+
+.top {
+  padding: 30px 20px;
+  border-bottom: 1px solid #1f2a36;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.tagline {
+  color: #9fb3c8;
+  margin-top: 6px;
+}
+
+.top-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.top-actions input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background: #0f172a;
+  color: #fff;
+}
+
+.agent-btn {
+  background: #2563eb;
+  color: white;
+  padding: 10px 14px;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+main {
   padding: 20px;
 }
 
-header, section {
-  margin-bottom: 40px;
+.cases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
 }
 
-.caseCard {
-  background: rgba(255,255,255,0.05);
-  padding: 15px;
-  margin: 10px 0;
+.case-card {
+  background: linear-gradient(145deg, #0b1320, #050b14);
+  border: 1px solid #1f2937;
   border-radius: 10px;
+  padding: 15px;
 }
 
-input, textarea, button {
-  background: #0b1a2a;
-  color: white;
-  border: 1px solid #1e3a5f;
-  padding: 8px;
-  margin: 5px 0;
+.case-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.case-status {
+  color: #94a3b8;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.open-btn {
+  color: #60a5fa;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.open-btn:hover {
+  text-decoration: underline;
+}
+
+footer {
+  padding: 20px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.empty {
+  color: #94a3b8;
 }
