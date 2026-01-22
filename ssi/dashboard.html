@@ -1,33 +1,19 @@
+<h2>Agent Dashboard</h2>
+
+<input id="title" placeholder="Case title">
+<textarea id="desc"></textarea>
+<button onclick="addCase()">Create Case</button>
+
+<hr>
+
+<input type="file" id="videoFile">
+<input id="videoTitle" placeholder="Video title">
+<button onclick="uploadVideo()">Upload Video</button>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const supabase = supabase.createClient("URL","ANON_KEY");
-
-async function checkAuth(){
-  const { data } = await supabase.auth.getUser();
-  if(!data.user) location.href="agent.html";
-}
-checkAuth();
-
-async function uploadVideo(){
-  const title=document.getElementById("vtitle").value;
-  const file=document.getElementById("vfile").files[0];
-
-  const path = Date.now()+"_"+file.name;
-
-  await supabase.storage.from("videos").upload(path,file);
-
-  const url = supabase.storage.from("videos").getPublicUrl(path).data.publicUrl;
-
-  await supabase.from("videos").insert({title,url});
-  alert("Uploaded");
-}
-
-async function createCase(){
-  const title=document.getElementById("ctitle").value;
-  const desc=document.getElementById("cdesc").value;
-  const content=document.getElementById("ccontent").value;
-
-  await supabase.from("cases").insert({title,description:desc,content});
-  alert("Case created");
-}
+const SUPABASE_URL="https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 </script>
+<script src="js/dashboard.js"></script>
