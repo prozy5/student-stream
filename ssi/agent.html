@@ -1,53 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>SS:I Agent Console</title>
+  <title>Agent Console</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<h1>SS:I Agent Console</h1>
+<div class="main">
+  <h1>Agent Login</h1>
 
-<h2>Create New Case</h2>
-<input id="title" placeholder="Case Title">
-<textarea id="desc" placeholder="Description"></textarea>
-<button id="createBtn">Create Case</button>
+  <input id="email" placeholder="Email"><br><br>
+  <input id="password" type="password" placeholder="Password"><br><br>
 
-<p id="status"></p>
+  <button id="login">Login</button>
+  <button id="logout">Logout</button>
 
-<h2>Upload Evidence</h2>
-<input id="caseId" placeholder="Case UUID">
-<input type="file" id="fileInput">
-<button id="uploadBtn">Upload</button>
+  <p id="status"></p>
+</div>
 
 <script type="module">
-import { createCase, uploadEvidence } from "./supabase.js";
+import { signIn, signOut, getUser } from "./supabase.js";
 
-document.getElementById("createBtn").onclick = async () => {
-  const title = document.getElementById("title").value;
-  const desc = document.getElementById("desc").value;
+async function refresh() {
+  const user = await getUser();
+  document.getElementById("status").textContent =
+    user ? "Logged in as " + user.email : "Not logged in";
+}
 
-  try {
-    const c = await createCase(title, desc);
-    document.getElementById("status").innerText = "Created case ID: " + c.id;
-  } catch (e) {
-    alert(e.message);
-  }
+login.onclick = async () => {
+  await signIn(email.value, password.value);
+  refresh();
 };
 
-document.getElementById("uploadBtn").onclick = async () => {
-  const caseId = document.getElementById("caseId").value;
-  const file = document.getElementById("fileInput").files[0];
-
-  if (!file) return alert("Select a file");
-
-  try {
-    await uploadEvidence(caseId, file);
-    alert("Uploaded!");
-  } catch (e) {
-    alert(e.message);
-  }
+logout.onclick = async () => {
+  await signOut();
+  refresh();
 };
+
+refresh();
 </script>
 
 </body>
