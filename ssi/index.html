@@ -28,7 +28,8 @@ body{
 
 /* Boot screen */
 #boot{
-  position:fixed; inset:0;
+  position:fixed;
+  inset:0;
   background:black;
   color:#00ff9c;
   font-family:monospace;
@@ -41,15 +42,72 @@ body{
 .container{
   max-width:900px;
   margin:auto;
-  padding:40px 20px;
+  padding:30px 20px 60px;
 }
 
-h1{font-size:2.3rem}
+/* ===== HEADER ===== */
+.ss-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:40px;
+  padding:18px 20px;
+  background:linear-gradient(180deg,#0c1a2f,#070f1b);
+  border:1px solid #13284d;
+  border-radius:14px;
+}
+
+.ss-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.ss-logo{
+  width:44px;
+  height:44px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#1f6fff,#3fa9ff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  color:#021022;
+  letter-spacing:1px;
+}
+
+.ss-title{
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:.4px;
+}
+
+.ss-subtitle{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+.ss-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  color:#9fd3ff;
+  letter-spacing:1px;
+}
+
+.sys-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#3bff7a;
+  box-shadow:0 0 8px #3bff7a;
+}
+
+/* ===== CONTENT ===== */
+.section{margin-top:50px}
 .subtitle{color:var(--muted)}
-
-.section{
-  margin-top:50px;
-}
 
 .case{
   background:linear-gradient(135deg,#0d1f38,#08111f);
@@ -58,7 +116,7 @@ h1{font-size:2.3rem}
   margin-bottom:12px;
   border:1px solid #13284d;
   cursor:pointer;
-  transition:.2s;
+  transition:.15s;
 }
 .case:hover{transform:scale(1.01)}
 
@@ -87,20 +145,32 @@ footer{
 <div id="boot">
 Initializing SS:I secure terminal...<br><br>
 Loading modules...<br>
-Verifying clearance...<br>
+Verifying system integrity...<br>
 Decrypting records...<br><br>
-<span id="bootDone">ACCESS GRANTED.</span>
+ACCESS GRANTED.
 </div>
 
 <div class="container hidden" id="app">
 
-<h1>StudentStream Investigations</h1>
-<p class="subtitle">Federal Student Research Division — Unexplained Phenomena & Digital Intelligence</p>
+<header class="ss-header">
+  <div class="ss-left">
+    <div class="ss-logo">SS</div>
+    <div>
+      <div class="ss-title">StudentStream Investigations</div>
+      <div class="ss-subtitle">Digital Investigation & Intelligence Division</div>
+    </div>
+  </div>
+
+  <div class="ss-right">
+    <div class="sys-dot"></div>
+    <div>SYSTEM ONLINE</div>
+  </div>
+</header>
 
 <div class="section">
 <h2>Mission Brief</h2>
 <p class="subtitle">
-SS:I documents anomalous events, cyber phenomena, digital legends, and unexplained activity through structured investigation and public intelligence reporting.
+SS:I is StudentStream’s investigation division focused on documenting unexplained events, digital anomalies, emerging phenomena, and real-world cases through structured reporting, media evidence, and public intelligence archives.
 </p>
 </div>
 
@@ -125,18 +195,24 @@ const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Boot effect
+// Boot
 setTimeout(()=>{
   document.getElementById("boot").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   loadCases();
   loadVideos();
-},2200);
+},2000);
 
 async function loadCases(){
   const {data} = await db.from("cases").select().order("created_at",{ascending:false});
   const box = document.getElementById("cases");
   box.innerHTML="";
+
+  if(!data || !data.length){
+    box.innerHTML="<p class='subtitle'>No cases published yet.</p>";
+    return;
+  }
+
   data.forEach(c=>{
     box.innerHTML+=`
       <div class="case" onclick="openCase('${c.id}')">
@@ -154,10 +230,12 @@ function openCase(id){
 async function loadVideos(){
   const {data} = await db.from("video_reports").select().order("created_at",{ascending:false});
   const box = document.getElementById("videos");
-  if(!data.length){
+
+  if(!data || !data.length){
     box.innerHTML="<p class='subtitle'>No reports published.</p>";
     return;
   }
+
   box.innerHTML="";
   data.forEach(v=>{
     box.innerHTML+=`
@@ -169,5 +247,6 @@ async function loadVideos(){
   });
 }
 </script>
+
 </body>
 </html>
