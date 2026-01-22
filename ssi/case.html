@@ -1,48 +1,23 @@
 <!DOCTYPE html>
 <html>
-<head><title>Case</title></head>
+<head>
+  <title>Case File</title>
+</head>
 <body>
 
 <h1 id="title"></h1>
 <p id="desc"></p>
 
-<h3>Evidence</h3>
-<div id="files"></div>
-
-<h3>Comments</h3>
-<div id="comments"></div>
-<input id="author" placeholder="Name">
-<input id="comment" placeholder="Comment">
-<button onclick="postComment()">Send</button>
-
 <script type="module">
-import { supabase } from "./supabase.js";
+import { getCaseById } from "./supabase.js";
 
-const id = new URLSearchParams(location.search).get("id");
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
 
-const { data: c } = await supabase.from("cases").select("*").eq("id",id).single();
-title.innerText = c.title;
-desc.innerText = c.description;
-
-async function loadFiles() {
-  const { data } = await supabase.storage.from("case-files").list(id);
-  files.innerHTML = data.map(f => `<div>${f.name}</div>`).join("");
-}
-
-async function loadComments() {
-  const { data } = await supabase.from("case_comments").select("*").eq("case_id",id);
-  comments.innerHTML = data.map(c=>`<div>${c.author}: ${c.comment}</div>`).join("");
-}
-
-window.postComment = async ()=>{
-  await supabase.from("case_comments").insert({
-    case_id:id, author:author.value, comment:comment.value
-  });
-  loadComments();
-}
-
-loadFiles();
-loadComments();
+const c = await getCaseById(id);
+document.getElementById("title").innerText = c.title;
+document.getElementById("desc").innerText = c.description;
 </script>
+
 </body>
 </html>
