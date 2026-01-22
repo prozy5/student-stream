@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SS:I Agent Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+<h2>Create Case File</h2>
+<input id="ctitle" placeholder="Case title">
+<textarea id="cdesc" placeholder="Case description"></textarea>
+<button onclick="createCase()">Create Case</button>
+
+<hr>
+
+<h2>Upload Intelligence Video</h2>
+<input id="vtitle" placeholder="Video title">
+<input type="file" id="file">
+<button onclick="uploadVideo()">Upload Video</button>
+
+</div>
+
+<script src="supabase.js"></script>
+<script>
+
+async function createCase(){
+ await supabase.from("cases").insert({
+  title:ctitle.value,
+  description:cdesc.value
+ });
+ alert("Case created");
+}
+
+async function uploadVideo(){
+ const file=document.getElementById("file").files[0];
+ const path=Date.now()+"_"+file.name;
+
+ await supabase.storage.from("videos").upload(path,file);
+
+ const {data}=supabase.storage.from("videos").getPublicUrl(path);
+
+ await supabase.from("videos").insert({
+  title:vtitle.value,
+  file_url:data.publicUrl
+ });
+
+ alert("Video uploaded");
+}
+
+</script>
+</body>
+</html>
