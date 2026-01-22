@@ -1,56 +1,112 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>StudentStream Investigations</title>
+
 <style>
-body{margin:0;font-family:sans-serif;background:#05070d;color:#dbe7ff}
-header{padding:20px;border-bottom:1px solid #1f2b45}
-.case{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:15px;margin:15px}
-input{padding:10px;width:100%;background:#020617;color:white;border:1px solid #334155}
-a{color:#7aa2ff;text-decoration:none}
+body{
+  margin:0;
+  background:#05070d;
+  color:#dbe7ff;
+  font-family:system-ui,Segoe UI,Roboto;
+}
+header{
+  padding:20px;
+  border-bottom:1px solid #1e293b;
+  background:#020617;
+}
+h1{margin:0}
+.search{
+  padding:20px;
+}
+input{
+  width:100%;
+  padding:12px;
+  background:#020617;
+  border:1px solid #334155;
+  color:white;
+  border-radius:8px;
+}
+.case{
+  background:#0b1222;
+  border:1px solid #1e293b;
+  margin:20px;
+  padding:16px;
+  border-radius:12px;
+}
+.status{
+  font-size:12px;
+  color:#7aa2ff;
+}
+a{
+  color:#8ab4ff;
+  text-decoration:none;
+}
+.footer{
+  text-align:center;
+  padding:20px;
+  color:#64748b;
+  font-size:13px;
+}
 </style>
 </head>
 <body>
 
 <header>
-<h2>StudentStream Investigations</h2>
-<a href="login.html">Agent Console</a>
+  <h1>StudentStream Investigations</h1>
+  <div style="color:#7aa2ff">Independent Digital Investigation Division</div>
 </header>
 
-<div style="padding:20px">
-<input id="search" placeholder="Search cases">
+<div class="search">
+  <input id="search" placeholder="Search cases...">
+</div>
+
 <div id="cases"></div>
+
+<div class="footer">
+  SS:I © 2026 — Public Investigation Archive
 </div>
 
 <script type="module">
 import { supabase } from "./supabase.js";
 
-const casesDiv=document.getElementById("cases");
-const search=document.getElementById("search");
+const casesDiv = document.getElementById("cases");
+const search = document.getElementById("search");
 
 async function loadCases(){
-  const {data}=await supabase.from("cases").select("*").order("created_at",{ascending:false});
+  const { data } = await supabase
+    .from("cases")
+    .select("*")
+    .order("created_at", { ascending: false });
+
   render(data);
 }
 
 function render(list){
-  casesDiv.innerHTML="";
+  casesDiv.innerHTML = "";
   list.forEach(c=>{
-    casesDiv.innerHTML+=`
-    <div class="case">
-      <h3>${c.title}</h3>
-      <p>Status: ${c.status}</p>
-      <a href="case.html?id=${c.id}">Open Case</a>
-    </div>`;
+    casesDiv.innerHTML += `
+      <div class="case">
+        <h3>${c.title}</h3>
+        <div class="status">Status: ${c.status}</div>
+        <p>${c.summary || ""}</p>
+        <a href="case.html?id=${c.id}">Open Case File →</a>
+      </div>
+    `;
   });
 }
 
-search.oninput=async()=>{
-  const {data}=await supabase.from("cases").select("*").ilike("title",`%${search.value}%`);
+search.oninput = async () => {
+  const { data } = await supabase
+    .from("cases")
+    .select("*")
+    .ilike("title", `%${search.value}%`);
   render(data);
-}
+};
 
 loadCases();
 </script>
+
 </body>
 </html>
