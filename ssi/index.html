@@ -1,47 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SS:I — StudentStream Investigations</title>
+<title>StudentStream Investigations</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
+<header>
+  <h1>StudentStream Investigations</h1>
+  <p>Documenting the unexplained. Researching the ignored.</p>
+  <nav>
+    <a href="agent.html">Agent Console</a>
+  </nav>
+</header>
 
-  <header class="hero">
-    <img src="ssi-logo.png" class="logo" onerror="this.style.display='none'">
-    <h1>StudentStream Investigations</h1>
-    <p class="tagline">Documenting the unexplained. Researching the ignored.</p>
-  </header>
+<section id="cases">
+  <h2>Active Case Files</h2>
+  <div id="caseList"></div>
+</section>
 
-  <section class="mission">
-    <h2>Mission</h2>
-    <p>
-      StudentStream Investigations (SS:I) is a digital research and documentation division created to explore
-      unexplained events, strange stories, hidden internet phenomena, and real-world mysteries through structured
-      investigation, media, and analysis.
-    </p>
-  </section>
+<section id="videos">
+  <h2>Video Reports</h2>
+  <p>No reports published yet.</p>
+</section>
 
-  <section class="section">
-    <h2>Case Files</h2>
-    <div class="card">CASE-001 — Initial Investigation (Coming Soon)</div>
-    <div class="card locked">CASE-002 — Classified</div>
-    <div class="card locked">CASE-003 — Classified</div>
-  </section>
+<footer>
+  © 2026 StudentStream Investigations
+</footer>
 
-  <section class="section">
-    <h2>Video Reports</h2>
-    <div class="muted">No reports published yet.</div>
-  </section>
+<script type="module">
+import { supabase } from './supabase.js';
 
-  <footer>
-    © 2026 StudentStream Investigations
-  </footer>
+async function loadCases() {
+  const { data } = await supabase.from('cases').select('*').order('created_at', { ascending: false });
 
-</div>
+  const container = document.getElementById('caseList');
+  container.innerHTML = '';
 
+  data.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'caseCard';
+    div.innerHTML = `
+      <h3>${c.title}</h3>
+      <p>Status: ${c.status}</p>
+      <a href="case.html?id=${c.id}">Open Case</a>
+    `;
+    container.appendChild(div);
+  });
+}
+
+loadCases();
+</script>
 </body>
 </html>
