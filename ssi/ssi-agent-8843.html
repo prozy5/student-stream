@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SS:I Agent Console</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  margin:0;
+  background:radial-gradient(circle at top, #020617, #000308);
+  color:#e5e7eb;
+  font-family:system-ui, sans-serif;
+}
+
+.container{
+  max-width:720px;
+  margin:50px auto;
+  padding:20px;
+}
+
+h1{
+  color:#60a5fa;
+  letter-spacing:1px;
+}
+
+.subtitle{
+  color:#94a3b8;
+  font-size:14px;
+  margin-bottom:25px;
+}
+
+.panel{
+  background:rgba(15,23,42,0.85);
+  border:1px solid rgba(96,165,250,0.25);
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 0 30px rgba(59,130,246,0.15);
+}
+
+label{
+  display:block;
+  margin-top:12px;
+  color:#93c5fd;
+  font-size:14px;
+}
+
+input, textarea, button{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  border-radius:8px;
+  border:none;
+  font-size:15px;
+}
+
+input, textarea{
+  background:#020617;
+  color:#e5e7eb;
+  border:1px solid #1e293b;
+}
+
+button{
+  background:#2563eb;
+  color:white;
+  cursor:pointer;
+  margin-top:16px;
+}
+
+button:hover{
+  background:#1d4ed8;
+}
+
+.status{
+  margin-top:14px;
+  color:#22c55e;
+  font-size:14px;
+}
+
+.footer{
+  margin-top:30px;
+  color:#64748b;
+  font-size:13px;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>SS:I Agent Console</h1>
+  <div class="subtitle">Secure Operations Terminal — StudentStream Investigations</div>
+
+  <div class="panel">
+    <strong>New Case File Entry</strong>
+
+    <label>Case Title</label>
+    <input id="title" placeholder="CASE-001 — Subject designation">
+
+    <label>Case Description</label>
+    <textarea id="desc" rows="6" placeholder="Investigation summary, known facts, anomalies..."></textarea>
+
+    <button onclick="createCase()">Submit Case File</button>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="footer">
+    Authorized personnel only • Unauthorized access prohibited
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function createCase(){
+  const title = document.getElementById("title").value.trim();
+  const desc = document.getElementById("desc").value.trim();
+
+  if(!title){
+    alert("Case title required.");
+    return;
+  }
+
+  const { error } = await supabase.from('cases').insert([
+    { title: title, description: desc }
+  ]);
+
+  if(error){
+    alert("ERROR: " + error.message);
+  } else {
+    document.getElementById("status").innerText = "Case file successfully entered into system.";
+    document.getElementById("title").value = "";
+    document.getElementById("desc").value = "";
+  }
+}
+</script>
+
+</body>
+</html>
