@@ -7,194 +7,231 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
+:root{
   --bg:#050b14;
-  --panel:#0b1624;
-  --text:#e8f0ff;
-  --muted:#8aa0c4;
+  --panel:rgba(12,22,40,.7);
+  --glass:rgba(20,40,80,.35);
+  --border:rgba(100,160,255,.25);
+  --text:#eaf2ff;
+  --muted:#8faad6;
   --accent:#3fa9ff;
-  --classified:#ff3b3b;
   --open:#3bff7a;
   --closed:#ffd23b;
+  --classified:#ff4b4b;
 }
 
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:system-ui,Segoe UI,Roboto;
-  background:radial-gradient(circle at top,#0b1c33,#050b14 60%);
+  font-family:Inter,system-ui,Segoe UI,Roboto;
+  background:
+    radial-gradient(circle at top,#0c1f3f,#050b14 65%),
+    #050b14;
   color:var(--text);
-}
-
-/* Boot screen */
-#boot{
-  position:fixed;
-  inset:0;
-  background:black;
-  color:#00ff9c;
-  font-family:monospace;
-  padding:30px;
-  z-index:10;
 }
 
 .hidden{display:none}
 
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:26px 18px 60px;
+/* BOOT */
+#boot{
+  position:fixed; inset:0;
+  background:black;
+  color:#00ffc3;
+  font-family:monospace;
+  padding:30px;
+  z-index:50;
 }
+#boot span{display:block;margin-top:10px}
 
-/* ===== HEADER ===== */
-.ss-header{
+/* HEADER */
+header{
+  background:linear-gradient(135deg,#08162c,#0b234a);
+  border-bottom:1px solid var(--border);
+  padding:18px 22px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  margin-bottom:38px;
-  padding:18px 20px;
-  background:linear-gradient(180deg,#0c1a2f,#070f1b);
-  border:1px solid #13284d;
-  border-radius:16px;
+  justify-content:space-between;
 }
 
-.ss-left{
+.brand{
   display:flex;
   align-items:center;
   gap:14px;
 }
 
-.ss-logo{
-  width:44px;
-  height:44px;
-  border-radius:12px;
-  background:linear-gradient(135deg,#1f6fff,#3fa9ff);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:800;
-  color:#041225;
-  letter-spacing:1px;
+.brand img{
+  width:46px;
+  height:46px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 10px rgba(63,169,255,.5));
 }
 
-.ss-title{
-  font-size:17px;
-  font-weight:700;
-  letter-spacing:.3px;
+.brand h1{
+  margin:0;
+  font-size:1.25rem;
+  font-weight:600;
 }
 
-.ss-subtitle{
-  font-size:12px;
+.brand small{
+  display:block;
   color:var(--muted);
-  margin-top:2px;
+  font-size:.75rem;
 }
 
-.ss-right{
+.status{
+  color:#7dffb3;
+  font-size:.8rem;
   display:flex;
   align-items:center;
-  gap:8px;
-  font-size:11px;
-  color:#9fd3ff;
-  letter-spacing:1.2px;
+  gap:6px;
 }
 
-.sys-dot{
+.status::before{
+  content:"";
   width:8px;
   height:8px;
-  border-radius:50%;
   background:#3bff7a;
-  box-shadow:0 0 8px #3bff7a;
+  border-radius:50%;
+  box-shadow:0 0 10px #3bff7a;
 }
 
-/* ===== CONTENT ===== */
-.section{margin-top:44px}
-.subtitle{color:var(--muted); line-height:1.5}
+/* MAIN */
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:28px 20px 80px;
+}
 
-.case{
-  background:linear-gradient(135deg,#0d1f38,#08111f);
-  padding:16px 18px;
+/* HUD panels */
+.panel{
+  background:linear-gradient(180deg,var(--glass),rgba(5,10,20,.6));
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 0 25px rgba(63,169,255,.08);
+  margin-bottom:26px;
+}
+
+/* Search */
+.search{
+  width:100%;
+  padding:14px 16px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#061225;
+  color:var(--text);
+  outline:none;
+  margin-bottom:25px;
+}
+
+/* Stats */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin-bottom:30px;
+}
+.stat{
+  text-align:center;
+  padding:18px;
   border-radius:12px;
-  margin-bottom:12px;
-  border:1px solid #13284d;
-  cursor:pointer;
-  transition:.15s ease;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
+  background:rgba(15,30,60,.6);
+  border:1px solid var(--border);
 }
-.case:hover{
-  transform:translateY(-1px);
-  border-color:#1d3c6d;
-}
+.stat strong{font-size:1.6rem}
 
-.case strong{
-  font-size:.95rem;
-  font-weight:600;
+/* Case table */
+.table{
+  width:100%;
+  border-collapse:collapse;
+}
+.table th,.table td{
+  padding:12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  text-align:left;
+}
+.table tr{
+  cursor:pointer;
+}
+.table tr:hover{
+  background:rgba(63,169,255,.06);
 }
 
 .badge{
   padding:4px 10px;
-  border-radius:20px;
+  border-radius:12px;
   font-size:.7rem;
   text-transform:uppercase;
-  white-space:nowrap;
 }
 
-.open{background:rgba(59,255,122,.15);color:var(--open)}
-.closed{background:rgba(255,210,59,.15);color:var(--closed)}
-.classified{background:rgba(255,59,59,.15);color:var(--classified)}
+.open{color:var(--open);background:rgba(59,255,122,.12)}
+.closed{color:var(--closed);background:rgba(255,210,59,.12)}
+.classified{color:var(--classified);background:rgba(255,75,75,.12)}
 
 footer{
-  margin-top:80px;
+  margin-top:60px;
   color:var(--muted);
   font-size:.8rem;
   text-align:center;
-  opacity:.8;
 }
 </style>
 </head>
 <body>
 
+<!-- BOOT -->
 <div id="boot">
-Initializing SS:I secure terminal...<br><br>
-Loading modules...<br>
-Verifying system integrity...<br>
-Decrypting records...<br><br>
-ACCESS GRANTED.
+> Initializing SS:I secure node...<br>
+> Loading intelligence modules...<br>
+> Verifying encryption keys...<br>
+> Establishing uplink...<br>
+<span id="bootDone">> ACCESS GRANTED</span>
 </div>
 
-<div class="container hidden" id="app">
+<div id="app" class="hidden">
 
-<header class="ss-header">
-  <div class="ss-left">
-    <div class="ss-logo">SS</div>
+<header>
+  <div class="brand">
+    <img src="ssi-logo.png.jpg" alt="SS:I">
     <div>
-      <div class="ss-title">StudentStream Investigations</div>
-      <div class="ss-subtitle">Digital Investigation & Intelligence Division</div>
+      <h1>StudentStream Investigations</h1>
+      <small>Digital Intelligence & Anomaly Research Division</small>
     </div>
   </div>
-
-  <div class="ss-right">
-    <div class="sys-dot"></div>
-    SYSTEM ONLINE
-  </div>
+  <div class="status">SYSTEM ONLINE</div>
 </header>
 
-<div class="section">
-<h2>Mission Brief</h2>
-<p class="subtitle">
-SS:I is StudentStream’s investigation division focused on documenting unexplained events, digital anomalies, emerging phenomena, and real-world cases through structured reporting, media evidence, and public intelligence archives.
-</p>
+<div class="container">
+
+<input class="search" id="search" placeholder="Search case files...">
+
+<div class="stats">
+  <div class="stat"><strong id="openCount">0</strong><br>Open Cases</div>
+  <div class="stat"><strong id="closedCount">0</strong><br>Closed Cases</div>
+  <div class="stat"><strong id="totalCount">0</strong><br>Total Cases</div>
 </div>
 
-<div class="section">
-<h2>Active Case Files</h2>
-<div id="cases"></div>
+<div class="panel">
+  <h2>Mission Brief</h2>
+  <p style="color:var(--muted)">
+    SS:I is StudentStream’s advanced investigation division focused on documenting
+    unexplained events, digital anomalies, emerging phenomena, and real-world cases
+    through structured intelligence reporting and public archives.
+  </p>
 </div>
 
-<div class="section">
-<h2>Video Reports</h2>
-<div id="videos"></div>
+<div class="panel">
+  <h2>Active Case Files</h2>
+  <table class="table">
+    <thead>
+      <tr><th>Case ID</th><th>Title</th><th>Status</th></tr>
+    </thead>
+    <tbody id="cases"></tbody>
+  </table>
+</div>
+
+<div class="panel">
+  <h2>Video Reports</h2>
+  <div id="videos"></div>
 </div>
 
 <footer>
@@ -208,32 +245,36 @@ const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Boot effect
+// boot
 setTimeout(()=>{
   document.getElementById("boot").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   loadCases();
   loadVideos();
-},2000);
+},2200);
 
 async function loadCases(){
   const {data} = await db.from("cases").select().order("created_at",{ascending:false});
   const box = document.getElementById("cases");
+  let open=0, closed=0;
+
   box.innerHTML="";
-
-  if(!data || !data.length){
-    box.innerHTML="<p class='subtitle'>No cases published yet.</p>";
-    return;
-  }
-
   data.forEach(c=>{
+    if(c.status==="open") open++;
+    if(c.status==="closed") closed++;
+
     box.innerHTML+=`
-      <div class="case" onclick="openCase('${c.id}')">
-        <strong>${c.title}</strong>
-        <span class="badge ${c.status}">${c.status}</span>
-      </div>
+      <tr onclick="openCase('${c.id}')">
+        <td>${c.id.slice(0,8).toUpperCase()}</td>
+        <td>${c.title}</td>
+        <td><span class="badge ${c.status}">${c.status}</span></td>
+      </tr>
     `;
   });
+
+  document.getElementById("openCount").textContent=open;
+  document.getElementById("closedCount").textContent=closed;
+  document.getElementById("totalCount").textContent=data.length;
 }
 
 function openCase(id){
@@ -245,20 +286,28 @@ async function loadVideos(){
   const box = document.getElementById("videos");
 
   if(!data || !data.length){
-    box.innerHTML="<p class='subtitle'>No reports published.</p>";
+    box.innerHTML="<p style='color:var(--muted)'>No reports published.</p>";
     return;
   }
 
   box.innerHTML="";
   data.forEach(v=>{
     box.innerHTML+=`
-      <div class="case">
-        <strong>${v.title}</strong>
-        <span class="badge open">VIDEO</span>
+      <div style="margin-bottom:10px">
+        <strong>${v.title}</strong><br>
+        <a href="${v.youtube_url}" target="_blank" style="color:var(--accent)">Watch report</a>
       </div>
     `;
   });
 }
+
+// search filter
+document.getElementById("search").addEventListener("input", e=>{
+  const val=e.target.value.toLowerCase();
+  document.querySelectorAll("#cases tr").forEach(r=>{
+    r.style.display=r.textContent.toLowerCase().includes(val)?"":"none";
+  });
+});
 </script>
 
 </body>
