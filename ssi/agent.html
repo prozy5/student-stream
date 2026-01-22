@@ -1,11 +1,30 @@
-<input id="email" placeholder="email">
-<input id="password" type="password" placeholder="password">
-<button onclick="login()">Login</button>
+<!DOCTYPE html>
+<html>
+<head>
+<title>SS:I Agent Access</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div class="container">
+<h2>Agent Authentication</h2>
+
+<input id="email" placeholder="Agent Email">
+<input id="password" type="password" placeholder="Passcode">
+
+<button onclick="login()">Access System</button>
+</div>
+
+<script src="supabase.js"></script>
 <script>
-const SUPABASE_URL="https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+async function login(){
+ const email=emailInput=email=document.getElementById("email").value;
+ const password=document.getElementById("password").value;
+
+ const {error}=await supabase.auth.signInWithPassword({email,password});
+ if(error) alert("Access denied");
+ else location.href="upload.html";
+}
 </script>
-<script src="js/auth.js"></script>
+</body>
+</html>
