@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Law Dashboard</title>
+<meta charset="UTF-8">
+<style>
+body{background:#050b14;color:#eaf1ff;font-family:system-ui}
+.card{background:#0c1626;padding:15px;margin:10px;border-radius:10px}
+button{margin-top:6px}
+</style>
+</head>
+<body>
+
+<h2>StudentStream Law Dashboard</h2>
+<div id="reports"></div>
+
+<script src="supabase.js"></script>
+
+<script>
+// Auth check
+if(localStorage.getItem("law_staff") !== "true"){
+  location.href="law-login.html";
+}
+
+async function loadReports(){
+  const { data } = await db.from("law_reports")
+    .select()
+    .order("created_at",{ascending:false});
+
+  const box = document.getElementById("reports");
+  box.innerHTML="";
+
+  data.forEach(r=>{
+    box.innerHTML += `
+      <div class="card">
+        <b>${r.issue_type}</b> | ${r.username}<br>
+        ${r.description}<br>
+        Status: <b>${r.status}</b><br>
+        <button onclick="updateStatus('${r.id}','reviewing')">Reviewing</button>
+        <button onclick="updateStatus('${r.id}','closed')">Close</button>
+      </div>
+    `;
+  });
+}
+
+async function updateStatus(id,status){
+  await db.from("law_reports").update({status}).eq("id",id);
+  loadReports();
+}
+
+loadReports();
+</script>
+
+</body>
+</html>
