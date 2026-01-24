@@ -37,7 +37,7 @@ nav{
 
 .nav-left{
   font-weight:700;
-  letter-spacing:.3px;
+  letter-spacing:.4px;
 }
 
 .nav-links a{
@@ -51,41 +51,34 @@ nav{
 
 /* LAYOUT */
 
-.hero{
-  max-width:1000px;
+.container{
+  max-width:1100px;
   margin:auto;
-  padding:70px 22px 40px;
-  text-align:center;
-}
-
-.hero h1{
-  font-size:44px;
-}
-
-.hero span{color:var(--accent)}
-
-.hero p{
-  margin-top:14px;
-  color:var(--muted);
-  max-width:720px;
-  margin-inline:auto;
-  line-height:1.6;
+  padding:50px 22px;
 }
 
 .section{
-  max-width:1100px;
-  margin:auto;
-  padding:40px 22px;
+  margin-bottom:50px;
 }
 
 .section h2{
-  margin-bottom:16px;
+  margin-bottom:12px;
+  font-size:22px;
 }
+
+.section p{
+  color:var(--muted);
+  line-height:1.6;
+  max-width:850px;
+}
+
+/* GRID */
 
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
   gap:16px;
+  margin-top:18px;
 }
 
 .card{
@@ -95,29 +88,45 @@ nav{
   padding:18px;
 }
 
-.card h3{margin-bottom:6px}
+.card h3{
+  margin-bottom:6px;
+}
 
 .card p{
   color:var(--muted);
   font-size:14px;
-  line-height:1.5;
+}
+
+/* FOUNDER */
+
+.founder{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  background:linear-gradient(135deg,#0c1626,#0a1220);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:24px;
 }
 
 .badge{
   display:inline-block;
-  background:#1b2b4d;
-  color:#aecdff;
+  background:#102040;
+  color:#7db4ff;
+  padding:6px 10px;
+  border-radius:8px;
   font-size:12px;
-  padding:4px 10px;
-  border-radius:999px;
-  margin-bottom:8px;
+  width:max-content;
 }
+
+/* FOOTER */
 
 footer{
   text-align:center;
   padding:30px;
   color:var(--muted);
   font-size:13px;
+  border-top:1px solid var(--border);
 }
 </style>
 </head>
@@ -131,113 +140,122 @@ footer{
     <a href="studios/">Studios</a>
     <a href="law/">Law</a>
     <a href="ssi/">SS:I</a>
-    <a href="company.html">Company</a>
+    <a href="apply.html">Apply</a>
   </div>
 </nav>
 
-<section class="hero">
-  <h1>About <span>StudentStream</span></h1>
-  <p>
-    StudentStream is a technology company building digital platforms that help creators
-    get discovered, grow audiences, collaborate, and turn creative work into real opportunity.
-    Our mission is to give smaller creators a fair chance in a world dominated by major platforms.
-  </p>
-</section>
+<div class="container">
 
-<section class="section">
-  <h2>Our Platform Ecosystem</h2>
+  <!-- ABOUT -->
 
-  <div class="grid">
-    <div class="card">
-      <h3>StudentStream</h3>
-      <p>Main creator platform for discovery, profiles, messaging, clips, and collaboration.</p>
-    </div>
-
-    <div class="card">
-      <h3>StudentStream Studios</h3>
-      <p>Creative portfolio and marketplace for artists, designers, and digital creators.</p>
-    </div>
-
-    <div class="card">
-      <h3>StudentStream Law</h3>
-      <p>Digital safety and enforcement division handling abuse, fraud, and creator rights.</p>
-    </div>
-
-    <div class="card">
-      <h3>SS:I</h3>
-      <p>StudentStream Investigations — intelligence and public case tracking division.</p>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <h2>Mission & Vision</h2>
-
-  <div class="card">
+  <div class="section">
+    <h2>About StudentStream</h2>
     <p>
-      We believe creativity should be rewarded based on originality and effort — not existing fame.
-      StudentStream exists to lower the barrier to entry for creators and provide tools that support
-      growth, protection, and monetization.
-    </p>
-
-    <p style="margin-top:10px;">
-      Our long-term vision is to build a creator-first ecosystem where talent is discoverable,
-      protected, and empowered at every stage.
+      StudentStream is a technology company building a digital platform designed to help creators grow,
+      get discovered, collaborate, and turn their creative work into real opportunities.
+      Unlike traditional platforms that prioritize already-famous creators, StudentStream is built to
+      highlight emerging talent first — creating a fair system for visibility, growth, and monetization.
     </p>
   </div>
-</section>
 
-<section class="section">
-  <h2>Company Structure</h2>
+  <!-- MISSION -->
 
-  <div class="grid">
-    <div class="card">
-      <h3>Platform Engineering</h3>
-      <p>Core infrastructure, APIs, authentication, data systems, and performance.</p>
-    </div>
-
-    <div class="card">
-      <h3>Creator Services</h3>
-      <p>Discovery systems, profiles, messaging, analytics, monetization tools.</p>
-    </div>
-
-    <div class="card">
-      <h3>Studios Division</h3>
-      <p>Portfolio tools, creative marketplaces, commissions, and digital asset hosting.</p>
-    </div>
-
-    <div class="card">
-      <h3>Law Division</h3>
-      <p>Safety operations, reports, investigations, enforcement, and legal cooperation.</p>
-    </div>
-
-    <div class="card">
-      <h3>SS:I Division</h3>
-      <p>Threat analysis, public cases, intelligence research, and anomaly reporting.</p>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <h2>Leadership</h2>
-
-  <div class="card">
-    <span class="badge">Founder & Platform Architect</span>
-    <h3>Deondre</h3>
-
-    <p style="margin-top:10px;">
-      Founder of StudentStream and creator of its platform ecosystem, including Studios, Law,
-      and SS:I. Responsible for product vision, system design, and long-term strategy.
-    </p>
-
-    <p style="margin-top:10px;font-size:13px;color:var(--muted);">
-      Product architecture · Platform engineering · Creator-first systems · Company strategy
+  <div class="section">
+    <h2>Mission</h2>
+    <p>
+      Our mission is to give creators a real chance to succeed — not based on fame, connections, or algorithms
+      designed for large accounts, but on creativity, effort, and potential.
+      StudentStream exists to remove barriers and give talented individuals the tools, protection, and exposure
+      they deserve.
     </p>
   </div>
-</section>
+
+  <!-- DIVISIONS -->
+
+  <div class="section">
+    <h2>Company Divisions</h2>
+
+    <div class="grid">
+      <div class="card">
+        <h3>StudentStream Platform</h3>
+        <p>The core product — discovery, profiles, messaging, clips, creator tools, and platform features.</p>
+      </div>
+
+      <div class="card">
+        <h3>StudentStream Studios</h3>
+        <p>Creative division for artists, designers, digital creators, portfolios, commissions, and creative marketplaces.</p>
+      </div>
+
+      <div class="card">
+        <h3>StudentStream Law</h3>
+        <p>Digital safety, creator rights, fraud prevention, abuse handling, and platform enforcement.</p>
+      </div>
+
+      <div class="card">
+        <h3>SS:I (StudentStream Investigations)</h3>
+        <p>Internal intelligence and investigation unit focused on platform integrity, major abuse cases, and security analysis.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOUNDER -->
+
+  <div class="section">
+    <h2>Founder</h2>
+
+    <div class="founder">
+      <span class="badge">Founder & Product Architect</span>
+      <h3>Deondre</h3>
+
+      <p>
+        StudentStream was founded by Deondre with the vision of building a platform that truly supports
+        creators from the ground up.
+      </p>
+
+      <p>
+        As the original architect of the platform, Deondre leads product design, system structure,
+        and long-term strategy — combining technology, creativity, and business development into a single ecosystem.
+      </p>
+
+      <p>
+        The goal from the beginning was simple: build something fair, powerful, and different — a platform
+        that creators can trust and grow with.
+      </p>
+    </div>
+  </div>
+
+  <!-- VALUES -->
+
+  <div class="section">
+    <h2>Core Values</h2>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Fair Access</h3>
+        <p>Visibility should not be limited to the famous.</p>
+      </div>
+
+      <div class="card">
+        <h3>Creator Ownership</h3>
+        <p>Creators should control their work and their growth.</p>
+      </div>
+
+      <div class="card">
+        <h3>Safety & Trust</h3>
+        <p>Strong protection systems for a healthy ecosystem.</p>
+      </div>
+
+      <div class="card">
+        <h3>Innovation</h3>
+        <p>Constant evolution of tools and platform technology.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <footer>
-  © 2026 StudentStream · Technology Platform for Creators
+  © 2026 StudentStream · Technology Company for Creators
 </footer>
 
 </body>
