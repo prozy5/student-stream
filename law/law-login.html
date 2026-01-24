@@ -1,53 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>StudentStream Law Login</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body{
-  background:#05080f;
-  color:#eaf1ff;
-  font-family:system-ui;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-.box{
-  background:#0c1626;
-  padding:30px;
-  border-radius:14px;
-  width:320px;
-}
-input,button{
-  width:100%;
-  padding:12px;
-  margin-top:12px;
-  border-radius:8px;
-  border:1px solid rgba(255,255,255,.1);
-  background:#060b14;
-  color:#fff;
-}
-button{
-  background:#ff5d5d;
-  border:none;
-  cursor:pointer;
-}
-</style>
-</head>
-<body>
-
-<div class="box">
-<h2>Law Staff Login</h2>
-
-<input id="user" placeholder="Username">
-<input id="pass" type="password" placeholder="Password">
-
+<input id="pass" type="password" placeholder="Staff password">
 <button onclick="login()">Login</button>
 
-<p id="msg" style="color:#ff5d5d;margin-top:10px;"></p>
-</div>
-
-<script src="law-auth.js"></script>
-</body>
-</html>
+<script>
+function login(){
+  if(pass.value === "admin123"){
+    localStorage.setItem("law_staff","true");
+    location.href="law-dashboard.html";
+  } else {
+    alert("Invalid password");
+  }
+}
+</script>
