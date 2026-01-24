@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Apply – StudentStream Studios</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --bg:#070b14;
+  --panel:#0e1625;
+  --accent:#7cffb2;
+  --text:#eaf1ff;
+  --muted:#9fb0cc;
+  --border:rgba(255,255,255,0.08);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:system-ui,Segoe UI,Roboto;
+  background:radial-gradient(circle at top,#0c1b33,#05080f 70%);
+  color:var(--text);
+}
+
+/* NAV */
+
+nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 24px;
+  background:rgba(10,20,40,.7);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+
+.nav-left{font-weight:700}
+
+.nav-links a{
+  color:var(--muted);
+  text-decoration:none;
+  margin-left:18px;
+  font-size:14px;
+}
+.nav-links a:hover{color:var(--text)}
+
+/* LAYOUT */
+
+.wrapper{
+  max-width:850px;
+  margin:auto;
+  padding:50px 22px;
+}
+
+h1{margin-bottom:10px}
+
+p{color:var(--muted);line-height:1.6;margin-bottom:24px}
+
+/* FORM */
+
+.form{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:24px;
+}
+
+label{
+  display:block;
+  margin-top:16px;
+  font-size:14px;
+  color:var(--muted);
+}
+
+input, textarea{
+  width:100%;
+  margin-top:6px;
+  padding:12px;
+  background:#050a14;
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-size:14px;
+}
+
+textarea{min-height:120px;resize:vertical}
+
+button{
+  margin-top:22px;
+  padding:12px 20px;
+  border-radius:10px;
+  border:none;
+  background:linear-gradient(135deg,#7cffb2,#42ff9a);
+  color:#042012;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  opacity:.9;
+}
+
+/* FOOTER */
+
+footer{
+  text-align:center;
+  padding:30px;
+  color:var(--muted);
+  font-size:13px;
+  border-top:1px solid var(--border);
+  margin-top:50px;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <div class="nav-left">🎨 StudentStream Studios</div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="explore.html">Explore</a>
+    <a href="marketplace.html">Marketplace</a>
+  </div>
+</nav>
+
+<div class="wrapper">
+
+  <h1>Apply to StudentStream Studios</h1>
+  <p>
+    Studios is a curated creator space. Apply to sell your art, designs, digital products,
+    and creative services on StudentStream.
+  </p>
+
+  <div class="form">
+    <form>
+
+      <label>Full Name</label>
+      <input type="text" placeholder="Your name" required>
+
+      <label>Email</label>
+      <input type="email" placeholder="you@example.com" required>
+
+      <label>Creator Name / Brand</label>
+      <input type="text" placeholder="Studio or alias">
+
+      <label>Portfolio Link</label>
+      <input type="url" placeholder="https://">
+
+      <label>What do you create?</label>
+      <textarea placeholder="Art, logos, photography, music, 3D, etc..."></textarea>
+
+      <label>Why do you want to join Studios?</label>
+      <textarea placeholder="Tell us your goals..."></textarea>
+
+      <button type="submit">Submit Application</button>
+
+    </form>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 StudentStream Studios
+</footer>
+
+</body>
+</html>
