@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Orders – StudentStream Studios</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --bg:#070b14;
+  --panel:#0e1625;
+  --accent:#7cffb2;
+  --text:#eaf1ff;
+  --muted:#9fb0cc;
+  --border:rgba(255,255,255,0.08);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:system-ui,Segoe UI,Roboto;
+  background:radial-gradient(circle at top,#0c1b33,#05080f 70%);
+  color:var(--text);
+}
+
+/* NAV */
+
+nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 24px;
+  background:rgba(10,20,40,.7);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+
+.nav-left{font-weight:700}
+
+.nav-links a{
+  color:var(--muted);
+  text-decoration:none;
+  margin-left:18px;
+  font-size:14px;
+}
+.nav-links a:hover{color:var(--text)}
+
+/* LAYOUT */
+
+.container{
+  max-width:1000px;
+  margin:auto;
+  padding:40px 22px;
+}
+
+h1{margin-bottom:10px}
+.subtitle{color:var(--muted);margin-bottom:24px}
+
+/* TABLE */
+
+.table{
+  width:100%;
+  border-collapse:collapse;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+}
+
+.table th, .table td{
+  padding:14px 12px;
+  text-align:left;
+  font-size:14px;
+  border-bottom:1px solid var(--border);
+}
+
+.table th{
+  color:var(--muted);
+  font-weight:600;
+  background:#0b1322;
+}
+
+.status{
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+}
+
+.pending{background:rgba(255,200,0,.15);color:#ffd56b}
+.completed{background:rgba(124,255,178,.15);color:#7cffb2}
+.refunded{background:rgba(255,80,80,.15);color:#ff8a8a}
+
+/* CARD (mobile) */
+
+.order-card{
+  display:none;
+}
+
+/* FOOTER */
+
+footer{
+  text-align:center;
+  padding:30px;
+  color:var(--muted);
+  font-size:13px;
+  border-top:1px solid var(--border);
+  margin-top:60px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:700px){
+  .table{display:none}
+  .order-card{
+    display:block;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <div class="nav-left">🎨 StudentStream Studios</div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="upload.html">Upload</a>
+    <a href="marketplace.html">Marketplace</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <h1>Your Orders</h1>
+  <p class="subtitle">Track purchases, downloads, and earnings from your work.</p>
+
+  <!-- Desktop table -->
+
+  <table class="table">
+    <tr>
+      <th>Order ID</th>
+      <th>Item</th>
+      <th>Buyer</th>
+      <th>Price</th>
+      <th>Status</th>
+    </tr>
+
+    <tr>
+      <td>#SS-10241</td>
+      <td>Album Cover Design</td>
+      <td>creator99</td>
+      <td>$35.00</td>
+      <td><span class="status completed">Completed</span></td>
+    </tr>
+
+    <tr>
+      <td>#SS-10255</td>
+      <td>Brand Logo Pack</td>
+      <td>visualkid</td>
+      <td>$18.00</td>
+      <td><span class="status pending">Pending</span></td>
+    </tr>
+
+    <tr>
+      <td>#SS-10270</td>
+      <td>Poster Illustration</td>
+      <td>urbanflow</td>
+      <td>$22.00</td>
+      <td><span class="status refunded">Refunded</span></td>
+    </tr>
+  </table>
+
+  <!-- Mobile cards -->
+
+  <div class="order-card">
+    <strong>Album Cover Design</strong><br>
+    Buyer: creator99<br>
+    Price: $35.00<br>
+    <span class="status completed">Completed</span>
+  </div>
+
+  <div class="order-card">
+    <strong>Brand Logo Pack</strong><br>
+    Buyer: visualkid<br>
+    Price: $18.00<br>
+    <span class="status pending">Pending</span>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 StudentStream Studios
+</footer>
+
+</body>
+</html>
