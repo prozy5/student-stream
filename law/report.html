@@ -1,63 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
+<title>Report Issue</title>
 <meta charset="UTF-8">
-<title>Report an Issue · StudentStream Law</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{
-  font-family:system-ui;
-  background:#05080f;
-  color:#eaf1ff;
-  padding:40px;
-}
-.container{
-  max-width:600px;
-  margin:auto;
-  background:#0c1626;
-  padding:25px;
-  border-radius:14px;
-}
-input,textarea,select,button{
-  width:100%;
-  padding:12px;
-  margin-top:12px;
-  background:#060b14;
-  border:1px solid rgba(255,255,255,.1);
-  color:#fff;
-  border-radius:8px;
-}
-button{
-  background:#ff5d5d;
-  border:none;
-  margin-top:20px;
-  cursor:pointer;
-}
-</style>
 </head>
 <body>
 
-<div class="container">
-<h2>Report an Issue</h2>
-<p>Submit concerns about copyright, fraud, harassment, or platform abuse.</p>
+<h2>Submit a Report</h2>
 
-<form>
-  <input placeholder="Your Username" required>
-  <input placeholder="Email (optional)">
-  
-  <select>
-    <option>Copyright / IP</option>
-    <option>Fraud / Scam</option>
+<form id="reportForm">
+  <input id="username" placeholder="Your username" required><br><br>
+
+  <select id="issue" required>
+    <option value="">Select issue type</option>
+    <option>Copyright</option>
+    <option>Fraud</option>
     <option>Harassment</option>
-    <option>Platform Abuse</option>
-  </select>
+    <option>Impersonation</option>
+  </select><br><br>
 
-  <textarea rows="5" placeholder="Describe the issue..." required></textarea>
-  <input placeholder="Evidence link (optional)">
-  
-  <button type="submit">Submit Report</button>
+  <textarea id="desc" placeholder="Describe the issue" required></textarea><br><br>
+
+  <button type="submit">Submit</button>
 </form>
-</div>
+
+<script src="supabase.js"></script>
+
+<script>
+document.getElementById("reportForm").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const { error } = await db.from("law_reports").insert([{
+    username: username.value,
+    issue_type: issue.value,
+    description: desc.value
+  }]);
+
+  if(error){
+    alert("Error submitting report");
+    console.error(error);
+  } else {
+    alert("Report submitted successfully.");
+    location.href = "law.html";
+  }
+};
+</script>
 
 </body>
 </html>
