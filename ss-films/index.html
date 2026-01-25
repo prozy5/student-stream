@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,17 +7,31 @@
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b0f14;color:#fff;font-family:system-ui}
+body{
+  margin:0;
+  background:#0b0f14;
+  color:#fff;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+}
 
+/* Header */
 header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   padding:14px 16px;
   border-bottom:1px solid #1f2630;
+  position:sticky;
+  top:0;
+  background:#0b0f14;
+  z-index:10;
 }
 
-.logo{font-size:22px;font-weight:800;color:#1e90ff}
+.logo{
+  font-size:22px;
+  font-weight:800;
+  color:#1e90ff;
+}
 
 .header-right{
   display:flex;
@@ -25,6 +39,7 @@ header{
   align-items:center;
 }
 
+/* Buttons */
 .btn{
   background:#1e90ff;
   border:none;
@@ -40,18 +55,34 @@ header{
   border:1px solid #1e90ff;
 }
 
+/* Layout */
+.container{padding:14px}
+
 .search{
   width:100%;
-  padding:10px;
+  padding:10px 12px;
   border-radius:8px;
   border:none;
   background:#161c24;
   color:#fff;
   margin:12px 0;
+  outline:none;
 }
 
-.container{padding:14px}
+/* Creator banner */
+.creator-banner{
+  background:#141b24;
+  border:1px solid #1e90ff33;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:14px;
+  display:none;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
 
+/* Grid */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
@@ -67,6 +98,7 @@ header{
   height:200px;
   object-fit:cover;
   border-radius:10px;
+  background:#111;
 }
 
 .title{
@@ -88,15 +120,9 @@ header{
   opacity:.7;
 }
 
-.creator-banner{
-  background:#141b24;
-  border:1px solid #1e90ff33;
-  padding:12px;
-  border-radius:10px;
-  margin-bottom:14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+/* Desktop */
+@media(min-width:800px){
+  .card img{height:240px}
 }
 </style>
 </head>
@@ -109,9 +135,9 @@ header{
 
 <div class="container">
 
-  <div id="creatorBanner" class="creator-banner" style="display:none">
+  <div id="creatorBanner" class="creator-banner">
     <div>🎬 Become a creator and upload your own films</div>
-    <button class="btn" onclick="goCreator()">Join as Creator</button>
+    <button class="btn" id="creatorBtn">Join as Creator</button>
   </div>
 
   <input id="search" class="search" placeholder="Search films...">
@@ -133,42 +159,57 @@ const filmsGrid = document.getElementById("filmsGrid");
 const searchInput = document.getElementById("search");
 const authArea = document.getElementById("authArea");
 const creatorBanner = document.getElementById("creatorBanner");
+const creatorBtn = document.getElementById("creatorBtn");
+const emptyEl = document.getElementById("empty");
 
 let films = [];
 let user = null;
 
-async function init(){
-  const {data} = await supabase.auth.getUser();
-  user = data.user;
+/* -------- AUTH -------- */
 
+async function loadUser(){
+  const { data } = await supabase.auth.getUser();
+  user = data.user || null;
   renderAuthButtons();
   if(user) checkCreator();
-
-  await loadFilms();
 }
+
+supabase.auth.onAuthStateChange((_e, session)=>{
+  user = session?.user || null;
+  renderAuthButtons();
+});
 
 function renderAuthButtons(){
   authArea.innerHTML = "";
 
   if(!user){
-    authArea.innerHTML = `
-      <button class="btn outline" onclick="location.href='login.html'">Login</button>
-      <button class="btn" onclick="location.href='signup.html'">Sign up</button>
-    `;
+    const login = document.createElement("button");
+    login.className = "btn outline";
+    login.textContent = "Login";
+    login.onclick = ()=> location.href="login.html";
+
+    const signup = document.createElement("button");
+    signup.className = "btn";
+    signup.textContent = "Sign up";
+    signup.onclick = ()=> location.href="signup.html";
+
+    authArea.append(login, signup);
   }else{
-    authArea.innerHTML = `
-      <button class="btn outline" onclick="logout()">Logout</button>
-    `;
+    const logout = document.createElement("button");
+    logout.className = "btn outline";
+    logout.textContent = "Logout";
+    logout.onclick = async ()=>{
+      await supabase.auth.signOut();
+      location.reload();
+    };
+    authArea.append(logout);
   }
 }
 
-async function logout(){
-  await supabase.auth.signOut();
-  location.reload();
-}
+/* -------- CREATOR -------- */
 
 async function checkCreator(){
-  const {data} = await supabase
+  const { data } = await supabase
     .from("creators")
     .select("id")
     .eq("user_id", user.id)
@@ -179,15 +220,21 @@ async function checkCreator(){
   }
 }
 
-window.goCreator = ()=>{
-  location.href="creator-apply.html";
+creatorBtn.onclick = ()=>{
+  if(!user){
+    location.href="login.html";
+  }else{
+    location.href="creator-apply.html";
+  }
 };
 
+/* -------- FILMS -------- */
+
 async function loadFilms(){
-  const {data,error} = await supabase
+  const { data, error } = await supabase
     .from("films")
     .select("id,title,thumbnail_url,views")
-    .eq("is_published",true)
+    .eq("is_published", true)
     .order("created_at",{ascending:false});
 
   if(error){
@@ -195,40 +242,48 @@ async function loadFilms(){
     return;
   }
 
-  films = data;
+  films = data || [];
 
-  if(!films.length){
-    document.getElementById("empty").style.display="block";
-  }
+  emptyEl.style.display = films.length ? "none" : "block";
 
   renderFilms(films);
 }
 
 function renderFilms(list){
   filmsGrid.innerHTML = list.map(f=>`
-    <div class="card" onclick="openWatch('${f.id}')">
-      <img src="${f.thumbnail_url}">
+    <div class="card" data-id="${f.id}">
+      <img src="${f.thumbnail_url || 'https://dummyimage.com/300x450/1f2630/ffffff&text=No+Thumbnail'}"
+           onerror="this.src='https://dummyimage.com/300x450/1f2630/ffffff&text=No+Thumbnail'">
       <div class="title">${f.title}</div>
-      <div class="meta">👁 ${f.views||0}</div>
+      <div class="meta">👁 ${f.views || 0}</div>
     </div>
   `).join("");
+
+  document.querySelectorAll(".card").forEach(card=>{
+    card.onclick = ()=>{
+      const id = card.dataset.id;
+      if(!user){
+        location.href="login.html";
+      }else{
+        location.href = `watch.html?id=${id}`;
+      }
+    };
+  });
 }
 
-window.openWatch = (id)=>{
-  if(!user){
-    location.href="login.html";
-    return;
-  }
-  location.href = `watch.html?id=${id}`;
-};
+/* -------- SEARCH -------- */
 
 searchInput.oninput = ()=>{
   const q = searchInput.value.toLowerCase();
-  const filtered = films.filter(f=>f.title.toLowerCase().includes(q));
-  renderFilms(filtered);
+  renderFilms(films.filter(f=>f.title.toLowerCase().includes(q)));
 };
 
-init();
+/* -------- INIT -------- */
+
+(async ()=>{
+  await loadUser();
+  await loadFilms();
+})();
 </script>
 
 </body>
