@@ -1,19 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Watch – SS Films</title>
-  <meta charset="UTF-8">
-  <style>
-    body { background:black;color:white;font-family:sans-serif;padding:20px }
-    video { width:100%;max-width:900px }
-  </style>
+<title>Watch – SS Films</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{margin:0;background:#000;color:#fff;font-family:sans-serif}
+.container{max-width:900px;margin:auto;padding:12px}
+
+video{width:100%;border-radius:10px;background:#000}
+
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.title{font-size:22px;font-weight:bold}
+
+.meta{font-size:13px;opacity:.8;margin-bottom:6px}
+
+.controls{display:flex;gap:10px;align-items:center;margin:8px 0}
+
+button,select{
+background:#1a1f27;
+border:none;
+color:#fff;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+button.active{color:red}
+
+.desc{opacity:.9;margin-top:6px}
+
+.recommend{margin-top:30px}
+.row{display:flex;gap:10px;overflow-x:auto}
+.card{min-width:120px}
+.card img{width:120px;height:170px;border-radius:6px;object-fit:cover}
+
+</style>
 </head>
 <body>
 
-<h1 id="title"></h1>
-<p id="desc"></p>
+<div class="container">
+
+<div class="top">
+  <div class="title" id="title"></div>
+  <button id="likeBtn">❤️</button>
+</div>
+
+<div class="meta" id="meta"></div>
+
+<div class="controls">
+  <select id="episodeSelect" style="display:none"></select>
+</div>
 
 <video id="player" controls autoplay></video>
+
+<div class="desc" id="desc"></div>
+
+<div class="recommend">
+  <h3>Recommended</h3>
+  <div class="row" id="recommendRow"></div>
+</div>
+
+</div>
 
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
@@ -23,27 +72,171 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
 );
 
-const params = new URLSearchParams(window.location.search);
-const filmId = params.get("id");
+const params=new URLSearchParams(location.search);
+const filmId=params.get("id");
 
-async function loadFilm() {
-  const { data, error } = await supabase
-    .from("films")
-    .select("*")
-    .eq("id", filmId)
-    .single();
+const player=document.getElementById("player");
+const titleEl=document.getElementById("title");
+const descEl=document.getElementById("desc");
+const metaEl=document.getElementById("meta");
+const likeBtn=document.getElementById("likeBtn");
+const episodeSelect=document.getElementById("episodeSelect");
+const recommendRow=document.getElementById("recommendRow");
 
-  if (error) {
-    alert("Film not found");
-    return;
-  }
+let user=null;
+let currentFilm=null;
+let currentEpisode=null;
+let liked=false;
 
-  document.getElementById("title").innerText = data.title;
-  document.getElementById("desc").innerText = data.description;
-  document.getElementById("player").src = data.video_url;
+async function getUser(){
+ const {data:{user:u}}=await supabase.auth.getUser();
+ user=u;
 }
 
-loadFilm();
+async function loadFilm(){
+ const {data}=await supabase.from("films").select("*").eq("id",filmId).single();
+ currentFilm=data;
+
+ titleEl.innerText=data.title;
+ descEl.innerText=data.description||"";
+ metaEl.innerText=`👁 ${data.views||0}   ❤️ ${data.likes||0}`;
+
+ loadVideo(data.video_url);
+ loadEpisodes();
+ addView();
+ checkLike();
+ loadProgress();
+ loadRecommendations();
+}
+
+function loadVideo(url){
+ player.src=url;
+}
+
+async function loadEpisodes(){
+ const {data}=await supabase.from("film_episodes")
+  .select("*")
+  .eq("film_id",filmId)
+  .order("episode_number");
+
+ if(!data||!data.length) return;
+
+ episodeSelect.style.display="block";
+ episodeSelect.innerHTML="";
+
+ data.forEach(ep=>{
+   const opt=document.createElement("option");
+   opt.value=ep.id;
+   opt.textContent=`Episode ${ep.episode_number} – ${ep.title}`;
+   episodeSelect.appendChild(opt);
+ });
+
+ currentEpisode=data[0];
+ loadVideo(currentEpisode.video_url);
+
+ episodeSelect.onchange=()=>{
+   const ep=data.find(e=>e.id===episodeSelect.value);
+   currentEpisode=ep;
+   loadVideo(ep.video_url);
+   saveProgress(0);
+ };
+}
+
+async function addView(){
+ await supabase.rpc("increment_film_views",{fid:filmId}).catch(()=>{});
+}
+
+async function checkLike(){
+ if(!user) return;
+ const {data}=await supabase.from("film_likes")
+  .select("id")
+  .eq("film_id",filmId)
+  .eq("user_id",user.id)
+  .single();
+
+ if(data){
+   liked=true;
+   likeBtn.classList.add("active");
+ }
+}
+
+likeBtn.onclick=async()=>{
+ if(!user) return alert("Login required");
+
+ if(liked){
+   await supabase.from("film_likes").delete().eq("film_id",filmId).eq("user_id",user.id);
+   liked=false;
+   likeBtn.classList.remove("active");
+ }else{
+   await supabase.from("film_likes").insert({film_id:filmId,user_id:user.id});
+   liked=true;
+   likeBtn.classList.add("active");
+ }
+};
+
+async function saveProgress(p){
+ if(!user) return;
+ await supabase.from("film_progress").upsert({
+   film_id:filmId,
+   user_id:user.id,
+   progress:p
+ });
+}
+
+async function loadProgress(){
+ if(!user) return;
+ const {data}=await supabase.from("film_progress")
+  .select("progress")
+  .eq("film_id",filmId)
+  .eq("user_id",user.id)
+  .single();
+
+ if(data){
+   player.currentTime = (data.progress/100)*player.duration || 0;
+ }
+}
+
+player.ontimeupdate=()=>{
+ const p=Math.floor((player.currentTime/player.duration)*100);
+ if(p>0) saveProgress(p);
+};
+
+player.onended=()=>{
+ autoNextEpisode();
+};
+
+async function autoNextEpisode(){
+ if(!currentEpisode) return;
+
+ const {data}=await supabase.from("film_episodes")
+  .select("*")
+  .eq("film_id",filmId)
+  .gt("episode_number",currentEpisode.episode_number)
+  .order("episode_number")
+  .limit(1);
+
+ if(data && data.length){
+   currentEpisode=data[0];
+   episodeSelect.value=currentEpisode.id;
+   loadVideo(currentEpisode.video_url);
+ }
+}
+
+async function loadRecommendations(){
+ const {data}=await supabase.from("films").select("id,title,thumbnail_url").neq("id",filmId).limit(10);
+
+ recommendRow.innerHTML="";
+ data.forEach(f=>{
+   recommendRow.innerHTML+=`
+   <div class="card" onclick="location.href='watch.html?id=${f.id}'">
+     <img src="${f.thumbnail_url}">
+   </div>`;
+ });
+}
+
+await getUser();
+await loadFilm();
+
 </script>
 
 </body>
