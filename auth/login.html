@@ -1,29 +1,128 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>StudentStream Login</title>
+<meta charset="UTF-8">
+<title>Login – StudentStream</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --bg:#05080f;
+  --panel:#0c1626;
+  --accent:#4da3ff;
+  --text:#eaf1ff;
+  --muted:#9fb0cc;
+  --border:rgba(255,255,255,0.08);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:system-ui,Segoe UI,Roboto;
+  background:radial-gradient(circle at top,#0c1b33,#05080f 70%);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.card{
+  width:100%;
+  max-width:380px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:24px;
+}
+
+h1{
+  font-size:24px;
+  margin-bottom:6px;
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:14px;
+  margin-bottom:22px;
+}
+
+label{
+  font-size:13px;
+  color:var(--muted);
+  display:block;
+  margin-bottom:6px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#08101f;
+  color:var(--text);
+  margin-bottom:16px;
+  outline:none;
+}
+
+input:focus{
+  border-color:var(--accent);
+}
+
+button{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:linear-gradient(135deg,#4da3ff,#6fb6ff);
+  color:#051225;
+  font-weight:600;
+  cursor:pointer;
+}
+
+button:hover{
+  opacity:.9;
+}
+
+.footer{
+  margin-top:16px;
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.footer a{
+  color:var(--accent);
+  text-decoration:none;
+}
+</style>
 </head>
 <body>
 
-<h2>Login to StudentStream</h2>
+<div class="card">
+  <h1>StudentStream</h1>
+  <div class="subtitle">Login to your account</div>
 
-<input id="email" placeholder="Email"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
+  <label>Email</label>
+  <input id="email" type="email" placeholder="you@example.com">
 
-<button onclick="handleLogin()">Login</button>
+  <label>Password</label>
+  <input id="password" type="password" placeholder="••••••••">
 
-<p><a href="signup.html">Create account</a></p>
+  <button onclick="handleLogin()">Login</button>
+
+  <div class="footer">
+    Don’t have an account? <a href="signup.html">Create one</a>
+  </div>
+</div>
 
 <script type="module">
-import { login } from "../js/auth.js";
+import { login } from "/js/auth.js";
 
 async function handleLogin(){
   try{
-    await login(
-      email.value,
-      password.value
-    );
+    await login(email.value, password.value);
     window.location.href = "/dashboard.html";
   }catch(e){
     alert(e.message);
