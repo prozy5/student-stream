@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SS Films</title>
+<title>SS Films – by StudentStream</title>
 
 <style>
 *{box-sizing:border-box}
@@ -17,6 +17,7 @@ header{
 }
 
 .logo{font-size:22px;font-weight:900;color:#3ea6ff}
+.logo span{color:#7aa8ff;font-weight:600;font-size:13px;margin-left:6px}
 
 .btn{
   padding:8px 14px;border-radius:8px;border:none;
@@ -26,13 +27,14 @@ header{
 
 .hero{
   height:65vh;
-  background:linear-gradient(90deg,#05070c 30%,transparent),
-  url("https://images.unsplash.com/photo-1524985069026-dd778a71c7b4") center/cover;
+  background:
+    linear-gradient(90deg,#05070c 30%,transparent),
+    url("https://images.unsplash.com/photo-1524985069026-dd778a71c7b4") center/cover;
   display:flex;align-items:flex-end;padding:80px 24px
 }
 
-.hero-box{max-width:480px}
-.hero h1{margin:0 0 10px;font-size:34px}
+.hero-box{max-width:520px}
+.hero h1{margin:0 0 10px;font-size:36px}
 .hero p{opacity:.8}
 
 .section{padding:30px 20px}
@@ -59,20 +61,20 @@ header{
   padding:18px;display:flex;justify-content:space-between;align-items:center
 }
 
-footer{text-align:center;padding:40px 20px;opacity:.4;font-size:13px}
+footer{text-align:center;padding:40px 20px;opacity:.45;font-size:13px}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">SS Films</div>
+  <div class="logo">SS Films <span>by StudentStream</span></div>
   <div id="authArea"></div>
 </header>
 
 <div class="hero">
   <div class="hero-box">
     <h1>Original films. Real creators.</h1>
-    <p>Watch exclusive independent movies and series only on SS Films.</p>
+    <p>StudentStream’s official production & film division.</p>
     <button class="btn" onclick="scrollToContent()">Browse</button>
   </div>
 </div>
@@ -83,7 +85,7 @@ footer{text-align:center;padding:40px 20px;opacity:.4;font-size:13px}
     <div id="creatorBanner" class="creator-banner" style="display:none">
       <div>
         <b>Become a creator</b><br>
-        Upload your films. Build your audience.
+        Upload films. Build an audience. Earn revenue.
       </div>
       <button class="btn" onclick="goCreator()">Apply</button>
     </div>
@@ -95,13 +97,15 @@ footer{text-align:center;padding:40px 20px;opacity:.4;font-size:13px}
   </div>
 
   <div class="section">
-    <div class="section-title">Latest releases</div>
+    <div class="section-title">Latest Releases</div>
     <div id="latestRow" class="row"></div>
   </div>
 
 </div>
 
-<footer>© 2026 SS Films · All rights reserved</footer>
+<footer>
+© 2026 SS Films – A StudentStream Company
+</footer>
 
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
@@ -120,26 +124,23 @@ let user = null;
 let films = [];
 
 async function init(){
-
-  const { data: { user: u } } = await supabase.auth.getUser();
+  const { data:{user:u} } = await supabase.auth.getUser();
   user = u;
 
   renderAuth();
-
   if(user) await checkCreator();
-
   await loadFilms();
 }
 
-/* ---------- AUTH UI ---------- */
+/* ---------------- AUTH UI ---------------- */
 
 function renderAuth(){
   if(!user){
     authArea.innerHTML = `
       <button class="btn outline" onclick="location.href='login.html'">Login</button>
-      <button class="btn" onclick="location.href='signup.html'">Sign up</button>
+      <button class="btn" onclick="location.href='login.html'">Sign up</button>
     `;
-  } else {
+  }else{
     authArea.innerHTML = `
       <button class="btn outline" id="studioBtn" style="display:none" onclick="goStudio()">Studio</button>
       <button class="btn outline" onclick="logout()">Logout</button>
@@ -149,10 +150,24 @@ function renderAuth(){
 
 async function logout(){
   await supabase.auth.signOut();
-  location.href = "login.html";
+  user = null;
+  renderAuth();
+  window.location.replace("login.html");
 }
 
-/* ---------- CREATOR CHECK ---------- */
+/* Live auth sync */
+supabase.auth.onAuthStateChange((event, session)=>{
+  if(event==="SIGNED_OUT"){
+    user=null;
+    renderAuth();
+  }
+  if(event==="SIGNED_IN"){
+    user=session.user;
+    renderAuth();
+  }
+});
+
+/* ---------------- CREATOR ---------------- */
 
 async function checkCreator(){
   const { data } = await supabase
@@ -162,14 +177,14 @@ async function checkCreator(){
     .maybeSingle();
 
   if(data){
-    const btn = document.getElementById("studioBtn");
-    if(btn) btn.style.display = "inline-block";
-  } else {
-    creatorBanner.style.display = "flex";
+    const btn=document.getElementById("studioBtn");
+    if(btn) btn.style.display="inline-block";
+  }else{
+    creatorBanner.style.display="flex";
   }
 }
 
-/* ---------- FILMS ---------- */
+/* ---------------- FILMS ---------------- */
 
 async function loadFilms(){
   const { data } = await supabase
@@ -182,8 +197,8 @@ async function loadFilms(){
 }
 
 function renderRows(){
-  const trending = [...films].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,10);
-  const latest = [...films].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,10);
+  const trending=[...films].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,10);
+  const latest=[...films].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,10);
 
   trendingRow.innerHTML = trending.map(renderCard).join("");
   latestRow.innerHTML = latest.map(renderCard).join("");
@@ -192,9 +207,7 @@ function renderRows(){
 function renderCard(f){
   return `
     <div class="card" onclick="openWatch('${f.id}')">
-      <div class="thumb">
-        <img src="${f.thumbnail_url || ''}">
-      </div>
+      <div class="thumb"><img src="${f.thumbnail_url||''}"></div>
       <div class="info">
         <div class="title">${f.title}</div>
         <div class="meta">👁 ${f.views||0}</div>
@@ -203,16 +216,16 @@ function renderCard(f){
   `;
 }
 
-/* ---------- NAV ---------- */
+/* ---------------- NAV ---------------- */
 
-window.openWatch = (id)=>{
-  if(!user){ location.href="login.html"; return; }
-  location.href = `watch.html?id=${id}`;
+window.openWatch=(id)=>{
+  if(!user){location.href="login.html";return;}
+  location.href=`watch.html?id=${id}`;
 };
 
-window.goCreator = ()=> location.href="creator-apply.html";
-window.goStudio = ()=> location.href="creator.html";
-window.scrollToContent = ()=> document.getElementById("content").scrollIntoView({behavior:"smooth"});
+window.goCreator=()=>location.href="creator-apply.html";
+window.goStudio=()=>location.href="creator.html";
+window.scrollToContent=()=>document.getElementById("content").scrollIntoView({behavior:"smooth"});
 
 init();
 </script>
