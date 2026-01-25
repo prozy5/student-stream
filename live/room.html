@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StudentStream Live Room</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  background:#000;
+}
+
+iframe{
+  border:none;
+  width:100vw;
+  height:100vh;
+}
+</style>
+</head>
+
+<body>
+
+<iframe id="jitsi"></iframe>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const room = params.get("room") || "StudentStreamRoom";
+
+document.getElementById("jitsi").src =
+  "https://meet.jit.si/" + room + "#config.prejoinPageEnabled=false";
+</script>
+
+</body>
+</html>
