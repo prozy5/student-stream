@@ -7,42 +7,39 @@
 
 <style>
 *{box-sizing:border-box}
-
 body{
   margin:0;
-  background:linear-gradient(180deg,#05070b,#0b0f14);
+  background:#05070c;
   color:#fff;
   font-family:system-ui,-apple-system,BlinkMacSystemFont;
 }
 
 header{
-  position:sticky;
+  position:fixed;
   top:0;
-  z-index:10;
+  width:100%;
+  z-index:100;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:16px 20px;
-  background:rgba(10,14,20,.8);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid #1c2430;
+  padding:14px 20px;
+  background:linear-gradient(#05070cdd,#05070caa,transparent);
 }
 
 .logo{
   font-size:22px;
   font-weight:900;
   color:#3ea6ff;
-  letter-spacing:.5px;
 }
 
 .btn{
-  background:#1e90ff;
-  border:none;
-  color:#fff;
   padding:8px 14px;
   border-radius:8px;
+  border:none;
   cursor:pointer;
   font-weight:600;
+  background:#1e90ff;
+  color:#fff;
 }
 
 .btn.outline{
@@ -51,79 +48,66 @@ header{
 }
 
 .hero{
-  padding:50px 20px 30px;
-  max-width:1100px;
-  margin:auto;
+  height:65vh;
+  background:linear-gradient(90deg,#05070c 30%,transparent),
+             url("https://images.unsplash.com/photo-1524985069026-dd778a71c7b4") center/cover;
+  display:flex;
+  align-items:flex-end;
+  padding:80px 24px;
 }
 
-.hero h1{
-  font-size:28px;
-  margin:0 0 6px;
+.hero-box{
+  max-width:480px;
 }
 
-.hero p{
-  opacity:.7;
-  margin:0 0 20px;
-}
-
-.search{
-  width:100%;
-  padding:14px 16px;
-  border-radius:12px;
-  border:1px solid #1f2a3a;
-  background:#111722;
-  color:#fff;
-  font-size:15px;
-}
+.hero h1{margin:0 0 10px;font-size:34px}
+.hero p{opacity:.8}
 
 .section{
-  max-width:1100px;
-  margin:auto;
-  padding:0 20px 40px;
+  padding:30px 20px;
 }
 
 .section-title{
   font-size:18px;
-  margin:20px 0 12px;
   font-weight:700;
+  margin-bottom:12px;
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  gap:16px;
+.row{
+  display:flex;
+  gap:14px;
+  overflow-x:auto;
+  padding-bottom:10px;
 }
 
 .card{
-  background:#0f1520;
-  border-radius:14px;
+  min-width:160px;
+  background:#0e1522;
+  border-radius:12px;
   overflow:hidden;
   cursor:pointer;
   transition:.25s;
-  border:1px solid #1b2330;
 }
 
-.card:hover{
-  transform:scale(1.04);
-  border-color:#3ea6ff55;
-}
+.card:hover{transform:scale(1.08)}
 
 .thumb{
-  width:100%;
   height:220px;
-  object-fit:cover;
-  background:#1b2230;
+  background:#1a2232;
   display:flex;
   align-items:center;
   justify-content:center;
+  font-size:13px;
   color:#aaa;
-  font-size:14px;
 }
 
-.info{
-  padding:10px;
+.thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
+.info{padding:8px}
 .title{
   font-size:14px;
   font-weight:600;
@@ -131,28 +115,23 @@ header{
   overflow:hidden;
   text-overflow:ellipsis;
 }
-
-.meta{
-  font-size:12px;
-  opacity:.6;
-  margin-top:3px;
-}
+.meta{font-size:12px;opacity:.6}
 
 .creator-banner{
-  background:linear-gradient(90deg,#132036,#0f1724);
-  border:1px solid #2b3b55;
-  padding:14px;
-  border-radius:12px;
-  margin:20px 0;
+  background:linear-gradient(90deg,#12223a,#0c1423);
+  border:1px solid #2c3f60;
+  border-radius:14px;
+  padding:18px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
 
-.hero-empty{
+footer{
   text-align:center;
-  opacity:.6;
-  padding:50px 0;
+  padding:40px 20px;
+  opacity:.4;
+  font-size:13px;
 }
 </style>
 </head>
@@ -164,52 +143,65 @@ header{
 </header>
 
 <div class="hero">
-  <h1>Watch student-made films 🎬</h1>
-  <p>Discover original movies and series from creators on StudentStream.</p>
-
-  <input id="search" class="search" placeholder="Search films...">
+  <div class="hero-box">
+    <h1>Original films. Real creators.</h1>
+    <p>Watch exclusive independent movies and series only on SS Films.</p>
+    <button class="btn" onclick="scrollToContent()">Browse</button>
+  </div>
 </div>
 
-<div class="section">
+<div id="content">
 
-  <div id="creatorBanner" class="creator-banner" style="display:none">
-    <div>🎥 Become a creator and upload your own films</div>
-    <button class="btn" onclick="goCreator()">Join as Creator</button>
+  <div class="section">
+    <div id="creatorBanner" class="creator-banner" style="display:none">
+      <div>
+        <b>Become a creator</b><br>
+        Upload your films. Build your audience. Earn views.
+      </div>
+      <button class="btn" onclick="goCreator()">Apply</button>
+    </div>
   </div>
 
-  <div class="section-title">Latest releases</div>
+  <div class="section">
+    <div class="section-title">Trending</div>
+    <div id="trendingRow" class="row"></div>
+  </div>
 
-  <div id="filmsGrid" class="grid"></div>
-  <div id="empty" class="hero-empty" style="display:none">No films yet</div>
+  <div class="section">
+    <div class="section-title">Latest releases</div>
+    <div id="latestRow" class="row"></div>
+  </div>
 
 </div>
+
+<footer>
+  © 2026 SS Films · All rights reserved
+</footer>
 
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const supabase = createClient(
-  "https://iabzmoxzbqzcqgypxctr.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
-);
+const supabase = createClient("https://iabzmoxzbqzcqgypxctr.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ");
 
-const filmsGrid = document.getElementById("filmsGrid");
-const searchInput = document.getElementById("search");
-const authArea = document.getElementById("authArea");
-const creatorBanner = document.getElementById("creatorBanner");
-
-let films=[];
 let user=null;
+let films=[];
+
+const authArea=document.getElementById("authArea");
+const creatorBanner=document.getElementById("creatorBanner");
+const trendingRow=document.getElementById("trendingRow");
+const latestRow=document.getElementById("latestRow");
 
 async function init(){
-  const {data} = await supabase.auth.getUser();
-  user = data.user;
+  const {data}=await supabase.auth.getUser();
+  user=data.user;
+  renderAuth();
 
-  renderAuthButtons();
   if(user) checkCreator();
-  await loadFilms();
+
+  loadFilms();
 }
 
-function renderAuthButtons(){
+function renderAuth(){
   if(!user){
     authArea.innerHTML=`
       <button class="btn outline" onclick="location.href='login.html'">Login</button>
@@ -228,57 +220,47 @@ async function logout(){
 }
 
 async function checkCreator(){
-  const {data} = await supabase.from("creators").select("id").eq("user_id",user.id).maybeSingle();
-  if(!data){
-    creatorBanner.style.display="flex";
-  }
-}
-
-window.goCreator=()=>{
-  location.href="creator-apply.html";
+  const {data}=await supabase.from("creators").select("id").eq("user_id",user.id).maybeSingle();
+  if(!data) creatorBanner.style.display="flex";
 }
 
 async function loadFilms(){
-  const {data,error} = await supabase
-    .from("films")
+  const {data}=await supabase.from("films")
     .select("id,title,thumbnail_url,views")
-    .eq("is_published",true)
-    .order("created_at",{ascending:false});
+    .eq("is_published",true);
 
-  if(error){console.error(error);return;}
+  films=data||[];
 
-  films=data;
-  if(!films.length) document.getElementById("empty").style.display="block";
-  renderFilms(films);
+  renderRows();
 }
 
-function renderFilms(list){
-  filmsGrid.innerHTML=list.map(f=>`
+function renderRows(){
+  const sorted=[...films].sort((a,b)=>(b.views||0)-(a.views||0));
+  trendingRow.innerHTML=sorted.slice(0,10).map(renderCard).join("");
+  latestRow.innerHTML=[...films].reverse().slice(0,10).map(renderCard).join("");
+}
+
+function renderCard(f){
+  return `
     <div class="card" onclick="openWatch('${f.id}')">
-      ${f.thumbnail_url 
-        ? `<img class="thumb" src="${f.thumbnail_url}">`
-        : `<div class="thumb">No Thumbnail</div>`
-      }
+      <div class="thumb">
+        ${f.thumbnail_url ? `<img src="${f.thumbnail_url}">` : "No Thumbnail"}
+      </div>
       <div class="info">
         <div class="title">${f.title}</div>
         <div class="meta">👁 ${f.views||0}</div>
       </div>
     </div>
-  `).join("");
+  `;
 }
 
 window.openWatch=(id)=>{
-  if(!user){
-    location.href="login.html";
-    return;
-  }
+  if(!user){location.href="login.html";return;}
   location.href=`watch.html?id=${id}`;
 }
 
-searchInput.oninput=()=>{
-  const q=searchInput.value.toLowerCase();
-  renderFilms(films.filter(f=>f.title.toLowerCase().includes(q)));
-}
+window.goCreator=()=>location.href="creator-apply.html";
+window.scrollToContent=()=>document.getElementById("content").scrollIntoView({behavior:"smooth"});
 
 init();
 </script>
