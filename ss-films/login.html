@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SS Films – Sign in</title>
+
+<style>
+body{
+  margin:0;
+  background:linear-gradient(135deg,#0b0f14,#101826);
+  color:#fff;
+  font-family:system-ui;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.box{
+  width:100%;
+  max-width:380px;
+  background:#0f1522;
+  padding:26px;
+  border-radius:14px;
+  box-shadow:0 20px 50px #0006;
+}
+.logo{
+  text-align:center;
+  font-size:26px;
+  font-weight:800;
+  margin-bottom:6px;
+}
+.sub{
+  text-align:center;
+  opacity:.7;
+  margin-bottom:18px;
+}
+input{
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border-radius:8px;
+  border:none;
+  background:#1a2236;
+  color:#fff;
+  font-size:15px;
+}
+button{
+  width:100%;
+  padding:12px;
+  background:#1e90ff;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  font-weight:700;
+  font-size:15px;
+}
+.toggle{
+  text-align:center;
+  margin-top:14px;
+  color:#7aa8ff;
+  cursor:pointer;
+}
+.msg{margin-bottom:10px;font-size:14px}
+.err{color:#ff6b6b}
+.ok{color:#5cff9d}
+</style>
+</head>
+<body>
+
+<div class="box">
+  <div class="logo">SS Films</div>
+  <div class="sub" id="subtitle">Sign in to continue</div>
+
+  <div id="msg" class="msg"></div>
+
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="submitAuth()">Continue</button>
+
+  <div class="toggle" onclick="toggleMode()" id="toggleText">
+    Create new account
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://iabzmoxzbqzcqgypxctr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
+);
+
+let mode="login";
+
+window.toggleMode=()=>{
+  mode=mode==="login"?"signup":"login";
+  document.getElementById("subtitle").innerText =
+    mode==="login"?"Sign in to continue":"Create your SS Films account";
+  document.getElementById("toggleText").innerText =
+    mode==="login"?"Create new account":"Back to login";
+};
+
+window.submitAuth=async()=>{
+  const msg=document.getElementById("msg");
+  msg.innerHTML="";
+
+  const e=email.value.trim();
+  const p=password.value.trim();
+  if(!e||!p){
+    msg.innerHTML='<div class="err">Fill all fields</div>';return;
+  }
+
+  let res;
+  if(mode==="login"){
+    res=await supabase.auth.signInWithPassword({email:e,password:p});
+  }else{
+    res=await supabase.auth.signUp({email:e,password:p});
+  }
+
+  if(res.error){
+    msg.innerHTML=`<div class="err">${res.error.message}</div>`;
+  }else{
+    msg.innerHTML='<div class="ok">Success. Redirecting…</div>';
+    setTimeout(()=>location.href="index.html",700);
+  }
+};
+
+// Auto redirect if logged in
+(async()=>{
+  const {data:{user}}=await supabase.auth.getUser();
+  if(user) location.href="index.html";
+})();
+</script>
+
+</body>
+</html>
