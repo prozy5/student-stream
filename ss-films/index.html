@@ -7,60 +7,47 @@
 
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  background:#070b10;
-  color:#fff;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-}
+body{margin:0;background:#0b0f14;color:#fff;font-family:system-ui,-apple-system,sans-serif}
 
 header{
-  position:sticky;
-  top:0;
-  z-index:10;
   display:flex;
   justify-content:space-between;
   align-items:center;
   padding:14px 16px;
-  background:#070b10cc;
-  backdrop-filter:blur(10px);
+  border-bottom:1px solid #1c2230;
 }
 
-.logo{font-weight:800;font-size:20px}
+.logo{font-size:20px;font-weight:700}
 
-.search{
-  background:#141a22;
+.actions{display:flex;gap:10px}
+
+.btn{
+  padding:7px 12px;
+  border-radius:6px;
   border:none;
-  color:#fff;
-  padding:8px 12px;
-  border-radius:10px;
-  width:150px;
+  cursor:pointer;
+  font-size:13px;
 }
 
-.section{padding:12px}
+.btn.primary{background:#1e90ff;color:#fff}
+.btn.outline{background:transparent;border:1px solid #2a3550;color:#fff}
 
-.section h2{
-  margin:6px 0 10px;
-  font-size:18px;
-}
+.section{padding:16px}
 
-.row{
-  display:flex;
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
   gap:12px;
-  overflow-x:auto;
-  padding-bottom:6px;
 }
-
-.row::-webkit-scrollbar{display:none}
 
 .card{
-  min-width:150px;
+  cursor:pointer;
 }
 
-.poster{
-  width:150px;
-  height:215px;
-  border-radius:12px;
+.card img{
+  width:100%;
+  aspect-ratio:2/3;
+  border-radius:8px;
   object-fit:cover;
 }
 
@@ -72,48 +59,22 @@ header{
   text-overflow:ellipsis;
 }
 
-.creator{
-  font-size:11px;
-  opacity:.7;
-}
-
-.progress{
-  height:4px;
-  background:#222;
-  border-radius:3px;
-  overflow:hidden;
-  margin-top:4px;
-}
-
-.progress span{
-  height:100%;
-  display:block;
-  background:#4da3ff;
-}
-
-.bottom-nav{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  display:flex;
-  justify-content:space-around;
-  padding:10px 0;
-  background:#0b1118;
-  border-top:1px solid #1a2330;
-}
-
-.bottom-nav a{
-  color:#aaa;
-  text-decoration:none;
-  font-size:12px;
-}
-
-.bottom-nav a.active{color:#4da3ff}
-
 .hero{
+  padding:40px 16px;
   text-align:center;
-  padding:60px 20px;
-  opacity:.6;
+  opacity:.8
+}
+
+.creator-banner{
+  margin:16px;
+  padding:16px;
+  background:#121826;
+  border:1px solid #1f2a40;
+  border-radius:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
 }
 </style>
 </head>
@@ -121,113 +82,121 @@ header{
 
 <header>
   <div class="logo">SS Films</div>
-  <input class="search" placeholder="Search">
+  <div class="actions" id="authButtons"></div>
 </header>
 
-<div id="continue" class="section"></div>
-<div id="trending" class="section"></div>
-<div id="categories"></div>
+<div id="creatorBanner"></div>
 
-<div id="empty" class="hero" style="display:none">
-  No films yet 🎬
+<div class="section">
+  <h2>Latest Films</h2>
+  <div id="filmsGrid" class="grid"></div>
 </div>
 
-<div class="bottom-nav">
-  <a href="index.html" class="active">Home</a>
-  <a href="browse.html">Browse</a>
-  <a href="upload.html">Upload</a>
-  <a href="library.html">Library</a>
+<div id="empty" class="hero" style="display:none">
+  No films yet.
 </div>
 
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const supabase = createClient("https://iabzmoxzbqzcqgypxctr.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ");
+const supabase = createClient(
+  "https://iabzmoxzbqzcqgypxctr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
+);
 
-let films=[], progressMap={};
+const filmsGrid = document.getElementById("filmsGrid");
+const authButtons = document.getElementById("authButtons");
+const creatorBanner = document.getElementById("creatorBanner");
 
-function card(f){
-  const p = progressMap[f.id]||0;
+async function getUser(){
+  const { data:{user} } = await supabase.auth.getUser();
+  return user;
+}
+
+function renderAuth(user){
+  if(user){
+    authButtons.innerHTML = `
+      <button class="btn outline" onclick="logout()">Logout</button>
+      <button class="btn primary" onclick="goUpload()">Upload</button>
+    `;
+  } else {
+    authButtons.innerHTML = `
+      <button class="btn outline" onclick="goLogin()">Login</button>
+      <button class="btn primary" onclick="goSignup()">Sign Up</button>
+    `;
+  }
+}
+
+function filmCard(f){
   return `
-  <div class="card" onclick="openWatch('${f.id}')">
-    <img class="poster" src="${f.thumbnail_url}">
-    <div class="title">${f.title}</div>
-    <div class="creator">${f.creator_name||""}</div>
-    ${p?`<div class="progress"><span style="width:${p}%"></span></div>`:""}
-  </div>`;
+    <div class="card" onclick="watch('${f.id}')">
+      <img src="${f.thumbnail_url}">
+      <div class="title">${f.title}</div>
+    </div>
+  `;
 }
 
-window.openWatch=id=>{
-  location.href=`watch.html?id=${id}`;
-}
+async function loadFilms(){
+  const { data, error } = await supabase
+    .from("films")
+    .select("id,title,thumbnail_url")
+    .eq("is_published", true)
+    .order("created_at",{ascending:false});
 
-async function load(){
-  const {data:userData}=await supabase.auth.getUser();
-
-  if(userData?.user){
-    const {data:prog}=await supabase
-      .from("film_progress")
-      .select("film_id,progress")
-      .eq("user_id",userData.user.id);
-
-    prog?.forEach(p=>progressMap[p.film_id]=p.progress);
+  if(error){
+    console.error(error);
+    return;
   }
 
-  const {data}=await supabase
-    .from("films")
-    .select("id,title,thumbnail_url,views,film_creators(name)")
-    .eq("is_published",true);
-
-  if(!data?.length){
+  if(!data.length){
     document.getElementById("empty").style.display="block";
     return;
   }
 
-  films=data.map(f=>({...f,creator_name:f.film_creators?.name}));
-
-  build();
+  filmsGrid.innerHTML = data.map(filmCard).join("");
 }
 
-function build(){
-  const cont=films.filter(f=>progressMap[f.id]>0);
-  const trend=[...films].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,10);
+async function checkCreator(user){
+  if(!user) return;
 
-  if(cont.length){
-    document.getElementById("continue").innerHTML=
-      `<h2>Continue</h2><div class="row">${cont.map(card).join("")}</div>`;
-  }
+  const { data } = await supabase
+    .from("creators")
+    .select("id")
+    .eq("user_id", user.id)
+    .single();
 
-  document.getElementById("trending").innerHTML=
-    `<h2>Trending</h2><div class="row">${trend.map(card).join("")}</div>`;
-
-  loadCategories();
-}
-
-async function loadCategories(){
-  const {data:cats}=await supabase.from("film_categories").select("*");
-
-  const container=document.getElementById("categories");
-  container.innerHTML="";
-
-  for(const c of cats){
-    const {data:map}=await supabase
-      .from("film_category_map")
-      .select("film_id")
-      .eq("category_id",c.id);
-
-    const list=map.map(m=>films.find(f=>f.id===m.film_id)).filter(Boolean);
-
-    if(list.length){
-      container.innerHTML+=
-        `<div class="section">
-          <h2>${c.name}</h2>
-          <div class="row">${list.map(card).join("")}</div>
-        </div>`;
-    }
+  if(!data){
+    creatorBanner.innerHTML = `
+      <div class="creator-banner">
+        <div>
+          <strong>Become a Creator</strong><br>
+          Upload films and build your channel
+        </div>
+        <button class="btn primary" onclick="goCreatorApply()">Apply</button>
+      </div>
+    `;
   }
 }
 
-load();
+window.watch = id => location.href = `watch.html?id=${id}`;
+window.goLogin = () => location.href = "login.html";
+window.goSignup = () => location.href = "signup.html";
+window.goUpload = () => location.href = "upload.html";
+window.goCreatorApply = () => location.href = "creator-apply.html";
+
+window.logout = async ()=>{
+  await supabase.auth.signOut();
+  location.reload();
+}
+
+async function init(){
+  const user = await getUser();
+  renderAuth(user);
+  await loadFilms();
+  await checkCreator(user);
+}
+
+init();
 </script>
 
 </body>
