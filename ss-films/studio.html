@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creator Studio – SS Films</title>
+
+<style>
+body{margin:0;background:#0b0f14;color:#fff;font-family:system-ui}
+header{padding:14px;font-weight:700;border-bottom:1px solid #1f2937}
+.container{max-width:900px;margin:auto;padding:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:#111827;padding:16px;border-radius:10px}
+input,select,textarea{width:100%;margin-top:8px;padding:10px;border-radius:6px;border:none;background:#1f2937;color:#fff}
+button{margin-top:12px;padding:12px;border:none;border-radius:8px;background:#1e90ff;color:#fff;font-weight:600;cursor:pointer;width:100%}
+.preview{width:100%;border-radius:8px;margin-top:10px}
+.status{margin-top:10px;font-size:14px}
+.badge{background:#22c55e;padding:4px 8px;border-radius:6px;font-size:12px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>🎬 SS Films – Creator Studio</header>
+
+<div class="container">
+
+<div class="card">
+  Status: <span class="badge">Creator Verified</span>
+</div>
+
+<br>
+
+<div class="grid">
+
+<div class="card">
+<h3>Upload Film</h3>
+
+<input id="title" placeholder="Film title">
+
+<textarea id="description" placeholder="Description"></textarea>
+
+<select id="category">
+<option value="studio">Studio</option>
+<option value="short">Short Film</option>
+<option value="documentary">Documentary</option>
+<option value="indie">Indie</option>
+</select>
+
+<label>Video file</label>
+<input type="file" id="videoFile" accept="video/*">
+
+<label>Thumbnail</label>
+<input type="file" id="thumbFile" accept="image/*">
+
+<img id="thumbPreview" class="preview" style="display:none">
+
+<select id="publish">
+<option value="true">Publish now</option>
+<option value="false">Save as draft</option>
+</select>
+
+<button onclick="uploadFilm()">Upload</button>
+
+<div class="status" id="status"></div>
+</div>
+
+<div class="card">
+<h3>Your Films</h3>
+<div id="myFilms"></div>
+</div>
+
+</div>
+</div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://iabzmoxzbqzcqgypxctr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
+);
+
+let user, creator;
+
+async function init(){
+  const {data:{user:u}} = await supabase.auth.getUser();
+  if(!u){ location.href="login.html"; return; }
+  user=u;
+
+  const {data} = await supabase.from("creators")
+    .select("*").eq("user_id",user.id).single();
+
+  if(!data){
+    alert("Creators only.");
+    location.href="creator-apply.html";
+    return;
+  }
+
+  creator=data;
+  loadMyFilms();
+}
+
+init();
+
+document.getElementById("thumbFile").onchange=e=>{
+  const f=e.target.files[0];
+  if(f){
+    const img=document.getElementById("thumbPreview");
+    img.src=URL.createObjectURL(f);
+    img.style.display="block";
+  }
+};
+
+async function uploadFilm(){
+  const status=document.getElementById("status");
+  status.textContent="Uploading...";
+
+  const title=titleInput.value.trim();
+  const desc=description.value.trim();
+  const cat=category.value;
+  const pub=publish.value==="true";
+
+  const video=videoFile.files[0];
+  const thumb=thumbFile.files[0];
+
+  if(!title||!video||!thumb){
+    status.textContent="Missing fields";
+    return;
+  }
+
+  const videoPath=`films/${user.id}/${Date.now()}_${video.name}`;
+  const thumbPath=`thumbs/${user.id}/${Date.now()}_${thumb.name}`;
+
+  await supabase.storage.from("films").upload(videoPath,video);
+  await supabase.storage.from("thumbnails").upload(thumbPath,thumb);
+
+  const videoUrl=supabase.storage.from("films").getPublicUrl(videoPath).data.publicUrl;
+  const thumbUrl=supabase.storage.from("thumbnails").getPublicUrl(thumbPath).data.publicUrl;
+
+  const {error}=await supabase.from("films").insert({
+    title,
+    description:desc,
+    category:cat,
+    video_url:videoUrl,
+    thumbnail_url:thumbUrl,
+    creator_id:creator.id,
+    is_published:pub,
+    views:0
+  });
+
+  if(error){
+    status.textContent=error.message;
+    return;
+  }
+
+  status.textContent="Uploaded successfully ✅";
+  loadMyFilms();
+}
+
+async function loadMyFilms(){
+  const {data}=await supabase.from("films")
+    .select("id,title,is_published")
+    .eq("creator_id",creator.id)
+    .order("created_at",{ascending:false});
+
+  const box=document.getElementById("myFilms");
+  box.innerHTML=data.map(f=>`
+    <div style="margin-bottom:8px">
+      🎬 ${f.title} ${f.is_published?"🟢":"🟡 draft"}
+    </div>
+  `).join("");
+}
+
+const titleInput=document.getElementById("title");
+const description=document.getElementById("description");
+const category=document.getElementById("category");
+const publish=document.getElementById("publish");
+const videoFile=document.getElementById("videoFile");
+const thumbFile=document.getElementById("thumbFile");
+
+window.uploadFilm=uploadFilm;
+</script>
+
+</body>
+</html>
