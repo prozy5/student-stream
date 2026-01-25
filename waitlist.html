@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StudentStream – Waitlist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Auto redirect -->
+<meta http-equiv="refresh" content="1.5;url=/index.html">
+
+<style>
+:root{
+  --bg:#05080f;
+  --panel:#0c1626;
+  --accent:#4da3ff;
+  --text:#eaf1ff;
+  --muted:#9fb0cc;
+  --border:rgba(255,255,255,0.08);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:system-ui,Segoe UI,Roboto;
+  background:radial-gradient(circle at top,#0c1b33,#05080f 70%);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.card{
+  max-width:520px;
+  width:100%;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:32px 28px;
+  text-align:center;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.badge{
+  display:inline-block;
+  margin-bottom:18px;
+  padding:6px 14px;
+  border-radius:999px;
+  font-size:12px;
+  background:rgba(77,163,255,.15);
+  color:var(--accent);
+  border:1px solid var(--border);
+}
+
+p{
+  color:var(--muted);
+  margin-bottom:20px;
+  line-height:1.5;
+}
+
+.loader{
+  width:36px;
+  height:36px;
+  border:3px solid rgba(255,255,255,.15);
+  border-top:3px solid var(--accent);
+  border-radius:50%;
+  margin:0 auto;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div class="logo">StudentStream</div>
+  <div class="badge">Waitlist Access</div>
+
+  <p>
+    Your account is not approved for this area yet.<br>
+    Redirecting you to the waitlist…
+  </p>
+
+  <div class="loader"></div>
+</div>
+
+<script>
+  // JS backup redirect
+  setTimeout(() => {
+    window.location.href = "/index.html";
+  }, 1500);
+</script>
+
+</body>
+</html>
