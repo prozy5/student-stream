@@ -1,141 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Watch · SS Films</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
+<title>Watch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
-  background:#05070d;
-  color:#fff;
-}
-
-header{
-  padding:16px 22px;
-  background:#070a12;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:1px solid #111;
-}
-
-a{color:#4da3ff;text-decoration:none}
-
-.container{
-  max-width:1000px;
-  margin:auto;
-  padding:22px;
-}
-
-.player{
-  width:100%;
-  background:black;
-  border-radius:12px;
-  overflow:hidden;
-}
-
-video{
-  width:100%;
-  height:auto;
-  background:black;
-}
-
-.info{
-  margin-top:18px;
-}
-
-.info h1{
-  font-size:26px;
-  margin-bottom:6px;
-}
-
-.meta{
-  color:#aaa;
-  font-size:14px;
-  margin-bottom:12px;
-}
-
-.desc{
-  color:#ccc;
-  line-height:1.6;
-}
-
-.loading{
-  padding:40px;
-  text-align:center;
-  color:#888;
-}
+body{margin:0;background:#05070d;color:white;font-family:system-ui}
+.container{padding:20px}
+video{width:100%;max-height:70vh;border-radius:10px}
 </style>
 </head>
 <body>
 
-<header>
-  <div><strong>SS FILMS</strong></div>
-  <a href="./">← Back</a>
-</header>
-
 <div class="container">
-
-<div id="loading" class="loading">Loading film…</div>
-
-<div id="content" style="display:none;">
-
-  <div class="player">
-    <video id="video" controls></video>
-  </div>
-
-  <div class="info">
-    <h1 id="title"></h1>
-    <div class="meta" id="meta"></div>
-    <div class="desc" id="description"></div>
-  </div>
-
-</div>
-
+  <h2 id="title"></h2>
+  <p id="desc"></p>
+  <video id="video" controls></video>
 </div>
 
 <script>
 const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
 
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const params = new URLSearchParams(window.location.search);
-const filmId = params.get("id");
+const params = new URLSearchParams(location.search);
+const id = params.get("id");
 
-if(!filmId){
-  document.getElementById("loading").textContent = "Film not found.";
+async function load(){
+  const {data} = await supabase.from("films").select("*").eq("id",id).single();
+  document.getElementById("title").innerText = data.title;
+  document.getElementById("desc").innerText = data.description;
+  document.getElementById("video").src = data.video_url;
 }
 
-async function loadFilm(){
-  const {data, error} = await db
-    .from("films")
-    .select("*")
-    .eq("id", filmId)
-    .single();
-
-  if(error || !data){
-    document.getElementById("loading").textContent = "Film not found.";
-    return;
-  }
-
-  document.getElementById("title").textContent = data.title;
-  document.getElementById("description").textContent = data.description || "";
-  document.getElementById("meta").textContent = `Released ${new Date(data.created_at).toLocaleDateString()}`;
-
-  const video = document.getElementById("video");
-  video.src = data.video_url;
-
-  document.getElementById("loading").style.display = "none";
-  document.getElementById("content").style.display = "block";
-}
-
-loadFilm();
+load();
 </script>
 
 </body>
