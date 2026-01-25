@@ -1,41 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Watch</title>
+<title>SS Films – Watch</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 <style>
-body{margin:0;background:#05070d;color:white;font-family:system-ui}
-.container{padding:20px}
-video{width:100%;max-height:70vh;border-radius:10px}
+body{
+  margin:0;
+  background:#05070d;
+  color:white;
+  font-family:system-ui,Segoe UI,Roboto;
+}
+
+header{
+  padding:15px 25px;
+  font-weight:800;
+  background:#000;
+}
+
+.player-wrap{
+  max-width:1100px;
+  margin:20px auto;
+  padding:0 20px;
+}
+
+video, iframe{
+  width:100%;
+  height:60vh;
+  background:black;
+  border-radius:10px;
+}
+
+.info{
+  margin-top:20px;
+}
+
+.info h1{
+  margin:0 0 10px;
+}
+
+.meta{
+  opacity:.7;
+  font-size:14px;
+  margin-bottom:10px;
+}
+
+.desc{
+  line-height:1.5;
+  opacity:.9;
+}
 </style>
 </head>
 <body>
 
-<div class="container">
-  <h2 id="title"></h2>
-  <p id="desc"></p>
-  <video id="video" controls></video>
+<header>SS FILMS</header>
+
+<div class="player-wrap">
+  <div id="player"></div>
+
+  <div class="info">
+    <h1 id="title"></h1>
+    <div class="meta" id="meta"></div>
+    <div class="desc" id="desc"></div>
+  </div>
 </div>
 
 <script>
 const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const params = new URLSearchParams(location.search);
-const id = params.get("id");
-
-async function load(){
-  const {data} = await supabase.from("films").select("*").eq("id",id).single();
-  document.getElementById("title").innerText = data.title;
-  document.getElementById("desc").innerText = data.description;
-  document.getElementById("video").src = data.video_url;
+function getFilmId(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("id");
 }
 
-load();
+async function loadFilm(){
+
+  const id = getFilmId();
+  if(!id){
+    document.body.innerHTML = "Film not found.";
+    return;
+  }
+
+  const { data: film, error } = await supabase
+    .from("films")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if(error || !film){
+    document.body.innerHTML = "Film not found.";
+    return;
+  }
+
+  document.getElementById("title").textContent = film.title;
+  document.getElementById("desc").textContent = film.description || "";
+  document.getElementById("meta").textContent = "SS Films Original";
+
+  const player = document.getElementById("player");
+
+  // Prefer self-hosted video
+  if(film.video_url){
+    player.innerHTML = `
+      <video controls autoplay>
+        <source src="${film.video_url}" type="video/mp4">
+        Your browser does not support video playback.
+      </video>
+    `;
+  }
+  // Fallback to YouTube
+  else if(film.youtube_url){
+    const ytId = film.youtube_url.split("v=")[1];
+    player.innerHTML = `
+      <iframe
+        src="https://www.youtube.com/embed/${ytId}?autoplay=1"
+        frameborder="0"
+        allowfullscreen>
+      </iframe>
+    `;
+  }
+
+  // Optional: record view
+  recordView(film.id);
+}
+
+async function recordView(filmId){
+  try{
+    await supabase.from("film_views").insert({
+      film_id: filmId
+    });
+  }catch(e){}
+}
+
+loadFilm();
 </script>
 
 </body>
