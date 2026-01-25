@@ -1,95 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SS Films – Creator Studio</title>
+<title>Creator Studio – Upload</title>
 
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui;background:#0b0f14;color:#fff}
+body{
+  margin:0;
+  background:#0b0f14;
+  color:#fff;
+  font-family:system-ui;
+}
 
 header{
   padding:14px 16px;
   border-bottom:1px solid #1f2630;
   font-weight:800;
-  font-size:20px;
-  color:#1e90ff;
+  font-size:18px;
 }
 
-.container{padding:16px;max-width:900px;margin:auto}
-
-.card{
-  background:#121923;
+.container{
+  max-width:700px;
+  margin:auto;
   padding:16px;
-  border-radius:12px;
-  margin-bottom:16px;
-  border:1px solid #1f2630;
 }
 
-label{font-size:13px;opacity:.8}
+.box{
+  background:#121822;
+  border:1px solid #1f2630;
+  border-radius:12px;
+  padding:16px;
+}
 
-input,textarea,select{
+input, textarea, select{
   width:100%;
-  margin-top:6px;
-  margin-bottom:14px;
+  margin-top:10px;
   padding:10px;
   border-radius:8px;
   border:none;
-  background:#0b0f14;
+  background:#1a2230;
   color:#fff;
+  outline:none;
 }
 
-textarea{resize:vertical;min-height:90px}
-
-.drop{
-  border:2px dashed #1e90ff66;
-  padding:20px;
-  border-radius:10px;
-  text-align:center;
-  cursor:pointer;
-  margin-top:8px;
-}
-
-.drop img{
-  width:140px;
-  border-radius:10px;
-  margin-top:10px;
-}
-
-.row{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-}
-
-.row > div{flex:1}
-
-.btn{
+button{
   background:#1e90ff;
   border:none;
   color:#fff;
   padding:12px;
   border-radius:8px;
-  width:100%;
-  font-size:16px;
-  font-weight:700;
   cursor:pointer;
+  font-weight:700;
+  width:100%;
+  margin-top:14px;
 }
-
-.toggle{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.toggle input{width:auto}
 
 .progress{
+  height:8px;
+  background:#222;
+  border-radius:6px;
+  overflow:hidden;
+  margin-top:10px;
+  display:none;
+}
+
+.progress span{
+  display:block;
+  height:100%;
+  width:0%;
+  background:#1e90ff;
+}
+
+.msg{
   margin-top:10px;
   font-size:13px;
   opacity:.8;
 }
+
+.hidden{display:none}
 </style>
 </head>
 <body>
@@ -97,52 +86,26 @@ textarea{resize:vertical;min-height:90px}
 <header>🎬 Creator Studio – Upload Film</header>
 
 <div class="container">
+  <div class="box">
 
-<div class="card">
+    <input id="title" placeholder="Film title">
 
-<label>Film Title</label>
-<input id="title" placeholder="Enter film title">
+    <textarea id="desc" placeholder="Description"></textarea>
 
-<label>Description</label>
-<textarea id="description" placeholder="Describe your film..."></textarea>
+    <select id="category"></select>
 
-<div class="row">
-  <div>
-    <label>Category</label>
-    <select id="category">
-      <option>Short Film</option>
-      <option>Documentary</option>
-      <option>Music Video</option>
-      <option>Series</option>
-      <option>Other</option>
-    </select>
+    <label>Thumbnail</label>
+    <input id="thumb" type="file" accept="image/*">
+
+    <label>Video file</label>
+    <input id="video" type="file" accept="video/*">
+
+    <button id="uploadBtn">Upload Film</button>
+
+    <div class="progress"><span></span></div>
+    <div id="msg" class="msg"></div>
+
   </div>
-
-  <div>
-    <label>Publish</label>
-    <div class="toggle">
-      <input type="checkbox" id="publish" checked>
-      <span>Make public</span>
-    </div>
-  </div>
-</div>
-
-<label>Thumbnail</label>
-<div class="drop" id="thumbDrop">
-  Click to upload thumbnail
-  <input type="file" id="thumbnail" accept="image/*" hidden>
-  <div id="thumbPreview"></div>
-</div>
-
-<label>Film Video</label>
-<input type="file" id="video" accept="video/*">
-
-<button class="btn" onclick="uploadFilm()">Upload Film</button>
-
-<div id="progress" class="progress"></div>
-
-</div>
-
 </div>
 
 <script type="module">
@@ -153,84 +116,109 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
 );
 
-const thumbDrop = document.getElementById("thumbDrop");
-const thumbInput = document.getElementById("thumbnail");
-const thumbPreview = document.getElementById("thumbPreview");
-const progress = document.getElementById("progress");
+const titleEl = document.getElementById("title");
+const descEl = document.getElementById("desc");
+const thumbEl = document.getElementById("thumb");
+const videoEl = document.getElementById("video");
+const uploadBtn = document.getElementById("uploadBtn");
+const msg = document.getElementById("msg");
+const progressBar = document.querySelector(".progress");
+const progressFill = document.querySelector(".progress span");
+const categorySelect = document.getElementById("category");
 
-let thumbFile = null;
+let user = null;
+let creator = null;
 
-thumbDrop.onclick = ()=> thumbInput.click();
+/* ---------- AUTH GUARD ---------- */
 
-thumbInput.onchange = ()=>{
-  thumbFile = thumbInput.files[0];
-  const url = URL.createObjectURL(thumbFile);
-  thumbPreview.innerHTML = `<img src="${url}">`;
-};
-
-async function uploadFilm(){
-  const title = document.getElementById("title").value.trim();
-  const desc = document.getElementById("description").value.trim();
-  const category = document.getElementById("category").value;
-  const publish = document.getElementById("publish").checked;
-  const videoFile = document.getElementById("video").files[0];
-
-  if(!title || !videoFile || !thumbFile){
-    alert("Missing required fields");
-    return;
-  }
-
-  progress.textContent = "Checking account...";
-
-  const {data:userData} = await supabase.auth.getUser();
-  const user = userData.user;
+async function init(){
+  const {data} = await supabase.auth.getUser();
+  user = data.user;
 
   if(!user){
-    alert("Login required");
+    location.href = "login.html";
     return;
   }
 
-  const {data:creator} = await supabase
+  const res = await supabase
     .from("creators")
-    .select("id")
+    .select("*")
     .eq("user_id", user.id)
     .single();
 
-  if(!creator){
+  if(!res.data){
     alert("Creator account required");
+    location.href = "creator-apply.html";
     return;
   }
 
-  progress.textContent = "Uploading thumbnail...";
+  creator = res.data;
 
-  const thumbPath = `thumbnails/${creator.id}-${Date.now()}.jpg`;
-  await supabase.storage.from("thumbnails").upload(thumbPath, thumbFile);
-
-  const {data:thumbUrl} = supabase.storage.from("thumbnails").getPublicUrl(thumbPath);
-
-  progress.textContent = "Uploading video...";
-
-  const videoPath = `videos/${creator.id}-${Date.now()}.mp4`;
-  await supabase.storage.from("videos").upload(videoPath, videoFile);
-
-  const {data:videoUrl} = supabase.storage.from("videos").getPublicUrl(videoPath);
-
-  progress.textContent = "Saving film...";
-
-  await supabase.from("films").insert({
-    title,
-    description: desc,
-    category,
-    thumbnail_url: thumbUrl.publicUrl,
-    video_url: videoUrl.publicUrl,
-    creator_id: creator.id,
-    is_published: publish
-  });
-
-  progress.textContent = "✅ Upload complete!";
-  setTimeout(()=> location.href="index.html",1200);
+  loadCategories();
 }
 
+async function loadCategories(){
+  const {data} = await supabase.from("film_categories").select("*");
+  categorySelect.innerHTML = data.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
+}
+
+/* ---------- UPLOAD ---------- */
+
+uploadBtn.onclick = async ()=>{
+  const title = titleEl.value.trim();
+  const desc = descEl.value.trim();
+  const thumbFile = thumbEl.files[0];
+  const videoFile = videoEl.files[0];
+  const categoryId = categorySelect.value;
+
+  if(!title || !thumbFile || !videoFile){
+    alert("Fill all fields");
+    return;
+  }
+
+  uploadBtn.disabled = true;
+  progressBar.style.display="block";
+  msg.textContent="Uploading...";
+
+  const videoPath = `videos/${user.id}/${Date.now()}_${videoFile.name}`;
+  const thumbPath = `thumbnails/${user.id}/${Date.now()}_${thumbFile.name}`;
+
+  /* Upload video */
+  await supabase.storage.from("films").upload(videoPath, videoFile);
+
+  /* Upload thumbnail */
+  await supabase.storage.from("films").upload(thumbPath, thumbFile);
+
+  const { data:videoUrl } = supabase.storage.from("films").getPublicUrl(videoPath);
+  const { data:thumbUrl } = supabase.storage.from("films").getPublicUrl(thumbPath);
+
+  /* Insert film */
+  const { error } = await supabase.from("films").insert({
+    title,
+    description: desc,
+    video_url: videoUrl.publicUrl,
+    thumbnail_url: thumbUrl.publicUrl,
+    creator_id: creator.id,
+    is_published: true,
+    views: 0
+  });
+
+  if(error){
+    console.error(error);
+    msg.textContent="Upload failed";
+  }else{
+    msg.textContent="✅ Upload successful!";
+    titleEl.value="";
+    descEl.value="";
+    thumbEl.value="";
+    videoEl.value="";
+  }
+
+  uploadBtn.disabled=false;
+  progressFill.style.width="100%";
+};
+
+init();
 </script>
 
 </body>
