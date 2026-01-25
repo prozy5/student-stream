@@ -1,167 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>SS Films</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<title>SS Films</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:#05070d;
-  color:#fff;
-  font-family:system-ui,Segoe UI,Roboto;
-}
+body{margin:0;background:#0b0f14;color:#fff;font-family:sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px}
+.logo{font-size:22px;font-weight:bold}
+.search{background:#1a1f27;border:none;color:#fff;padding:8px 12px;border-radius:6px;width:160px}
 
-header{
-  padding:20px 30px;
-  font-weight:800;
-  font-size:22px;
-  background:linear-gradient(180deg,#000,transparent);
-  position:fixed;
-  width:100%;
-  z-index:10;
-}
+.section{padding:10px}
+.section h2{margin:10px 0;font-size:18px}
 
-.hero{
-  height:70vh;
-  background-size:cover;
-  background-position:center;
-  display:flex;
-  align-items:flex-end;
-  padding:40px;
-}
+.row{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px}
+.row::-webkit-scrollbar{display:none}
 
-.hero-box{
-  max-width:600px;
-}
+.card{min-width:140px;cursor:pointer;position:relative}
+.card img{width:140px;height:200px;border-radius:8px;object-fit:cover}
+.title{font-size:13px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-.hero h1{font-size:42px;margin-bottom:10px}
-.hero p{opacity:.85}
+.meta{font-size:11px;opacity:.8}
+.badge{background:#1e90ff;font-size:10px;padding:2px 5px;border-radius:4px;margin-left:4px}
 
-.btn{
-  display:inline-block;
-  margin-top:15px;
-  padding:10px 18px;
-  border-radius:6px;
-  background:#e50914;
-  color:white;
-  text-decoration:none;
-  font-weight:600;
-}
+.progress{height:4px;background:#222;border-radius:2px;margin-top:4px;overflow:hidden}
+.progress span{display:block;height:100%;background:#1e90ff}
 
-.section{
-  padding:20px 30px;
-}
+.like{position:absolute;top:6px;right:6px;background:#0009;border-radius:50%;padding:4px;font-size:12px}
+.like.active{color:red}
 
-.row{
-  display:flex;
-  gap:12px;
-  overflow-x:auto;
-  padding-top:10px;
-}
-
-.card{
-  min-width:160px;
-  height:230px;
-  background:#111;
-  border-radius:8px;
-  background-size:cover;
-  background-position:center;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.card:hover{
-  transform:scale(1.05);
-}
-
-footer{
-  text-align:center;
-  padding:40px;
-  opacity:.5;
-}
+.hero{text-align:center;padding:30px;opacity:.7}
 </style>
 </head>
 <body>
 
-<header>SS FILMS</header>
+<header>
+  <div class="logo">SS Films</div>
+  <input id="search" class="search" placeholder="Search films...">
+</header>
 
-<div class="hero" id="hero"></div>
+<div id="continueSection" class="section"></div>
+<div id="trendingSection" class="section"></div>
+<div id="categoriesSection"></div>
+<div id="empty" class="hero" style="display:none">No films uploaded yet</div>
 
-<div id="content"></div>
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-<footer>© 2026 StudentStream Films</footer>
+const supabase = createClient("https://iabzmoxzbqzcqgypxctr.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ");
 
-<script>
-const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
+const continueSection = document.getElementById("continueSection");
+const trendingSection = document.getElementById("trendingSection");
+const categoriesSection = document.getElementById("categoriesSection");
+const searchInput = document.getElementById("search");
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let films=[], progressMap={}, likedSet=new Set();
 
-async function loadHomepage(){
+async function getUser(){
+  const {data:{user}} = await supabase.auth.getUser();
+  return user;
+}
 
-  // Featured film
-  const { data: featured } = await supabase
-    .from("films")
-    .select("*")
-    .eq("is_featured", true)
-    .limit(1)
-    .single();
+function filmCard(f){
+  const progress = progressMap[f.id] || 0;
+  const liked = likedSet.has(f.id);
 
-  if(featured){
-    document.getElementById("hero").style.backgroundImage =
-      `linear-gradient(to top,#05070d,transparent), url(${featured.thumbnail_url})`;
+  return `
+  <div class="card">
+    <div class="like ${liked?'active':''}" onclick="toggleLike(event,'${f.id}')">❤️</div>
+    <img src="${f.thumbnail_url}" onclick="openWatch('${f.id}')">
+    <div class="title">${f.title}</div>
+    <div class="meta">
+      👁 ${f.views||0} ❤️ ${f.likes||0}
+      ${f.creator_name?`<span class="badge">${f.creator_name}</span>`:""}
+    </div>
+    ${progress?`<div class="progress"><span style="width:${progress}%"></span></div>`:""}
+  </div>`;
+}
 
-    document.getElementById("hero").innerHTML = `
-      <div class="hero-box">
-        <h1>${featured.title}</h1>
-        <p>${featured.description || ""}</p>
-        <a class="btn" href="watch.html?id=${featured.id}">▶ Watch</a>
-      </div>
-    `;
+window.openWatch=id=>{
+  location.href=`watch.html?id=${id}`;
+}
+
+window.toggleLike=async(e,id)=>{
+  e.stopPropagation();
+  const user = await getUser();
+  if(!user) return alert("Login required");
+
+  if(likedSet.has(id)){
+    await supabase.from("film_likes").delete().eq("film_id",id).eq("user_id",user.id);
+    likedSet.delete(id);
+  }else{
+    await supabase.from("film_likes").insert({film_id:id,user_id:user.id});
+    likedSet.add(id);
   }
+  loadAll();
+}
 
-  // Categories
-  const { data: categories } = await supabase
-    .from("film_categories")
-    .select("*");
+async function loadProgress(){
+  const user = await getUser();
+  if(!user) return;
 
-  const content = document.getElementById("content");
+  const {data}=await supabase.from("film_progress").select("film_id,progress").eq("user_id",user.id);
+  data?.forEach(p=>progressMap[p.film_id]=p.progress);
+}
 
-  for(const cat of categories){
+async function loadLikes(){
+  const user = await getUser();
+  if(!user) return;
 
-    const { data: films } = await supabase
-      .from("films")
-      .select("*")
-      .eq("category_id", cat.id)
-      .eq("is_published", true)
-      .limit(12);
+  const {data}=await supabase.from("film_likes").select("film_id").eq("user_id",user.id);
+  data?.forEach(l=>likedSet.add(l.film_id));
+}
 
-    if(!films.length) continue;
+async function loadFilms(){
+  const {data}=await supabase.from("films")
+  .select("id,title,thumbnail_url,views,likes,is_series,film_creators(name)");
 
-    const section = document.createElement("div");
-    section.className = "section";
+  films=data.map(f=>({...f,creator_name:f.film_creators?.name}));
+}
 
-    section.innerHTML = `
-      <h2>${cat.name}</h2>
-      <div class="row">
-        ${films.map(f=>`
-          <div class="card"
-            style="background-image:url('${f.thumbnail_url}')"
-            onclick="location.href='watch.html?id=${f.id}'">
-          </div>
-        `).join("")}
-      </div>
-    `;
+function buildRow(title,list,target){
+  if(!list.length) return;
+  target.innerHTML+=`
+  <h2>${title}</h2>
+  <div class="row">${list.map(filmCard).join("")}</div>`;
+}
 
-    content.appendChild(section);
+function loadContinue(){
+  const items=films.filter(f=>progressMap[f.id]>0);
+  if(!items.length) return;
+
+  continueSection.innerHTML="";
+  buildRow("Continue Watching",items,continueSection);
+}
+
+function loadTrending(){
+  const trending=[...films].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,10);
+  trendingSection.innerHTML="";
+  buildRow("Trending",trending,trendingSection);
+}
+
+async function loadCategories(){
+  categoriesSection.innerHTML="";
+  const {data:cats}=await supabase.from("film_categories").select("id,name");
+
+  for(const c of cats){
+    const {data:maps}=await supabase.from("film_category_map").select("film_id").eq("category_id",c.id);
+    const catFilms=maps.map(m=>films.find(f=>f.id===m.film_id)).filter(Boolean);
+    if(catFilms.length){
+      const div=document.createElement("div");
+      div.className="section";
+      buildRow(c.name,catFilms,div);
+      categoriesSection.appendChild(div);
+    }
   }
 }
 
-loadHomepage();
+searchInput.oninput=()=>{
+  const q=searchInput.value.toLowerCase();
+  categoriesSection.innerHTML=`<div class="section"><h2>Search Results</h2><div class="row">${
+    films.filter(f=>f.title.toLowerCase().includes(q)).map(filmCard).join("")
+  }</div></div>`;
+}
+
+async function loadAll(){
+  progressMap={}; likedSet.clear();
+  await loadProgress();
+  await loadLikes();
+  await loadFilms();
+
+  if(!films.length) document.getElementById("empty").style.display="block";
+
+  loadContinue();
+  loadTrending();
+  loadCategories();
+}
+
+loadAll();
 </script>
 
 </body>
