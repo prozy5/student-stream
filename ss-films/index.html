@@ -7,45 +7,40 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
-  background:#0b0f14;
+  background:linear-gradient(180deg,#05070b,#0b0f14);
   color:#fff;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont;
 }
 
-/* Header */
 header{
+  position:sticky;
+  top:0;
+  z-index:10;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:14px 16px;
-  border-bottom:1px solid #1f2630;
-  position:sticky;
-  top:0;
-  background:#0b0f14;
-  z-index:10;
+  padding:16px 20px;
+  background:rgba(10,14,20,.8);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid #1c2430;
 }
 
 .logo{
   font-size:22px;
-  font-weight:800;
-  color:#1e90ff;
+  font-weight:900;
+  color:#3ea6ff;
+  letter-spacing:.5px;
 }
 
-.header-right{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-
-/* Buttons */
 .btn{
   background:#1e90ff;
   border:none;
   color:#fff;
-  padding:8px 12px;
-  border-radius:6px;
+  padding:8px 14px;
+  border-radius:8px;
   cursor:pointer;
   font-weight:600;
 }
@@ -55,74 +50,109 @@ header{
   border:1px solid #1e90ff;
 }
 
-/* Layout */
-.container{padding:14px}
+.hero{
+  padding:50px 20px 30px;
+  max-width:1100px;
+  margin:auto;
+}
+
+.hero h1{
+  font-size:28px;
+  margin:0 0 6px;
+}
+
+.hero p{
+  opacity:.7;
+  margin:0 0 20px;
+}
 
 .search{
   width:100%;
-  padding:10px 12px;
-  border-radius:8px;
-  border:none;
-  background:#161c24;
+  padding:14px 16px;
+  border-radius:12px;
+  border:1px solid #1f2a3a;
+  background:#111722;
   color:#fff;
-  margin:12px 0;
-  outline:none;
+  font-size:15px;
 }
 
-/* Creator banner */
-.creator-banner{
-  background:#141b24;
-  border:1px solid #1e90ff33;
-  padding:12px;
-  border-radius:10px;
-  margin-bottom:14px;
-  display:none;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
+.section{
+  max-width:1100px;
+  margin:auto;
+  padding:0 20px 40px;
 }
 
-/* Grid */
+.section-title{
+  font-size:18px;
+  margin:20px 0 12px;
+  font-weight:700;
+}
+
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-  gap:12px;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:16px;
 }
 
 .card{
+  background:#0f1520;
+  border-radius:14px;
+  overflow:hidden;
   cursor:pointer;
+  transition:.25s;
+  border:1px solid #1b2330;
 }
 
-.card img{
+.card:hover{
+  transform:scale(1.04);
+  border-color:#3ea6ff55;
+}
+
+.thumb{
   width:100%;
-  height:200px;
+  height:220px;
   object-fit:cover;
-  border-radius:10px;
-  background:#111;
+  background:#1b2230;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#aaa;
+  font-size:14px;
+}
+
+.info{
+  padding:10px;
 }
 
 .title{
-  margin-top:6px;
-  font-size:13px;
+  font-size:14px;
+  font-weight:600;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
 .meta{
-  font-size:11px;
-  opacity:.7;
+  font-size:12px;
+  opacity:.6;
+  margin-top:3px;
 }
 
-.hero{
+.creator-banner{
+  background:linear-gradient(90deg,#132036,#0f1724);
+  border:1px solid #2b3b55;
+  padding:14px;
+  border-radius:12px;
+  margin:20px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.hero-empty{
   text-align:center;
-  padding:60px 20px;
-  opacity:.7;
-}
-
-/* Desktop */
-@media(min-width:800px){
-  .card img{height:240px}
+  opacity:.6;
+  padding:50px 0;
 }
 </style>
 </head>
@@ -130,20 +160,27 @@ header{
 
 <header>
   <div class="logo">SS Films</div>
-  <div class="header-right" id="authArea"></div>
+  <div id="authArea"></div>
 </header>
 
-<div class="container">
-
-  <div id="creatorBanner" class="creator-banner">
-    <div>🎬 Become a creator and upload your own films</div>
-    <button class="btn" id="creatorBtn">Join as Creator</button>
-  </div>
+<div class="hero">
+  <h1>Watch student-made films 🎬</h1>
+  <p>Discover original movies and series from creators on StudentStream.</p>
 
   <input id="search" class="search" placeholder="Search films...">
+</div>
+
+<div class="section">
+
+  <div id="creatorBanner" class="creator-banner" style="display:none">
+    <div>🎥 Become a creator and upload your own films</div>
+    <button class="btn" onclick="goCreator()">Join as Creator</button>
+  </div>
+
+  <div class="section-title">Latest releases</div>
 
   <div id="filmsGrid" class="grid"></div>
-  <div id="empty" class="hero" style="display:none">No films yet</div>
+  <div id="empty" class="hero-empty" style="display:none">No films yet</div>
 
 </div>
 
@@ -159,131 +196,91 @@ const filmsGrid = document.getElementById("filmsGrid");
 const searchInput = document.getElementById("search");
 const authArea = document.getElementById("authArea");
 const creatorBanner = document.getElementById("creatorBanner");
-const creatorBtn = document.getElementById("creatorBtn");
-const emptyEl = document.getElementById("empty");
 
-let films = [];
-let user = null;
+let films=[];
+let user=null;
 
-/* -------- AUTH -------- */
+async function init(){
+  const {data} = await supabase.auth.getUser();
+  user = data.user;
 
-async function loadUser(){
-  const { data } = await supabase.auth.getUser();
-  user = data.user || null;
   renderAuthButtons();
   if(user) checkCreator();
+  await loadFilms();
 }
 
-supabase.auth.onAuthStateChange((_e, session)=>{
-  user = session?.user || null;
-  renderAuthButtons();
-});
-
 function renderAuthButtons(){
-  authArea.innerHTML = "";
-
   if(!user){
-    const login = document.createElement("button");
-    login.className = "btn outline";
-    login.textContent = "Login";
-    login.onclick = ()=> location.href="login.html";
-
-    const signup = document.createElement("button");
-    signup.className = "btn";
-    signup.textContent = "Sign up";
-    signup.onclick = ()=> location.href="signup.html";
-
-    authArea.append(login, signup);
+    authArea.innerHTML=`
+      <button class="btn outline" onclick="location.href='login.html'">Login</button>
+      <button class="btn" onclick="location.href='signup.html'">Sign up</button>
+    `;
   }else{
-    const logout = document.createElement("button");
-    logout.className = "btn outline";
-    logout.textContent = "Logout";
-    logout.onclick = async ()=>{
-      await supabase.auth.signOut();
-      location.reload();
-    };
-    authArea.append(logout);
+    authArea.innerHTML=`
+      <button class="btn outline" onclick="logout()">Logout</button>
+    `;
   }
 }
 
-/* -------- CREATOR -------- */
+async function logout(){
+  await supabase.auth.signOut();
+  location.reload();
+}
 
 async function checkCreator(){
-  const { data } = await supabase
-    .from("creators")
-    .select("id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
+  const {data} = await supabase.from("creators").select("id").eq("user_id",user.id).maybeSingle();
   if(!data){
     creatorBanner.style.display="flex";
   }
 }
 
-creatorBtn.onclick = ()=>{
-  if(!user){
-    location.href="login.html";
-  }else{
-    location.href="creator-apply.html";
-  }
-};
-
-/* -------- FILMS -------- */
+window.goCreator=()=>{
+  location.href="creator-apply.html";
+}
 
 async function loadFilms(){
-  const { data, error } = await supabase
+  const {data,error} = await supabase
     .from("films")
     .select("id,title,thumbnail_url,views")
-    .eq("is_published", true)
+    .eq("is_published",true)
     .order("created_at",{ascending:false});
 
-  if(error){
-    console.error(error);
-    return;
-  }
+  if(error){console.error(error);return;}
 
-  films = data || [];
-
-  emptyEl.style.display = films.length ? "none" : "block";
-
+  films=data;
+  if(!films.length) document.getElementById("empty").style.display="block";
   renderFilms(films);
 }
 
 function renderFilms(list){
-  filmsGrid.innerHTML = list.map(f=>`
-    <div class="card" data-id="${f.id}">
-      <img src="${f.thumbnail_url || 'https://dummyimage.com/300x450/1f2630/ffffff&text=No+Thumbnail'}"
-           onerror="this.src='https://dummyimage.com/300x450/1f2630/ffffff&text=No+Thumbnail'">
-      <div class="title">${f.title}</div>
-      <div class="meta">👁 ${f.views || 0}</div>
+  filmsGrid.innerHTML=list.map(f=>`
+    <div class="card" onclick="openWatch('${f.id}')">
+      ${f.thumbnail_url 
+        ? `<img class="thumb" src="${f.thumbnail_url}">`
+        : `<div class="thumb">No Thumbnail</div>`
+      }
+      <div class="info">
+        <div class="title">${f.title}</div>
+        <div class="meta">👁 ${f.views||0}</div>
+      </div>
     </div>
   `).join("");
-
-  document.querySelectorAll(".card").forEach(card=>{
-    card.onclick = ()=>{
-      const id = card.dataset.id;
-      if(!user){
-        location.href="login.html";
-      }else{
-        location.href = `watch.html?id=${id}`;
-      }
-    };
-  });
 }
 
-/* -------- SEARCH -------- */
+window.openWatch=(id)=>{
+  if(!user){
+    location.href="login.html";
+    return;
+  }
+  location.href=`watch.html?id=${id}`;
+}
 
-searchInput.oninput = ()=>{
-  const q = searchInput.value.toLowerCase();
+searchInput.oninput=()=>{
+  const q=searchInput.value.toLowerCase();
   renderFilms(films.filter(f=>f.title.toLowerCase().includes(q)));
-};
+}
 
-/* -------- INIT -------- */
-
-(async ()=>{
-  await loadUser();
-  await loadFilms();
-})();
+init();
 </script>
 
 </body>
