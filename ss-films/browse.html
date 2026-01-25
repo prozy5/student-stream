@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Browse · SS Films</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+  background:#05070d;
+  color:#fff;
+}
+
+header{
+  padding:16px 22px;
+  background:#070a12;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #111;
+}
+
+a{color:#4da3ff;text-decoration:none}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:22px;
+}
+
+.search{
+  margin-bottom:20px;
+}
+
+.search input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:none;
+  background:#111827;
+  color:white;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:16px;
+}
+
+.card{
+  background:#0b1020;
+  border-radius:10px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.card:hover{
+  transform:scale(1.03);
+}
+
+.thumb{
+  width:100%;
+  height:240px;
+  background:#000;
+  object-fit:cover;
+}
+
+.card-info{
+  padding:10px;
+}
+
+.card-info h3{
+  font-size:15px;
+  margin-bottom:4px;
+}
+
+.card-info span{
+  font-size:12px;
+  color:#aaa;
+}
+
+.loading{
+  color:#888;
+  padding:30px;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <strong>SS FILMS</strong>
+  <div>
+    <a href="./">Home</a>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="search">
+  <input id="searchBox" placeholder="Search films...">
+</div>
+
+<div id="films" class="grid"></div>
+<div id="loading" class="loading">Loading films…</div>
+
+</div>
+
+<script>
+const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let allFilms = [];
+
+async function loadFilms(){
+  const {data} = await db
+    .from("films")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  allFilms = data || [];
+  renderFilms(allFilms);
+}
+
+function renderFilms(list){
+  const box = document.getElementById("films");
+  const loading = document.getElementById("loading");
+
+  box.innerHTML = "";
+
+  if(!list.length){
+    loading.textContent = "No films found.";
+    return;
+  }
+
+  loading.style.display = "none";
+
+  list.forEach(f=>{
+    box.innerHTML += `
+      <div class="card" onclick="openFilm('${f.id}')">
+        <img class="thumb" src="${f.thumbnail_url || 'https://via.placeholder.com/300x450?text=SS+Films'}">
+        <div class="card-info">
+          <h3>${f.title}</h3>
+          <span>${new Date(f.created_at).getFullYear()}</span>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function openFilm(id){
+  location.href = `watch.html?id=${id}`;
+}
+
+document.getElementById("searchBox").addEventListener("input", e=>{
+  const q = e.target.value.toLowerCase();
+  renderFilms(allFilms.filter(f => f.title.toLowerCase().includes(q)));
+});
+
+loadFilms();
+</script>
+
+</body>
+</html>
