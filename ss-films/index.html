@@ -7,53 +7,28 @@
 
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  background:#05070c;
-  color:#fff;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont;
-}
+body{margin:0;background:#05070c;color:#fff;font-family:system-ui}
 
 header{
-  position:fixed;
-  top:0;
-  width:100%;
-  z-index:100;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  position:fixed;top:0;width:100%;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
   padding:14px 20px;
   background:linear-gradient(#05070cdd,#05070caa,transparent);
 }
 
-.logo{
-  font-size:22px;
-  font-weight:900;
-  color:#3ea6ff;
-}
+.logo{font-size:22px;font-weight:900;color:#3ea6ff}
 
 .btn{
-  padding:8px 14px;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
-  font-weight:600;
-  background:#1e90ff;
-  color:#fff;
+  padding:8px 14px;border-radius:8px;border:none;
+  cursor:pointer;font-weight:600;background:#1e90ff;color:#fff
 }
-
-.btn.outline{
-  background:none;
-  border:1px solid #1e90ff;
-}
+.btn.outline{background:none;border:1px solid #1e90ff}
 
 .hero{
   height:65vh;
   background:linear-gradient(90deg,#05070c 30%,transparent),
-             url("https://images.unsplash.com/photo-1524985069026-dd778a71c7b4") center/cover;
-  display:flex;
-  align-items:flex-end;
-  padding:80px 24px;
+  url("https://images.unsplash.com/photo-1524985069026-dd778a71c7b4") center/cover;
+  display:flex;align-items:flex-end;padding:80px 24px
 }
 
 .hero-box{max-width:480px}
@@ -63,61 +38,28 @@ header{
 .section{padding:30px 20px}
 .section-title{font-size:18px;font-weight:700;margin-bottom:12px}
 
-.row{
-  display:flex;
-  gap:14px;
-  overflow-x:auto;
-  padding-bottom:10px;
-}
+.row{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px}
 
 .card{
-  min-width:160px;
-  background:#0e1522;
-  border-radius:12px;
-  overflow:hidden;
-  cursor:pointer;
-  transition:.25s;
+  min-width:160px;background:#0e1522;border-radius:12px;
+  overflow:hidden;cursor:pointer;transition:.25s
 }
-
 .card:hover{transform:scale(1.08)}
 
-.thumb{
-  height:220px;
-  background:#1a2232;
-}
-
-.thumb img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
+.thumb{height:220px;background:#1a2232}
+.thumb img{width:100%;height:100%;object-fit:cover}
 
 .info{padding:8px}
-.title{
-  font-size:14px;
-  font-weight:600;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
+.title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .meta{font-size:12px;opacity:.6}
 
 .creator-banner{
   background:linear-gradient(90deg,#12223a,#0c1423);
-  border:1px solid #2c3f60;
-  border-radius:14px;
-  padding:18px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  border:1px solid #2c3f60;border-radius:14px;
+  padding:18px;display:flex;justify-content:space-between;align-items:center
 }
 
-footer{
-  text-align:center;
-  padding:40px 20px;
-  opacity:.4;
-  font-size:13px;
-}
+footer{text-align:center;padding:40px 20px;opacity:.4;font-size:13px}
 </style>
 </head>
 <body>
@@ -159,9 +101,7 @@ footer{
 
 </div>
 
-<footer>
-  © 2026 SS Films · All rights reserved
-</footer>
+<footer>© 2026 SS Films · All rights reserved</footer>
 
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
@@ -171,17 +111,18 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
 );
 
-let user=null;
-let films=[];
+const authArea = document.getElementById("authArea");
+const creatorBanner = document.getElementById("creatorBanner");
+const trendingRow = document.getElementById("trendingRow");
+const latestRow = document.getElementById("latestRow");
 
-const authArea=document.getElementById("authArea");
-const creatorBanner=document.getElementById("creatorBanner");
-const trendingRow=document.getElementById("trendingRow");
-const latestRow=document.getElementById("latestRow");
+let user = null;
+let films = [];
 
 async function init(){
-  const {data}=await supabase.auth.getUser();
-  user=data.user;
+
+  const { data: { user: u } } = await supabase.auth.getUser();
+  user = u;
 
   renderAuth();
 
@@ -190,14 +131,16 @@ async function init(){
   await loadFilms();
 }
 
+/* ---------- AUTH UI ---------- */
+
 function renderAuth(){
   if(!user){
-    authArea.innerHTML=`
+    authArea.innerHTML = `
       <button class="btn outline" onclick="location.href='login.html'">Login</button>
       <button class="btn" onclick="location.href='signup.html'">Sign up</button>
     `;
-  }else{
-    authArea.innerHTML=`
+  } else {
+    authArea.innerHTML = `
       <button class="btn outline" id="studioBtn" style="display:none" onclick="goStudio()">Studio</button>
       <button class="btn outline" onclick="logout()">Logout</button>
     `;
@@ -206,46 +149,44 @@ function renderAuth(){
 
 async function logout(){
   await supabase.auth.signOut();
-  localStorage.clear();
-  sessionStorage.clear();
-  document.cookie.split(";").forEach(c=>{
-    document.cookie = c.replace(/^ +/,"")
-      .replace(/=.*/,"=;expires="+new Date().toUTCString()+";path=/");
-  });
-  location.href="login.html";
+  location.href = "login.html";
 }
 
+/* ---------- CREATOR CHECK ---------- */
+
 async function checkCreator(){
-  const {data}=await supabase
+  const { data } = await supabase
     .from("creators")
     .select("id")
-    .eq("user_id",user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if(data){
-    const btn=document.getElementById("studioBtn");
-    if(btn) btn.style.display="inline-block";
-  }else{
-    creatorBanner.style.display="flex";
+    const btn = document.getElementById("studioBtn");
+    if(btn) btn.style.display = "inline-block";
+  } else {
+    creatorBanner.style.display = "flex";
   }
 }
 
-async function loadFilms(){
-  const {data}=await supabase
-    .from("films")
-    .select("id,title,thumbnail_url,views,is_published,created_at")
-    .eq("is_published",true);
+/* ---------- FILMS ---------- */
 
-  films=data||[];
+async function loadFilms(){
+  const { data } = await supabase
+    .from("films")
+    .select("id,title,thumbnail_url,views,created_at")
+    .eq("is_published", true);
+
+  films = data || [];
   renderRows();
 }
 
 function renderRows(){
-  const trending=[...films].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,10);
-  const latest=[...films].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,10);
+  const trending = [...films].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,10);
+  const latest = [...films].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,10);
 
-  trendingRow.innerHTML=trending.map(renderCard).join("");
-  latestRow.innerHTML=latest.map(renderCard).join("");
+  trendingRow.innerHTML = trending.map(renderCard).join("");
+  latestRow.innerHTML = latest.map(renderCard).join("");
 }
 
 function renderCard(f){
@@ -262,14 +203,16 @@ function renderCard(f){
   `;
 }
 
-window.openWatch=(id)=>{
+/* ---------- NAV ---------- */
+
+window.openWatch = (id)=>{
   if(!user){ location.href="login.html"; return; }
-  location.href=`watch.html?id=${id}`;
+  location.href = `watch.html?id=${id}`;
 };
 
-window.goCreator=()=>location.href="creator-apply.html";
-window.goStudio=()=>location.href="upload.html";
-window.scrollToContent=()=>document.getElementById("content").scrollIntoView({behavior:"smooth"});
+window.goCreator = ()=> location.href="creator-apply.html";
+window.goStudio = ()=> location.href="creator.html";
+window.scrollToContent = ()=> document.getElementById("content").scrollIntoView({behavior:"smooth"});
 
 init();
 </script>
