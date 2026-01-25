@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Creator Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+<title>StudentStream Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-
 <body>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="explore.html">Explore</a>
-  </nav>
 
-  <h1>Creator Dashboard</h1>
+<h1>Welcome to StudentStream</h1>
+<p>Main platform access granted.</p>
 
-  <input id="streamTitle" type="text" placeholder="Stream title..." />
+<button onclick="logoutUser()">Logout</button>
 
-<select id="category">
-  <option>Study</option>
-  <option>Coding</option>
-  <option>Gaming</option>
-</select>
+<script type="module">
+import "../js/protect.js";
+import { logout } from "./js/auth.js";
 
-<button id="goLiveBtn">Go Live</button>
+async function logoutUser(){
+  await logout();
+  window.location.href = "/auth/login.html";
+}
 
-<script src="dashboard.js"></script>
+window.logoutUser = logoutUser;
+</script>
 
+</body>
+</html>
