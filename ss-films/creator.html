@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creator Studio – StudentStream</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui;
+  background:#0b0f14;
+  color:#fff;
+}
+
+header{
+  padding:16px;
+  border-bottom:1px solid #1f2630;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-weight:900;
+  color:#1e90ff;
+}
+
+.btn{
+  background:#1e90ff;
+  color:#fff;
+  border:none;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:#121923;
+  border-radius:14px;
+  border:1px solid #1f2630;
+  padding:16px;
+  margin-bottom:16px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:12px;
+}
+
+.stat{
+  background:#0b0f14;
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+}
+
+.stat h3{margin:0;font-size:22px;color:#1e90ff}
+.stat p{margin:0;font-size:12px;opacity:.7}
+
+.films{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:12px;
+}
+
+.film{
+  background:#0b0f14;
+  border-radius:10px;
+  padding:10px;
+  font-size:13px;
+}
+
+.film img{
+  width:100%;
+  border-radius:8px;
+  margin-bottom:6px;
+}
+
+.empty{
+  opacity:.6;
+  text-align:center;
+  padding:20px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎬 Creator Studio</div>
+  <button class="btn" onclick="location.href='upload.html'">Upload</button>
+</header>
+
+<div class="container">
+
+  <div id="loading" class="card">Loading creator profile...</div>
+
+  <div id="dashboard" style="display:none">
+
+    <div class="card">
+      <h2 id="channelName"></h2>
+      <p id="creatorId" style="opacity:.6;font-size:13px"></p>
+    </div>
+
+    <div class="card stats">
+      <div class="stat"><h3 id="filmCount">0</h3><p>Films</p></div>
+      <div class="stat"><h3>0</h3><p>Views</p></div>
+      <div class="stat"><h3>$0</h3><p>Earnings</p></div>
+    </div>
+
+    <div class="card">
+      <h3>Your Films</h3>
+      <div id="films" class="films"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://iabzmoxzbqzcqgypxctr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
+);
+
+const loading = document.getElementById("loading");
+const dashboard = document.getElementById("dashboard");
+
+async function init(){
+
+  const {data:userData} = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if(!user){
+    location.href="login.html";
+    return;
+  }
+
+  // get creator profile
+  const {data:creator,error} = await supabase
+    .from("creators")
+    .select("*")
+    .eq("user_id",user.id)
+    .single();
+
+  if(!creator){
+    location.href="creator-apply.html";
+    return;
+  }
+
+  document.getElementById("channelName").textContent = creator.name;
+  document.getElementById("creatorId").textContent = "Creator ID: " + creator.id;
+
+  // load films
+  const {data:films} = await supabase
+    .from("films")
+    .select("*")
+    .eq("creator_id",creator.id)
+    .order("created_at",{ascending:false});
+
+  document.getElementById("filmCount").textContent = films?.length || 0;
+
+  const filmsDiv = document.getElementById("films");
+
+  if(!films || films.length===0){
+    filmsDiv.innerHTML = `<div class="empty">No uploads yet</div>`;
+  }else{
+    films.forEach(f=>{
+      const div = document.createElement("div");
+      div.className="film";
+      div.innerHTML=`
+        <img src="${f.thumbnail_url || 'https://placehold.co/300x180'}">
+        <b>${f.title}</b>
+      `;
+      filmsDiv.appendChild(div);
+    });
+  }
+
+  loading.style.display="none";
+  dashboard.style.display="block";
+}
+
+init();
+</script>
+
+</body>
+</html>
