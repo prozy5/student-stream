@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>StudentStream Status</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <style>
@@ -18,6 +19,7 @@ h1{margin:0;color:#60a5fa}
 .small{opacity:.7;font-size:13px}
 .incident{border-left:4px solid #f59e0b;padding-left:12px}
 footer{text-align:center;opacity:.6;padding:30px}
+.loader{opacity:.6}
 </style>
 </head>
 <body>
@@ -30,16 +32,16 @@ footer{text-align:center;opacity:.6;padding:30px}
 <div class="container">
 
 <h2>System Components</h2>
-<div id="components">Loading…</div>
+<div id="components" class="loader">Loading…</div>
 
 <h2>Active Incidents</h2>
-<div id="incidents">Loading…</div>
+<div id="incidents" class="loader">Loading…</div>
 
 <h2>Incident History</h2>
-<div id="history">Loading…</div>
+<div id="history" class="loader">Loading…</div>
 
 <h2>Uptime</h2>
-<div id="uptime">Loading…</div>
+<div id="uptime" class="loader">Loading…</div>
 
 </div>
 
@@ -49,7 +51,7 @@ StudentStream © 2026
 
 <script>
 const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"; // keep using anon key
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -59,63 +61,129 @@ function statusClass(s){
   return "status-bad";
 }
 
+function safe(text){
+  return text ?? "";
+}
+
+/* ---------------- COMPONENTS ---------------- */
+
 async function loadComponents(){
-  const {data} = await supabase.from("status_components").select("*").order("order_index");
   const el = document.getElementById("components");
-  el.innerHTML="";
+  el.innerHTML = "Loading…";
+
+  const {data, error} = await supabase
+    .from("status_components")
+    .select("*")
+    .order("order_index",{ascending:true});
+
+  if(error || !data){
+    el.innerHTML = "<div class='small'>Unable to load components</div>";
+    return;
+  }
+
+  el.innerHTML = "";
+
   data.forEach(c=>{
-    el.innerHTML+=`
-    <div class="card">
-      <strong>${c.name}</strong>
-      <div class="small">${c.description||""}</div>
-      <div class="${statusClass(c.status)}">${c.status}</div>
-    </div>`;
+    el.innerHTML += `
+      <div class="card">
+        <strong>${safe(c.name)}</strong>
+        <div class="small">${safe(c.description)}</div>
+        <div class="${statusClass(c.status)}">${c.status.toUpperCase()}</div>
+      </div>
+    `;
   });
 }
 
+/* ---------------- INCIDENTS ---------------- */
+
 async function loadIncidents(){
-  const {data} = await supabase.from("status_incidents")
+  const el=document.getElementById("incidents");
+  el.innerHTML="Loading…";
+
+  const {data,error} = await supabase
+    .from("status_incidents")
     .select("*")
     .is("resolved_at", null)
     .order("created_at",{ascending:false});
 
-  const el=document.getElementById("incidents");
-  el.innerHTML=data.length? "" : "<div class='small'>No active incidents</div>";
+  if(error || !data){
+    el.innerHTML="<div class='small'>Unable to load incidents</div>";
+    return;
+  }
+
+  if(!data.length){
+    el.innerHTML="<div class='small'>No active incidents</div>";
+    return;
+  }
+
+  el.innerHTML="";
 
   data.forEach(i=>{
     el.innerHTML+=`
-    <div class="card incident">
-      <strong>${i.title}</strong>
-      <div>${i.description||""}</div>
-      <div class="small">${new Date(i.created_at).toLocaleString()}</div>
-    </div>`;
+      <div class="card incident">
+        <strong>${safe(i.title)}</strong>
+        <div>${safe(i.description)}</div>
+        <div class="small">${new Date(i.created_at).toLocaleString()}</div>
+      </div>
+    `;
   });
 }
 
+/* ---------------- HISTORY ---------------- */
+
 async function loadHistory(){
-  const {data} = await supabase.from("status_incidents")
+  const el=document.getElementById("history");
+  el.innerHTML="Loading…";
+
+  const {data,error} = await supabase
+    .from("status_incidents")
     .select("*")
     .not("resolved_at","is",null)
     .order("created_at",{ascending:false})
     .limit(5);
 
-  const el=document.getElementById("history");
+  if(error || !data){
+    el.innerHTML="<div class='small'>Unable to load history</div>";
+    return;
+  }
+
+  if(!data.length){
+    el.innerHTML="<div class='small'>No past incidents</div>";
+    return;
+  }
+
   el.innerHTML="";
 
   data.forEach(i=>{
     el.innerHTML+=`
-    <div class="card">
-      <strong>${i.title}</strong>
-      <div class="small">Resolved ${new Date(i.resolved_at).toLocaleString()}</div>
-    </div>`;
+      <div class="card">
+        <strong>${safe(i.title)}</strong>
+        <div class="small">Resolved ${new Date(i.resolved_at).toLocaleString()}</div>
+      </div>
+    `;
   });
 }
 
+/* ---------------- UPTIME ---------------- */
+
 async function loadUptime(){
-  const {data} = await supabase.rpc("calculate_uptime").catch(()=>({data:null}));
   const el=document.getElementById("uptime");
-  el.innerHTML = data ? JSON.stringify(data) : "Uptime tracking active";
+
+  try{
+    const {data} = await supabase.rpc("calculate_uptime");
+
+    if(!data){
+      el.innerHTML = "Uptime tracking active";
+      return;
+    }
+
+    el.innerHTML = `<pre>${JSON.stringify(data,null,2)}</pre>`;
+  }catch{
+    el.innerHTML = "Uptime tracking active";
+  }
 }
+
+/* ---------------- REFRESH ---------------- */
 
 async function refresh(){
   await loadComponents();
@@ -125,12 +193,22 @@ async function refresh(){
 }
 
 refresh();
-setInterval(refresh, 15000); // live refresh every 15 sec
+setInterval(refresh, 15000);
 
-// Realtime updates
-supabase.channel("status-live")
-  .on("postgres_changes",{event:"*",schema:"public"},refresh)
+/* ---------------- REALTIME ---------------- */
+
+supabase
+  .channel("status-components")
+  .on("postgres_changes",
+    {event:"*",schema:"public",table:"status_components"},
+    refresh
+  )
+  .on("postgres_changes",
+    {event:"*",schema:"public",table:"status_incidents"},
+    refresh
+  )
   .subscribe();
+
 </script>
 
 </body>
