@@ -3,109 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SS Films – Watch</title>
+<title>Watch – SS Films</title>
 
 <style>
 body{
   margin:0;
-  background:#070b12;
+  background:#05070c;
   color:#fff;
   font-family:system-ui;
 }
 
 header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
   padding:14px 18px;
-  background:#0b1220;
-}
-
-.logo{font-weight:900;font-size:18px;color:#4aa3ff}
-
-button{
-  background:#1e90ff;
-  color:#fff;
-  border:none;
-  padding:8px 14px;
-  border-radius:8px;
-  font-weight:600;
+  border-bottom:1px solid #1f2630;
+  font-weight:800;
 }
 
 .player-wrap{
-  padding:14px;
+  position:relative;
+  max-width:900px;
+  margin:20px auto;
+  background:black;
 }
 
 video{
   width:100%;
-  max-height:65vh;
+  height:auto;
   background:black;
-  border-radius:12px;
 }
 
-.actions{
-  margin-top:10px;
-}
+/* ---------- AD OVERLAY ---------- */
 
-.section{
-  padding:14px;
-}
-
-.row{
+#adOverlay{
+  position:absolute;
+  inset:0;
+  background:black;
   display:flex;
-  gap:12px;
-  overflow-x:auto;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  z-index:5;
 }
 
-.card{
-  min-width:140px;
-  background:#121a2a;
-  border-radius:10px;
-  overflow:hidden;
-  cursor:pointer;
-}
-
-.thumb{
-  height:180px;
-  background:#000;
-}
-
-.thumb img{
+#adOverlay video{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
 }
 
-.title{
-  padding:6px;
-  font-size:13px;
+#skipBtn{
+  position:absolute;
+  right:15px;
+  top:15px;
+  background:#111;
+  color:#fff;
+  border:1px solid #444;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:not-allowed;
+  opacity:.6;
 }
+
+#skipBtn.enabled{
+  cursor:pointer;
+  opacity:1;
+}
+
+/* ---------- BANNER AD ---------- */
+
+#bannerAd{
+  position:absolute;
+  bottom:20px;
+  right:20px;
+  width:260px;
+  background:#000d;
+  border-radius:10px;
+  overflow:hidden;
+  display:none;
+  z-index:4;
+}
+
+#bannerAd img{
+  width:100%;
+  display:block;
+}
+
+#bannerAd a{
+  display:block;
+  color:white;
+  text-decoration:none;
+  font-size:13px;
+  padding:6px;
+  text-align:center;
+}
+
+/* ---------- INFO ---------- */
+
+.info{
+  max-width:900px;
+  margin:auto;
+  padding:10px 18px;
+}
+
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">SS Films</div>
-  <button onclick="logout()">Logout</button>
-</header>
+<header>🎬 SS Films</header>
 
 <div class="player-wrap">
-  <video
-    id="player"
-    controls
-    playsinline
-    webkit-playsinline
-    preload="metadata"
-  ></video>
 
-  <div class="actions">
-    <button onclick="likeFilm()">❤️ Like</button>
+  <!-- PRE-ROLL AD -->
+  <div id="adOverlay" style="display:none">
+    <video id="adVideo"></video>
+    <button id="skipBtn">Skip in 5</button>
   </div>
+
+  <!-- MAIN VIDEO -->
+  <video id="filmVideo" controls></video>
+
+  <!-- BANNER AD -->
+  <div id="bannerAd">
+    <a id="bannerLink" target="_blank">
+      <img id="bannerImg">
+      <div>Sponsored</div>
+    </a>
+  </div>
+
 </div>
 
-<div class="section">
-  <h3>Recommended</h3>
-  <div id="recommended" class="row"></div>
+<div class="info">
+  <h2 id="title"></h2>
+  <p id="desc"></p>
 </div>
 
 <script type="module">
@@ -119,96 +148,129 @@ const supabase = createClient(
 const params = new URLSearchParams(location.search);
 const filmId = params.get("id");
 
-const video = document.getElementById("player");
-const recommendedRow = document.getElementById("recommended");
+const filmVideo = document.getElementById("filmVideo");
+const adOverlay = document.getElementById("adOverlay");
+const adVideo = document.getElementById("adVideo");
+const skipBtn = document.getElementById("skipBtn");
 
-let currentFilm = null;
+const bannerAd = document.getElementById("bannerAd");
+const bannerImg = document.getElementById("bannerImg");
+const bannerLink = document.getElementById("bannerLink");
 
-/* ---------- AUTH ---------- */
+let skipTimer = 5;
 
-async function checkAuth(){
-  const { data:{user} } = await supabase.auth.getUser();
-  if(!user){
-    location.href="login.html";
-  }
-}
-
-window.logout = async ()=>{
-  await supabase.auth.signOut();
-  location.href="login.html";
-};
-
-/* ---------- LOAD FILM ---------- */
+/* ---------------- LOAD FILM ---------------- */
 
 async function loadFilm(){
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("films")
     .select("*")
     .eq("id", filmId)
     .single();
 
-  if(error){
-    alert("Film not found");
+  document.getElementById("title").innerText = data.title;
+  document.getElementById("desc").innerText = data.description;
+  filmVideo.src = data.video_url;
+
+  await playPreRollAd();
+}
+
+/* ---------------- PREROLL ADS ---------------- */
+
+async function playPreRollAd(){
+
+  const { data:ads } = await supabase
+    .from("ads")
+    .select("*")
+    .eq("active", true)
+    .eq("ad_type", "preroll")
+    .limit(1);
+
+  if(!ads || ads.length === 0){
+    filmVideo.play();
+    loadBannerAd();
     return;
   }
 
-  currentFilm = data;
+  const ad = ads[0];
 
-  console.log("Video URL:", data.video_url);
+  adOverlay.style.display = "flex";
+  adVideo.src = ad.video_url;
+  adVideo.play();
 
-  video.src = data.video_url;
-  video.load();
+  startSkipTimer();
 
-  incrementViews();
+  adVideo.onended = ()=>{
+    finishAd(ad);
+  };
 }
 
-/* ---------- VIEWS ---------- */
-
-async function incrementViews(){
-  await supabase
-    .from("films")
-    .update({ views: (currentFilm.views||0)+1 })
-    .eq("id", filmId);
+function startSkipTimer(){
+  skipBtn.innerText = `Skip in ${skipTimer}`;
+  const timer = setInterval(()=>{
+    skipTimer--;
+    if(skipTimer <= 0){
+      clearInterval(timer);
+      skipBtn.innerText = "Skip Ad";
+      skipBtn.classList.add("enabled");
+      skipBtn.onclick = ()=> finishAd();
+    }else{
+      skipBtn.innerText = `Skip in ${skipTimer}`;
+    }
+  },1000);
 }
 
-/* ---------- LIKE ---------- */
+function finishAd(ad=null){
+  adOverlay.style.display="none";
+  adVideo.pause();
+  filmVideo.play();
+  loadBannerAd();
 
-window.likeFilm = async ()=>{
-  alert("Liked ❤️ (hook this to table later)");
-};
-
-/* ---------- RECOMMENDED ---------- */
-
-async function loadRecommended(){
-  const { data } = await supabase
-    .from("films")
-    .select("id,title,thumbnail_url")
-    .eq("is_published", true)
-    .limit(10);
-
-  recommendedRow.innerHTML = (data||[])
-    .filter(f=>f.id!==filmId)
-    .map(f=>`
-      <div class="card" onclick="openFilm('${f.id}')">
-        <div class="thumb">
-          <img src="${f.thumbnail_url||''}">
-        </div>
-        <div class="title">${f.title}</div>
-      </div>
-    `).join("");
+  if(ad){
+    trackAdView(ad.id);
+  }
 }
 
-window.openFilm = (id)=>{
-  location.href = "watch.html?id="+id;
-};
+/* ---------------- BANNER ADS ---------------- */
 
-/* ---------- INIT ---------- */
+async function loadBannerAd(){
+  const { data:ads } = await supabase
+    .from("ads")
+    .select("*")
+    .eq("active", true)
+    .eq("ad_type", "overlay")
+    .limit(1);
 
-(async()=>{
-  await checkAuth();
-  await loadFilm();
-  await loadRecommended();
-})();
+  if(!ads || ads.length === 0) return;
+
+  const ad = ads[0];
+
+  bannerImg.src = ad.image_url;
+  bannerLink.href = ad.click_url || "#";
+  bannerAd.style.display="block";
+
+  trackAdView(ad.id);
+}
+
+/* ---------------- TRACKING ---------------- */
+
+async function trackAdView(adId){
+  const { data:{ user } } = await supabase.auth.getUser();
+
+  await supabase.from("ad_views").insert({
+    ad_id: adId,
+    film_id: filmId,
+    viewer_id: user?.id || null,
+    watched_seconds: 5
+  });
+
+  // Revenue calculation handled later by SQL function / backend
+}
+
+/* ---------------- INIT ---------------- */
+
+loadFilm();
+
 </script>
 
 </body>
