@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Upload – SS Films</title>
+<title>Upload Film – SS Films</title>
 
 <style>
 body{margin:0;background:#0b0f14;color:#fff;font-family:system-ui}
-header{padding:14px 16px;border-bottom:1px solid #1f2630;font-weight:800;font-size:18px}
+header{padding:14px 16px;border-bottom:1px solid #1f2630;font-weight:800}
 .container{max-width:700px;margin:auto;padding:16px}
 .box{background:#121822;border:1px solid #1f2630;border-radius:12px;padding:16px}
 input,textarea,select{width:100%;margin-top:10px;padding:10px;border-radius:8px;border:none;background:#1a2230;color:#fff}
-button{background:#1e90ff;border:none;color:#fff;padding:12px;border-radius:8px;cursor:pointer;font-weight:700;width:100%;margin-top:14px}
+button{background:#1e90ff;border:none;color:#fff;padding:12px;border-radius:8px;font-weight:700;width:100%;margin-top:14px;cursor:pointer}
 .msg{margin-top:10px;font-size:13px}
 </style>
 </head>
@@ -26,13 +26,12 @@ button{background:#1e90ff;border:none;color:#fff;padding:12px;border-radius:8px;
 <textarea id="desc" placeholder="Description"></textarea>
 
 <label>Thumbnail</label>
-<input id="thumb" type="file">
+<input id="thumb" type="file" accept="image/*">
 
-<label>Video</label>
-<input id="video" type="file">
+<label>Video file</label>
+<input id="video" type="file" accept="video/*">
 
-<button id="uploadBtn">Upload</button>
-
+<button id="uploadBtn">Upload Film</button>
 <div id="msg" class="msg"></div>
 
 </div>
@@ -41,73 +40,97 @@ button{background:#1e90ff;border:none;color:#fff;padding:12px;border-radius:8px;
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const supabase = createClient("https://iabzmoxzbqzcqgypxctr.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ");
+const supabase = createClient(
+  "https://iabzmoxzbqzcqgypxctr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
+);
 
-const msg=document.getElementById("msg");
+const titleEl = document.getElementById("title");
+const descEl = document.getElementById("desc");
+const thumbEl = document.getElementById("thumb");
+const videoEl = document.getElementById("video");
+const uploadBtn = document.getElementById("uploadBtn");
+const msg = document.getElementById("msg");
 
-let creator=null;
 let user=null;
+let creator=null;
 
 async function init(){
+  const {data:{user:u}} = await supabase.auth.getUser();
+  user=u;
 
-  const {data:{user:authUser}}=await supabase.auth.getUser();
-  user=authUser;
-
-  if(!user){ location.href="login.html"; return; }
-
-  const {data}=await supabase.from("creators").select("*").eq("user_id",user.id).single();
-
-  if(!data){ location.href="creator-apply.html"; return; }
-
-  if(data.status!=="approved"){
-    alert("Your creator account is pending approval.");
-    location.href="creator.html";
+  if(!user){
+    location.href="login.html";
     return;
   }
 
-  creator=data;
+  const {data:c} = await supabase
+    .from("creators")
+    .select("*")
+    .eq("user_id",user.id)
+    .single();
+
+  if(!c){
+    location.href="creator-apply.html";
+    return;
+  }
+
+  creator=c;
 }
 
-document.getElementById("uploadBtn").onclick=async()=>{
+uploadBtn.onclick = async ()=>{
 
-  const title=document.getElementById("title").value.trim();
-  const desc=document.getElementById("desc").value.trim();
-  const thumb=document.getElementById("thumb").files[0];
-  const video=document.getElementById("video").files[0];
+  const title = titleEl.value.trim();
+  const desc = descEl.value.trim();
+  const thumbFile = thumbEl.files[0];
+  const videoFile = videoEl.files[0];
 
-  if(!title||!thumb||!video){
-    alert("Fill all fields");
+  if(!title || !thumbFile || !videoFile){
+    msg.textContent="Fill all fields";
     return;
   }
 
+  uploadBtn.disabled=true;
   msg.textContent="Uploading...";
 
-  const videoPath=`videos/${user.id}/${Date.now()}_${video.name}`;
-  const thumbPath=`thumbs/${user.id}/${Date.now()}_${thumb.name}`;
+  try{
 
-  await supabase.storage.from("films").upload(videoPath,video);
-  await supabase.storage.from("films").upload(thumbPath,thumb);
+    const videoPath = `videos/${user.id}/${Date.now()}_${videoFile.name}`;
+    const thumbPath = `thumbnails/${user.id}/${Date.now()}_${thumbFile.name}`;
 
-  const {data:videoUrl}=supabase.storage.from("films").getPublicUrl(videoPath);
-  const {data:thumbUrl}=supabase.storage.from("films").getPublicUrl(thumbPath);
+    const vUpload = await supabase.storage.from("films").upload(videoPath, videoFile);
+    if(vUpload.error) throw vUpload.error;
 
-  const {error}=await supabase.from("films").insert({
-    title,
-    description:desc,
-    video_url:videoUrl.publicUrl,
-    thumbnail_url:thumbUrl.publicUrl,
-    creator_id:creator.id,
-    is_published:true,
-    views:0
-  });
+    const tUpload = await supabase.storage.from("films").upload(thumbPath, thumbFile);
+    if(tUpload.error) throw tUpload.error;
 
-  if(error){
-    msg.textContent="Upload failed";
-    console.error(error);
-  }else{
-    msg.textContent="✅ Uploaded!";
-    setTimeout(()=>location.href="creator.html",1200);
+    const {data:videoUrl} = supabase.storage.from("films").getPublicUrl(videoPath);
+    const {data:thumbUrl} = supabase.storage.from("films").getPublicUrl(thumbPath);
+
+    const {error} = await supabase.from("films").insert({
+      title,
+      description: desc,
+      video_url: videoUrl.publicUrl,
+      thumbnail_url: thumbUrl.publicUrl,
+      creator_id: creator.id,
+      is_published: true,
+      views: 0
+    });
+
+    if(error) throw error;
+
+    msg.textContent="✅ Upload successful! Redirecting...";
+
+    setTimeout(()=>{
+      location.href="creator.html";
+    },1200);
+
+  }catch(err){
+    console.error(err);
+    msg.textContent="❌ Upload failed: " + err.message;
   }
+
+  uploadBtn.disabled=false;
 };
 
 init();
