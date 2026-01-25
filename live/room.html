@@ -13,7 +13,6 @@ body{
   color:#eaf1ff;
 }
 
-/* Top bar */
 .header{
   height:56px;
   background:#0c1626;
@@ -24,15 +23,8 @@ body{
   padding:0 16px;
 }
 
-.logo{
-  font-weight:700;
-  letter-spacing:.5px;
-}
-
-.room-name{
-  color:#9fb0cc;
-  font-size:14px;
-}
+.logo{font-weight:700}
+.room-name{font-size:14px;color:#9fb0cc}
 
 .leave-btn{
   background:#ff5d5d;
@@ -40,11 +32,9 @@ body{
   color:#1a0000;
   padding:8px 12px;
   border-radius:8px;
-  cursor:pointer;
   font-weight:600;
 }
 
-/* Video container */
 #jitsi-container{
   width:100%;
   height:calc(100vh - 56px);
@@ -62,9 +52,10 @@ body{
 
 <div id="jitsi-container"></div>
 
+<script src="https://meet.jit.si/external_api.js"></script>
 <script>
 const params = new URLSearchParams(window.location.search);
-const room = params.get("room") || "StudentStreamRoom";
+const room = (params.get("room") || "studentstreamtest").replace(/[^a-zA-Z0-9]/g,'');
 
 document.getElementById("roomLabel").innerText = "Room: " + room;
 
@@ -72,37 +63,20 @@ function leaveRoom(){
   window.location.href = "index.html";
 }
 
-const domain = "meet.jit.si";
-const options = {
+const api = new JitsiMeetExternalAPI("meet.jit.si", {
   roomName: room,
   parentNode: document.getElementById("jitsi-container"),
   configOverwrite: {
     prejoinPageEnabled: false,
-    disableDeepLinking: true
+    startWithAudioMuted: false,
+    startWithVideoMuted: false
   },
   interfaceConfigOverwrite: {
     SHOW_JITSI_WATERMARK: false,
-    SHOW_WATERMARK_FOR_GUESTS: false,
     SHOW_BRAND_WATERMARK: false,
-    SHOW_POWERED_BY: false,
-    SHOW_PROMOTIONAL_CLOSE_PAGE: false,
-    TOOLBAR_BUTTONS: [
-      'microphone',
-      'camera',
-      'chat',
-      'raisehand',
-      'tileview',
-      'hangup'
-    ]
+    MOBILE_APP_PROMO: false
   }
-};
-
-const script = document.createElement("script");
-script.src = "https://meet.jit.si/external_api.js";
-script.onload = () => {
-  new JitsiMeetExternalAPI(domain, options);
-};
-document.body.appendChild(script);
+});
 </script>
 
 </body>
