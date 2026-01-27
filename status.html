@@ -2,213 +2,221 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>StudentStream Status</title>
+<title>StudentStream System Status</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
 <style>
-body{margin:0;font-family:system-ui;background:#0b0f16;color:#e5e7eb}
-header{padding:20px;background:#111827;border-bottom:1px solid #1f2933}
-h1{margin:0;color:#60a5fa}
-.container{max-width:900px;margin:auto;padding:20px}
-.card{background:#111827;border:1px solid #1f2933;border-radius:10px;padding:15px;margin-bottom:12px}
-.status-ok{color:#22c55e}
-.status-bad{color:#ef4444}
-.status-warn{color:#f59e0b}
-.small{opacity:.7;font-size:13px}
-.incident{border-left:4px solid #f59e0b;padding-left:12px}
-footer{text-align:center;opacity:.6;padding:30px}
-.loader{opacity:.6}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont;
+  background:#070b12;
+  color:#fff;
+}
+
+header{
+  padding:20px 24px;
+  border-bottom:1px solid #1c2533;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:20px;
+  font-weight:900;
+  color:#4da3ff;
+}
+
+.container{
+  max-width:1100px;
+  margin:40px auto;
+  padding:0 24px;
+}
+
+.overall{
+  background:#0e1522;
+  border:1px solid #1f2a3a;
+  border-radius:14px;
+  padding:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:30px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:16px;
+}
+
+.card{
+  background:#0e1522;
+  border:1px solid #1f2a3a;
+  border-radius:14px;
+  padding:18px;
+}
+
+.card b{
+  font-size:16px;
+}
+
+.service{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:12px;
+  font-size:14px;
+}
+
+.dot{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  margin-right:6px;
+}
+
+.up{background:#3cff7a}
+.down{background:#ff4d4d}
+.degraded{background:#ffb84d}
+
+.status-good{color:#3cff7a}
+.status-bad{color:#ff4d4d}
+.status-warn{color:#ffb84d}
+
+footer{
+  border-top:1px solid #1c2533;
+  margin-top:60px;
+  padding:30px;
+  text-align:center;
+  font-size:13px;
+  opacity:.6;
+}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>StudentStream Status</h1>
-  <div class="small">System status & uptime</div>
+  <div class="logo">StudentStream Status</div>
+  <div style="opacity:.6;font-size:14px">Live System Health</div>
 </header>
 
 <div class="container">
 
-<h2>System Components</h2>
-<div id="components" class="loader">Loading…</div>
+  <div class="overall">
+    <div>
+      <b id="overallText">Loading...</b>
+      <div style="font-size:13px;opacity:.6">Real-time platform status</div>
+    </div>
+    <div id="overallDot">●</div>
+  </div>
 
-<h2>Active Incidents</h2>
-<div id="incidents" class="loader">Loading…</div>
-
-<h2>Incident History</h2>
-<div id="history" class="loader">Loading…</div>
-
-<h2>Uptime</h2>
-<div id="uptime" class="loader">Loading…</div>
+  <div class="grid"></div>
 
 </div>
 
 <footer>
-StudentStream © 2026
+  © 2026 StudentStream · Infrastructure Status
 </footer>
 
-<script>
-const SUPABASE_URL = "https://iabzmoxzbqzcqgypxctr.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"; // keep using anon key
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(
+  "https://iabzmoxzbqzcqgypxctr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhYnptb3h6YnF6Y3FneXB4Y3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMDgzNzAsImV4cCI6MjA4MjY4NDM3MH0.mHke56jh8WSlzzQxa7o2PIxqLRk1eyPRZerJ3avuGkQ"
+);
 
-function statusClass(s){
-  if(s==="operational") return "status-ok";
-  if(s==="degraded") return "status-warn";
-  return "status-bad";
-}
+const grid = document.querySelector(".grid");
+const overallText = document.getElementById("overallText");
+const overallDot = document.getElementById("overallDot");
 
-function safe(text){
-  return text ?? "";
-}
-
-/* ---------------- COMPONENTS ---------------- */
-
-async function loadComponents(){
-  const el = document.getElementById("components");
-  el.innerHTML = "Loading…";
-
-  const {data, error} = await supabase
-    .from("status_components")
+async function loadStatus(){
+  const { data, error } = await supabase
+    .from("system_status")
     .select("*")
-    .order("order_index",{ascending:true});
+    .order("division");
 
-  if(error || !data){
-    el.innerHTML = "<div class='small'>Unable to load components</div>";
+  if(error){
+    console.error(error);
+    overallText.textContent = "Unable to load system status";
     return;
   }
 
-  el.innerHTML = "";
+  renderStatus(data);
+}
 
-  data.forEach(c=>{
-    el.innerHTML += `
-      <div class="card">
-        <strong>${safe(c.name)}</strong>
-        <div class="small">${safe(c.description)}</div>
-        <div class="${statusClass(c.status)}">${c.status.toUpperCase()}</div>
-      </div>
-    `;
+function renderStatus(rows){
+  const divisions = {};
+  let hasDown = false;
+  let hasDegraded = false;
+
+  rows.forEach(r=>{
+    if(!divisions[r.division]) divisions[r.division]=[];
+    divisions[r.division].push(r);
+
+    if(r.status === "down") hasDown = true;
+    if(r.status === "degraded") hasDegraded = true;
   });
-}
 
-/* ---------------- INCIDENTS ---------------- */
+  grid.innerHTML = "";
 
-async function loadIncidents(){
-  const el=document.getElementById("incidents");
-  el.innerHTML="Loading…";
+  Object.entries(divisions).forEach(([division, services])=>{
+    const card = document.createElement("div");
+    card.className = "card";
 
-  const {data,error} = await supabase
-    .from("status_incidents")
-    .select("*")
-    .is("resolved_at", null)
-    .order("created_at",{ascending:false});
+    let html = `<b>${division}</b>`;
 
-  if(error || !data){
-    el.innerHTML="<div class='small'>Unable to load incidents</div>";
-    return;
-  }
+    services.forEach(s=>{
+      let dotClass = "up";
+      let statusClass = "status-good";
 
-  if(!data.length){
-    el.innerHTML="<div class='small'>No active incidents</div>";
-    return;
-  }
+      if(s.status === "down"){
+        dotClass = "down";
+        statusClass = "status-bad";
+      }
+      if(s.status === "degraded"){
+        dotClass = "degraded";
+        statusClass = "status-warn";
+      }
 
-  el.innerHTML="";
+      html += `
+        <div class="service">
+          <span><span class="dot ${dotClass}"></span>${s.service}</span>
+          <span class="${statusClass}">${capitalize(s.status)}</span>
+        </div>
+      `;
+    });
 
-  data.forEach(i=>{
-    el.innerHTML+=`
-      <div class="card incident">
-        <strong>${safe(i.title)}</strong>
-        <div>${safe(i.description)}</div>
-        <div class="small">${new Date(i.created_at).toLocaleString()}</div>
-      </div>
-    `;
+    card.innerHTML = html;
+    grid.appendChild(card);
   });
-}
 
-/* ---------------- HISTORY ---------------- */
-
-async function loadHistory(){
-  const el=document.getElementById("history");
-  el.innerHTML="Loading…";
-
-  const {data,error} = await supabase
-    .from("status_incidents")
-    .select("*")
-    .not("resolved_at","is",null)
-    .order("created_at",{ascending:false})
-    .limit(5);
-
-  if(error || !data){
-    el.innerHTML="<div class='small'>Unable to load history</div>";
-    return;
-  }
-
-  if(!data.length){
-    el.innerHTML="<div class='small'>No past incidents</div>";
-    return;
-  }
-
-  el.innerHTML="";
-
-  data.forEach(i=>{
-    el.innerHTML+=`
-      <div class="card">
-        <strong>${safe(i.title)}</strong>
-        <div class="small">Resolved ${new Date(i.resolved_at).toLocaleString()}</div>
-      </div>
-    `;
-  });
-}
-
-/* ---------------- UPTIME ---------------- */
-
-async function loadUptime(){
-  const el=document.getElementById("uptime");
-
-  try{
-    const {data} = await supabase.rpc("calculate_uptime");
-
-    if(!data){
-      el.innerHTML = "Uptime tracking active";
-      return;
-    }
-
-    el.innerHTML = `<pre>${JSON.stringify(data,null,2)}</pre>`;
-  }catch{
-    el.innerHTML = "Uptime tracking active";
+  if(hasDown){
+    overallText.textContent = "Major System Outage";
+    overallDot.textContent = "● Down";
+    overallDot.className = "status-bad";
+  } else if(hasDegraded){
+    overallText.textContent = "Partial System Degradation";
+    overallDot.textContent = "● Degraded";
+    overallDot.className = "status-warn";
+  } else {
+    overallText.textContent = "All Systems Operational";
+    overallDot.textContent = "● Operational";
+    overallDot.className = "status-good";
   }
 }
 
-/* ---------------- REFRESH ---------------- */
-
-async function refresh(){
-  await loadComponents();
-  await loadIncidents();
-  await loadHistory();
-  await loadUptime();
+function capitalize(s){
+  return s.charAt(0).toUpperCase()+s.slice(1);
 }
 
-refresh();
-setInterval(refresh, 15000);
+loadStatus();
 
-/* ---------------- REALTIME ---------------- */
-
-supabase
-  .channel("status-components")
-  .on("postgres_changes",
-    {event:"*",schema:"public",table:"status_components"},
-    refresh
-  )
-  .on("postgres_changes",
-    {event:"*",schema:"public",table:"status_incidents"},
-    refresh
-  )
-  .subscribe();
-
+// auto refresh every 30 seconds
+setInterval(loadStatus, 30000);
 </script>
 
 </body>
